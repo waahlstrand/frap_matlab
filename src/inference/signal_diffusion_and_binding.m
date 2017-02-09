@@ -10,7 +10,7 @@ function image_data_post_bleach = signal_diffusion_and_binding( D, ...
                                                                 delta_t, ...
                                                                 number_of_time_points_fine_per_coarse, ...
                                                                 number_of_pixels, ...
-                                                                number_of_images_post_bleach, ...
+                                                                number_of_post_bleach_images, ...
                                                                 number_of_pad_pixels)
 
 disp([D, k_on, k_off, mobile_fraction, x_bleach, y_bleach, r_bleach, intensity_inside_bleach_region, intensity_outside_bleach_region])
@@ -41,8 +41,8 @@ U0 = p_free * U0;
 
 % Time evolution of PDE system.
 
-image_data_post_bleach_u = zeros(number_of_pixels, number_of_pixels, number_of_images_post_bleach);
-image_data_post_bleach_b = zeros(number_of_pixels, number_of_pixels, number_of_images_post_bleach);
+image_data_post_bleach_u = zeros(number_of_pixels, number_of_pixels, number_of_post_bleach_images);
+image_data_post_bleach_b = zeros(number_of_pixels, number_of_pixels, number_of_post_bleach_images);
 
 U = U0;
 B = B0;
@@ -56,7 +56,7 @@ x_edges = [1:n n*ones(1, n-2) n:-1:1 n*ones(1, n-2)];
 y_edges = [ones(1, n-1) 1:n  n*ones(1, n-2) n:-1:2];
 ind_edges = sub2ind([n n], x_edges, y_edges);
 
-for current_post_bleach_image = 1:number_of_images_post_bleach
+for current_post_bleach_image = 1:number_of_post_bleach_images
     disp(current_post_bleach_image)
     
     for current_time_fine = 1:number_of_time_points_fine_per_coarse

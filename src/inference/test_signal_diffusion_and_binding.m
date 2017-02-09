@@ -44,7 +44,7 @@ sigma_noise = 0.0;
 image_data_post_bleach = image_data_post_bleach + sigma_noise * randn(size(image_data_post_bleach));
 
 %% Save data.
-% save('simulated_data_zero_noise.mat', 'image_data_post_bleach', 'delta_t', 'pixel_size', 'D_SI', 'D', 'k_on', 'k_off', 'mobile_fraction', 'xc', 'yc', 'r_bleach_region', 'intensity_inside_bleach_region', 'intensity_outside_bleach_region');
+% save('simulated_data_zero_noise.mat', 'image_data_post_bleach', 'delta_t', 'pixel_size', 'D_SI', 'D', 'k_on', 'k_off', 'mobile_fraction', 'x_bleach', 'y_bleach', 'r_bleach_region', 'intensity_inside_bleach_region', 'intensity_outside_bleach_region');
 
 %% Plot.
 result_pde = [];
