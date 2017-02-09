@@ -1,4 +1,4 @@
-function image_data_post_bleach = signal(D, k_on, k_off, mobile_fraction, xc, yc, r_bleach_region, intensity_inside_bleach_region, intensity_outside_bleach_region, delta_t, number_of_pixels, number_of_images_post_bleach)
+function image_data_post_bleach = signal_diffusion_and_binding(D, k_on, k_off, mobile_fraction, xc, yc, r_bleach_region, intensity_inside_bleach_region, intensity_outside_bleach_region, delta_t, number_of_pixels, number_of_images_post_bleach)
 
 disp([D, k_on, k_off, mobile_fraction, xc, yc, r_bleach_region, intensity_inside_bleach_region, intensity_outside_bleach_region])
 
