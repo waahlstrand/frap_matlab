@@ -2,9 +2,9 @@ function image_data_post_bleach = signal_diffusion_and_binding( D, ...
                                                                 k_on, ...
                                                                 k_off, ...
                                                                 mobile_fraction, ...
-                                                                xc, ...
-                                                                yc, ...
-                                                                r_bleach_region, ...
+                                                                x_bleach, ...
+                                                                y_bleach, ...
+                                                                r_bleach, ...
                                                                 intensity_inside_bleach_region, ...
                                                                 intensity_outside_bleach_region, ...
                                                                 delta_t, ...
@@ -13,10 +13,10 @@ function image_data_post_bleach = signal_diffusion_and_binding( D, ...
                                                                 number_of_images_post_bleach, ...
                                                                 number_of_pad_pixels)
 
-disp([D, k_on, k_off, mobile_fraction, xc, yc, r_bleach_region, intensity_inside_bleach_region, intensity_outside_bleach_region])
+disp([D, k_on, k_off, mobile_fraction, x_bleach, y_bleach, r_bleach, intensity_inside_bleach_region, intensity_outside_bleach_region])
 
-p_free_marginal = k_off / ( k_on + k_off );
-p_bound_marginal = k_on / ( k_on + k_off );
+p_free = k_off / ( k_on + k_off );
+p_bound = k_on / ( k_on + k_off );
 
 % Initial condition. Create a high resolution initial condition which is 
 % then downsampled to avoid too sharp edges. Distribute bound and free 
@@ -27,17 +27,17 @@ upsampling_factor = 3;
 [X, Y] = meshgrid(1:upsampling_factor*(number_of_pixels + 2 * number_of_pad_pixels), 1:upsampling_factor*(number_of_pixels + 2 * number_of_pad_pixels));
 X = X - 0.5;
 Y = Y - 0.5;
-xc = number_of_pad_pixels + xc;
-yc = number_of_pad_pixels + yc;
+x_bleach = number_of_pad_pixels + x_bleach;
+y_bleach = number_of_pad_pixels + y_bleach;
 
 U0 = zeros(size(X));
-U0( (X - upsampling_factor * xc).^2 + (Y - upsampling_factor * yc).^2 <= (upsampling_factor * r_bleach_region)^2 ) = intensity_inside_bleach_region;
-U0( (X - upsampling_factor * xc).^2 + (Y - upsampling_factor * yc).^2 > (upsampling_factor * r_bleach_region)^2 ) = intensity_outside_bleach_region;
+U0( (X - upsampling_factor * x_bleach).^2 + (Y - upsampling_factor * y_bleach).^2 <= (upsampling_factor * r_bleach)^2 ) = intensity_inside_bleach_region;
+U0( (X - upsampling_factor * x_bleach).^2 + (Y - upsampling_factor * y_bleach).^2 > (upsampling_factor * r_bleach)^2 ) = intensity_outside_bleach_region;
 
 U0 = imresize(U0, [number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels]);
 
-B0 = p_bound_marginal * U0;
-U0 = p_free_marginal * U0;
+B0 = p_bound * U0;
+U0 = p_free * U0;
 
 % Time evolution of PDE system.
 
@@ -57,10 +57,11 @@ y_edges = [ones(1, n-1) 1:n  n*ones(1, n-2) n:-1:2];
 ind_edges = sub2ind([n n], x_edges, y_edges);
 
 for current_post_bleach_image = 1:number_of_images_post_bleach
+    disp(current_post_bleach_image)
     
     for current_time_fine = 1:number_of_time_points_fine_per_coarse
         
-        U(ind_edges) = p_free_marginal * intensity_outside_bleach_region;
+        U(ind_edges) = p_free * intensity_outside_bleach_region;
       
         del_U = conv2(U, laplacian_operator, 'same');
         
