@@ -50,10 +50,6 @@ for current_post_bleach_image = 1:number_of_images_post_bleach
     
     for current_time_fine = 1:number_of_time_points_fine_per_coarse
         
-%         U(1, :) = p_free_marginal * intensity_outside_bleach_region;
-%         U(end, :) = p_free_marginal * intensity_outside_bleach_region;
-%         U(:, 1) = p_free_marginal * intensity_outside_bleach_region;
-%         U(:, end) = p_free_marginal * intensity_outside_bleach_region;
         U(ind_edges) = p_free_marginal * intensity_outside_bleach_region;
       
         del_U = conv2(U, laplacian_operator, 'same');
