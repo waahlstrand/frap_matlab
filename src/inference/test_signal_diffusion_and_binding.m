@@ -11,10 +11,10 @@ k_on = 1; % 1/s
 k_off = 1; % 1/s
 mobile_fraction = 0.90; % dimensionless
 
-delta_t = 0.250; % s.
-number_of_time_points_fine_per_coarse = 500; % dimensionless
+delta_t = 0.50; % s.
+number_of_time_points_fine_per_coarse = 1000; % dimensionless
 number_of_pixels = 256;
-number_of_post_bleach_images = 20;
+number_of_post_bleach_images = 50;
 number_of_pad_pixels = 128;
 x_bleach = number_of_pixels / 2; % pixels
 y_bleach = number_of_pixels / 2; % pixels
@@ -38,13 +38,6 @@ image_data_post_bleach = signal_diffusion_and_binding(  D, ...
                                                         number_of_post_bleach_images, ...
                                                         number_of_pad_pixels);
 
-%% Add Gaussian noise.
-sigma_noise = 0.0;
-image_data_post_bleach = image_data_post_bleach + sigma_noise * randn(size(image_data_post_bleach));
-
-%% Save data.
-save('simulated_data_zero_noise.mat', 'image_data_post_bleach', 'delta_t', 'pixel_size');
-
 %% Plot.
 result_pde = [];
 for current_image_post_bleach = 1:number_of_post_bleach_images
@@ -55,17 +48,21 @@ imagesc(result_pde)
 axis 'equal'
 axis([0 number_of_post_bleach_images*number_of_pixels 0 number_of_pixels])
 axis off
-% 
-% [X, Y] = meshgrid(1:number_of_pixels, 1:number_of_pixels);
-% X = X - 0.5;
-% Y = Y - 0.5;
-% ind = find( (X - x_bleach).^2 + (Y - y_bleach).^2 <= r_bleach^2 );
-% ind = ind(:);
-% recovery_curve = zeros(1, number_of_post_bleach_images);
-% for current_image_post_bleach = 1:number_of_post_bleach_images
-%     slice = image_data_post_bleach(:, :, current_image_post_bleach);
-%     recovery_curve(current_image_post_bleach) = mean(slice(ind));
-% end
-% figure
-% plot(delta_t:delta_t:number_of_post_bleach_images*delta_t, recovery_curve)
-% 
+
+[X, Y] = meshgrid(1:number_of_pixels, 1:number_of_pixels);
+X = X - 0.5;
+Y = Y - 0.5;
+ind = find( (X - x_bleach).^2 + (Y - y_bleach).^2 <= r_bleach^2 );
+ind = ind(:);
+recovery_curve = zeros(1, number_of_post_bleach_images);
+for current_image_post_bleach = 1:number_of_post_bleach_images
+    slice = image_data_post_bleach(:, :, current_image_post_bleach);
+    recovery_curve(current_image_post_bleach) = mean(slice(ind));
+end
+figure
+plot(delta_t:delta_t:number_of_post_bleach_images*delta_t, recovery_curve)
+
+
+%% Save data.
+clear result_pde current_image_post_bleach X Y ind recovery_curve slice
+save('simulated_data_zero_noise.mat')

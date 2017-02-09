@@ -51,8 +51,8 @@ dt = delta_t / number_of_time_points_fine_per_coarse;
 
 laplacian_operator = [ 0 1 0 ; 1 -4 1 ; 0 1 0];
 
-n = number_of_pixels + 2 * number_of_pad_pixels; 
-x_edges = [1:n n*ones(1, n-2) n:-1:1 n*ones(1, n-2)];
+n = number_of_pixels + 2 * number_of_pad_pixels;
+x_edges = [1:n n*ones(1, n-2) n:-1:1 1*ones(1, n-2)];
 y_edges = [ones(1, n-1) 1:n  n*ones(1, n-2) n:-1:2];
 ind_edges = sub2ind([n n], x_edges, y_edges);
 
