@@ -24,8 +24,8 @@ ub_1 = [1, 1, 1];
 param_hat_1 = [1.0, 0.5, 0.95];
 
 % Set parameter bounds for second estimation.
-lb_2_SI = [1e-10, 0, 0];
-ub_2_SI = [1e-9, 10, 10];
+lb_2_SI = [1e-12, 0, 0];
+ub_2_SI = [1e-8, 10, 10];
 
 lb_2 = lb_2_SI;
 lb_2(1) = lb_2(1) / pixel_size^2;
@@ -78,6 +78,8 @@ for current_iteration = 1:number_of_iterations
                                                         initial_condition_model_unscaled);
 
     [param_hat_1, ss_1] = lsqnonlin(fun_1, param_hat_1, lb_1, ub_1, options_1);
+    
+    disp([param_hat_1 param_hat_2])    
     
     fun_2 = @(param)residual_diffusion_and_binding_1(   param(1), ...
                                                         param(2), ...
