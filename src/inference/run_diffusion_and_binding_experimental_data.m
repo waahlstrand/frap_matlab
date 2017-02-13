@@ -17,6 +17,16 @@ delta_t = 0.2650; % s.
 number_of_pixels = size(image_data_post_bleach, 1);
 number_of_post_bleach_images = 10;
 
+x_bleach = 128;
+y_bleach = 128;
+r_bleach = 0.5 * 20e-6 / bit_depth; % The 0.5 => diameter -> radius
+mobile_fraction = 1.0;
+intensity_inside_bleach_region = 0.42;
+intensity_outside_bleach_region = 0.20;
+
+number_of_time_points_fine_per_coarse = 500;
+number_of_pad_pixels = 128;
+
 %% Extract desired numbers of images/frames to include in analysis.
 image_data_post_bleach = image_data_post_bleach(:, :, 1:number_of_post_bleach_images);
 
@@ -28,15 +38,13 @@ image_data_post_bleach = double(image_data_post_bleach);
 image_data_post_bleach = image_data_post_bleach / (2^bit_depth - 1);
 
 %% Background subtraction.
-if do_background_subtraction
-    image_data_post_bleach = subtract_background(image_data_pre_bleach, image_data_post_bleach);
-end
+image_data_post_bleach = subtract_background(image_data_pre_bleach, image_data_post_bleach);
 
 %% Parameter estimation pre-work.
 
 % Set parameter bounds.
-lb_SI = [1e-10, 0, 0];%, 0.8, 5, 0, 0]; % (D, kon, koff, mobile_fraction, r_bleach, intensity_inside_bleach_region, intensity_outside_bleach_region)
-ub_SI = [1e-9, 10, 10];%, 1, 0.5*number_of_pixels, 1, 1]; % (D, kon, koff, mobile_fraction, r_bleach, intensity_inside_bleach_region, intensity_outside_bleach_region)
+lb_SI = [1e-11, 0, 0];%, 0.8, 5, 0, 0]; % (D, kon, koff, mobile_fraction, r_bleach, intensity_inside_bleach_region, intensity_outside_bleach_region)
+ub_SI = [1e-8, 10, 10];%, 1, 0.5*number_of_pixels, 1, 1]; % (D, kon, koff, mobile_fraction, r_bleach, intensity_inside_bleach_region, intensity_outside_bleach_region)
 
 lb = lb_SI;
 lb(1) = lb(1) / pixel_size^2;
