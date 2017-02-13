@@ -3,13 +3,9 @@ clear
 clc
 close all hidden
 
-% delete(gcp('nocreate'))
-% c = parcluster('local');
-% c.NumWorkers = 8;
-% parpool(c, c.NumWorkers);
-
 %% Load data.
-file_path = '../../../data/data_binding_early_wood_6A/FRAP_002.mat';
+% file_path = '../../../data/data_binding_early_wood_6A/FRAP_002.mat';
+file_path = '../../../data/data_binding_early_wood_27A/FRAP_002.mat';
 raw_data = load(file_path);
 image_data_pre_bleach = raw_data.imdata{1};
 image_data_post_bleach = raw_data.imdata{3};
@@ -20,7 +16,7 @@ pixel_size = 7.5980e-07; % m.
 delta_t = 0.2650; % s.
 
 number_of_pixels = size(image_data_post_bleach, 1);
-number_of_post_bleach_images = 10;
+number_of_post_bleach_images = 100;
 
 x_bleach = 128;
 y_bleach = 128;
@@ -43,17 +39,38 @@ image_data_post_bleach = image_data_post_bleach / (2^bit_depth - 1);
 %% Background subtraction.
 image_data_post_bleach = subtract_background(image_data_pre_bleach, image_data_post_bleach);
 
+%% Compute recovery curve.
+[X, Y] = meshgrid(1:number_of_pixels, 1:number_of_pixels);
+X = X - 0.5;
+Y = Y - 0.5;
+ind = find( (X - x_bleach).^2 + (Y - y_bleach).^2 <= r_bleach^2 );
+ind = ind(:);
+recovery_curve = zeros(1, number_of_post_bleach_images);
+for current_image_post_bleach = 1:number_of_post_bleach_images
+    slice = image_data_post_bleach(:, :, current_image_post_bleach);
+    recovery_curve(current_image_post_bleach) = mean(slice(ind));
+end
+% figure, hold on
+% plot(1:number_of_post_bleach_images, recovery_curve)
+% plot(1:number_of_post_bleach_images, mean(image_data_pre_bleach(:))*ones(1,number_of_post_bleach_images))
+% hold off
+% return
+
 %% Parameter estimation pre-work.
 
 % Set parameter bounds for first estimation.
-lb_1 = [0.5, 0.01, 0.3]; % mobile_fraction, intensity_inside_bleach_region, intensity_outside_bleach_region
+lb_1 = [0.5, -0.5, 0.15]; % mobile_fraction, intensity_inside_bleach_region, intensity_outside_bleach_region
 ub_1 = [1, 1, 1];
 
 % Initial guess for first estimation.
-param_hat_1 = [0.9, 0.15, 0.4];
+mobile_fraction_hat = (max(recovery_curve)-min(recovery_curve))/(mean(image_data_pre_bleach(:))-min(recovery_curve));
+intensity_inside_bleach_region_hat = min(recovery_curve);
+intensity_outside_bleach_region_hat = mean(image_data_pre_bleach(:));
+param_hat_1 = [mobile_fraction_hat, intensity_inside_bleach_region_hat, intensity_outside_bleach_region_hat];
+% param_hat_1 = [0.9, 0.15, 0.4];
 
 % Set parameter bounds for second estimation.
-lb_2_SI = [1e-12, 0.01, 0.01];
+lb_2_SI = [1e-12, 0, 0];
 ub_2_SI = [1e-8, 10, 10];
 
 lb_2 = lb_2_SI;
@@ -74,7 +91,7 @@ options_1.Display = 'iter';
 options_1.FunctionTolerance = 1e-6;
 options_1.OptimalityTolerance = 1e-6;
 options_1.StepTolerance = 1e-6;
-options_1.CheckGradients = true;
+options_1.CheckGradients = false;%true;
 options_1.SpecifyObjectiveGradient = true;
 
 options_2 = optimoptions(@lsqnonlin);
