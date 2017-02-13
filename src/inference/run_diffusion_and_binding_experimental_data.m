@@ -3,6 +3,13 @@ clear
 clc
 close all hidden
 
+%% Parallel initialization.
+delete(gcp('nocreate'));
+c = parcluster('local');
+number_of_workers = 8;
+c.NumWorkers = number_of_workers;
+parpool(c, c.NumWorkers);
+
 %% Load data.
 % file_path = '../../../data/data_binding_early_wood_6A/FRAP_002.mat';
 file_path = '../../../data/data_binding_early_wood_27A/FRAP_002.mat';
@@ -63,9 +70,10 @@ lb_1 = [0.5, -0.5, 0.15]; % mobile_fraction, intensity_inside_bleach_region, int
 ub_1 = [1, 1, 1];
 
 % Initial guess for first estimation.
-mobile_fraction_hat = (max(recovery_curve)-min(recovery_curve))/(mean(image_data_pre_bleach(:))-min(recovery_curve));
-intensity_inside_bleach_region_hat = min(recovery_curve);
-intensity_outside_bleach_region_hat = mean(image_data_pre_bleach(:));
+mobile_fraction_hat = (max(recovery_curve)-min(recovery_curve))/(mean(image_data_pre_bleach(:))-min(recovery_curve))
+intensity_inside_bleach_region_hat = min(recovery_curve)
+intensity_outside_bleach_region_hat = mean(image_data_pre_bleach(:))
+% return
 param_hat_1 = [mobile_fraction_hat, intensity_inside_bleach_region_hat, intensity_outside_bleach_region_hat];
 % param_hat_1 = [0.9, 0.15, 0.4];
 
@@ -101,6 +109,7 @@ options_2.FunctionTolerance = 1e-6;
 options_2.OptimalityTolerance = 1e-6;
 options_2.StepTolerance = 1e-6;
 options_2.MaxIterations = 1;
+options_2.UseParallel = true;
 
 for current_iteration = 1:number_of_iterations
     [image_data_post_bleach_model_unscaled, initial_condition_model_unscaled] = signal_diffusion_and_binding(param_hat_2(1), ...
