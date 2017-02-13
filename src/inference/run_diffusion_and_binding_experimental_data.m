@@ -19,7 +19,7 @@ number_of_post_bleach_images = 10;
 
 x_bleach = 128;
 y_bleach = 128;
-r_bleach = 0.5 * 20e-6 / bit_depth; % The 0.5 => diameter -> radius
+r_bleach = 0.5 * 20e-6 / pixel_size; % The 0.5 => diameter -> radius
 mobile_fraction = 1.0;
 intensity_inside_bleach_region = 0.42;
 intensity_outside_bleach_region = 0.20;
