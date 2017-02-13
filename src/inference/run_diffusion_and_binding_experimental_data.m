@@ -4,18 +4,34 @@ clc
 close all hidden
 
 %% Load data.
-load('simulated_data_zero_noise.mat');
-number_of_pixels = size(image_data_post_bleach, 1);
+file_path = '../../../data/data_binding_early_wood_6A/FRAP_002.mat';
+raw_data = load(file_path);
+image_data_pre_bleach = raw_data.imdata{1};
+image_data_post_bleach = raw_data.imdata{3};
+clear file_path raw_data
 
+bit_depth = 16;
+pixel_size = 7.5980e-07; % m.
+delta_t = 0.2650; % s.
+
+number_of_pixels = size(image_data_post_bleach, 1);
 number_of_post_bleach_images = 10;
+
+%% Extract desired numbers of images/frames to include in analysis.
 image_data_post_bleach = image_data_post_bleach(:, :, 1:number_of_post_bleach_images);
 
-%% Add noise.
-sigma_noise = 0.2;
-image_data_post_bleach = image_data_post_bleach + sigma_noise * randn(size(image_data_post_bleach));
+%% Convert image data to double and rescale to [0, 1] range.
+image_data_pre_bleach = double(image_data_pre_bleach);
+image_data_pre_bleach = image_data_pre_bleach / (2^bit_depth - 1);
 
-% imagesc(reshape(image_data_post_bleach, [number_of_pixels, number_of_pixels*number_of_post_bleach_images]))
-% return
+image_data_post_bleach = double(image_data_post_bleach);
+image_data_post_bleach = image_data_post_bleach / (2^bit_depth - 1);
+
+%% Background subtraction.
+if do_background_subtraction
+    image_data_post_bleach = subtract_background(image_data_pre_bleach, image_data_post_bleach);
+end
+
 %% Parameter estimation pre-work.
 
 % Set parameter bounds.
