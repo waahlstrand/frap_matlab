@@ -3,6 +3,11 @@ clear
 clc
 close all hidden
 
+% delete(gcp('nocreate'))
+% c = parcluster('local');
+% c.NumWorkers = 8;
+% parpool(c, c.NumWorkers);
+
 %% Load data.
 file_path = '../../../data/data_binding_early_wood_6A/FRAP_002.mat';
 raw_data = load(file_path);
@@ -41,7 +46,7 @@ image_data_post_bleach = subtract_background(image_data_pre_bleach, image_data_p
 %% Parameter estimation pre-work.
 
 % Set parameter bounds for first estimation.
-lb_1 = [0.5, 0.05, 0.3]; % mobile_fraction, intensity_inside_bleach_region, intensity_outside_bleach_region
+lb_1 = [0.5, 0.01, 0.3]; % mobile_fraction, intensity_inside_bleach_region, intensity_outside_bleach_region
 ub_1 = [1, 1, 1];
 
 % Initial guess for first estimation.
@@ -57,7 +62,7 @@ ub_2 = ub_2_SI;
 ub_2(1) = ub_2(1) / pixel_size^2;
 
 % Initial guess for second estimation.
-param_hat_2_SI = [1e-10, 0.5, 0.5];
+param_hat_2_SI = [1e-10, 0.15, 7.5];
 param_hat_2 = param_hat_2_SI;
 param_hat_2(1) = param_hat_2(1) / pixel_size^2;
 
@@ -69,6 +74,8 @@ options_1.Display = 'iter';
 options_1.FunctionTolerance = 1e-6;
 options_1.OptimalityTolerance = 1e-6;
 options_1.StepTolerance = 1e-6;
+options_1.CheckGradients = true;
+options_1.SpecifyObjectiveGradient = true;
 
 options_2 = optimoptions(@lsqnonlin);
 options_2.Algorithm = 'trust-region-reflective';
