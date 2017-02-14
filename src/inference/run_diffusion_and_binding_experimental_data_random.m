@@ -3,48 +3,52 @@ clear
 clc
 close all hidden
 
+%% Random stream.
+random_seed = round( sum( 1e6 * clock() ) );
+random_stream = RandStream('mt19937ar', 'Seed', random_seed);
+RandStream.setGlobalStream(random_stream);
+
 %% Load data.
 
-% Load.
-% file_path = '../../../data/data_binding_early_wood_6A/FRAP_002.mat';
-file_path = '../../../data/data_binding_early_wood_27A/FRAP_002.mat';
+folder = randsample([6, 27], 1);
+file = randsample(2:7, 1);
+
+file_path = ['../../../data/data_binding_early_wood_' num2str(folder) 'A/FRAP_00' num2str(file) '.mat'];
 raw_data = load(file_path);
 
 % Extract image data.
 image_data_pre_bleach = raw_data.imdata{1};
 image_data_post_bleach = raw_data.imdata{3};
 
-% Extract pixel size.
-pixel_size = raw_data.imfo.frapPb1Series22.hardwaresettinglist.scannersettingrecord.variant{37};
+% Extract pixel size, bit depth, and time lag between frames. Start by
+% finding the name of the structure field that's called something with
+% 'frapPb1Series...'.
+list_field_names = fieldnames(raw_data.imfo);
+ind_field = find(~cellfun(@isempty, strfind(list_field_names, 'frapPb1Series')));
 
-% Extract bit depth.
-bit_depth = raw_data.imfo.frapPb1Series22.hardwaresettinglist.scannersettingrecord.variant{61};
+pixel_size = raw_data.imfo.(list_field_names{ind_field}).hardwaresettinglist.scannersettingrecord.variant{37};
+bit_depth = raw_data.imfo.(list_field_names{ind_field}).hardwaresettinglist.scannersettingrecord.variant{61};
+delta_t = raw_data.imfo.(list_field_names{ind_field}).contextdescription.block_frap_time_info.time{3};
 
-% Time lag between frames.
-delta_t = raw_data.imfo.frapPb1Series22.contextdescription.block_frap_time_info.time{3};
-
-% Extract bleaching profile information.
+% Extract bleaching profile information (radius). Start by finding the name 
+% of the structure field that's called something with 'frapBleachSeries...'.
+ind_field = find(~cellfun(@isempty, strfind(list_field_names, 'frapBleachSeries')));
+pixel_size_bleach = raw_data.imfo.(list_field_names{ind_field}).hardwaresettinglist.scannersettingrecord.variant{37};
 mask = raw_data.imdata{2}(:,:,1) == 2^16 - 1;
-area = sum(mask(:)) * raw_data.imfo.frapBleachSeries20.hardwaresettinglist.scannersettingrecord.variant{37}^2;
+area = sum(mask(:)) * pixel_size_bleach^2;
 r_bleach_SI = sqrt(area/pi);
 r_bleach = r_bleach_SI / pixel_size;
 
-clear file_path raw_data mask area
-
-% bit_depth = 16;
-% pixel_size = 7.5980e-07; % m.
-% delta_t = 0.2650; % s.
+clear file_path raw_data mask area r_bleach_SI list_field_names ind_field
 
 number_of_pixels = size(image_data_post_bleach, 1);
-number_of_post_bleach_images = 2;
+number_of_post_bleach_images = 100;
 
 x_bleach = 128;
 y_bleach = 128;
-% r_bleach = 0.5 * 50e-6 / pixel_size % The 0.5 => diameter -> radius
 
 number_of_time_points_fine_per_coarse = 500;
 number_of_pad_pixels = 128;
-number_of_iterations = 1000;
 
 %% Extract desired numbers of images/frames to include in analysis.
 image_data_post_bleach = image_data_post_bleach(:, :, 1:number_of_post_bleach_images);
@@ -59,29 +63,15 @@ image_data_post_bleach = image_data_post_bleach / (2^bit_depth - 1);
 %% Background subtraction.
 image_data_post_bleach = subtract_background(image_data_pre_bleach, image_data_post_bleach);
 
-%% Compute recovery curve.
-[X, Y] = meshgrid(1:number_of_pixels, 1:number_of_pixels);
-X = X - 0.5;
-Y = Y - 0.5;
-ind = find( (X - x_bleach).^2 + (Y - y_bleach).^2 <= r_bleach^2 );
-ind = ind(:);
-recovery_curve = zeros(1, number_of_post_bleach_images);
-for current_image_post_bleach = 1:number_of_post_bleach_images
-    slice = image_data_post_bleach(:, :, current_image_post_bleach);
-    recovery_curve(current_image_post_bleach) = mean(slice(ind));
-end
-
 %% Parameter estimation pre-work.
 
 % Set parameter bounds for first estimation.
-lb_1 = [0, min(image_data_post_bleach(:)), min(image_data_post_bleach(:))]; % mobile_fraction, intensity_inside_bleach_region, intensity_outside_bleach_region
+lb_1 = [0, min(image_data_post_bleach(:)), min(image_data_post_bleach(:))];
 ub_1 = [1, max(image_data_post_bleach(:)), max(image_data_post_bleach(:))];
 
 % Initial guess for first estimation.
-mobile_fraction_hat = (max(recovery_curve)-min(recovery_curve))/(mean(image_data_pre_bleach(:))-min(recovery_curve));
-intensity_inside_bleach_region_hat = min(recovery_curve);
-intensity_outside_bleach_region_hat = mean(image_data_pre_bleach(:));
-param_hat_1 = [mobile_fraction_hat, intensity_inside_bleach_region_hat, intensity_outside_bleach_region_hat];
+param_hat_1 = lb_1 + (ub_1 - lb_1) .* rand(size(lb_1));
+param_hat_1(2:3) = sort(param_hat_1(2:3), 'ascend'); % Make sure the two intensity levels are not switched.
 
 % Set parameter bounds for second estimation.
 lb_2_SI = [1e-12, 0, 0];
@@ -92,9 +82,7 @@ ub_2 = ub_2_SI;
 ub_2(1) = ub_2(1) / pixel_size^2;
 
 % Initial guess for second estimation.
-param_hat_2_SI = [1e-10, 0.15, 7.5];
-param_hat_2 = param_hat_2_SI;
-param_hat_2(1) = param_hat_2(1) / pixel_size^2;
+param_hat_2 = lb_2 + (ub_2 - lb_2) .* rand(size(lb_2));
 
 %% Least-squares optimization.
 
@@ -104,7 +92,7 @@ options_1.Display = 'iter';
 options_1.FunctionTolerance = 1e-6;
 options_1.OptimalityTolerance = 1e-6;
 options_1.StepTolerance = 1e-6;
-options_1.CheckGradients = false;%true;
+options_1.CheckGradients = false;
 options_1.SpecifyObjectiveGradient = true;
 
 options_2 = optimoptions(@lsqnonlin);
@@ -114,12 +102,13 @@ options_2.FunctionTolerance = 1e-6;
 options_2.OptimalityTolerance = 1e-6;
 options_2.StepTolerance = 1e-6;
 options_2.MaxIterations = 1;
-options_2.UseParallel = true;
 
-param_hat = []; %zeros(number_of_iterations, 6);
-ss = []; %zeros(number_of_iterations, 1);
+param_hat = [];
+ss = [];
 
-% for current_iteration = 1:number_of_iterations
+param_hat = [param_hat ; [param_hat_2 param_hat_1]];
+ss = [ss ; Inf];
+
 is_converged = false;
 while ~is_converged
     [image_data_post_bleach_model_unscaled, initial_condition_model_unscaled] = signal_diffusion_and_binding(param_hat_2(1), ...
@@ -163,8 +152,6 @@ while ~is_converged
 
     [param_hat_2, ss_2] = lsqnonlin(fun_2, param_hat_2, lb_2, ub_2, options_2);
     
-%     param_hat(current_iteration, :) = [param_hat_2 param_hat_1];
-%     ss(current_iteration) = ss_2;
     param_hat = [param_hat ; [param_hat_2 param_hat_1]];
     ss = [ss ; ss_2];
     
@@ -177,3 +164,5 @@ while ~is_converged
     end
             
 end
+
+save(['est_' num2str(folder) '_' num2str(file) '_' num2str(random_seed) '.mat'], 'param_hat', 'ss'); 
