@@ -1,7 +1,7 @@
 %% Initialization.
 clear
 clc
-close all hidden
+% close all hidden
 
 %% Parameters.
 D_SI = 2.5e-10; % m^2/s
