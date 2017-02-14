@@ -1,7 +1,7 @@
 %% Initialization.
 clear
 clc
-% close all hidden
+close all hidden
 
 %% Parameters.
 D_SI = 2.5e-10; % m^2/s
@@ -19,7 +19,6 @@ y_bleach = number_of_pixels / 2; % pixels
 r_bleach = 32; % pixels
 intensity_inside_bleach_region = 0.6; % a.u.
 intensity_outside_bleach_region = 0.85; % a.u.
-
 
 %% Simulate.
 image_data_post_bleach = signal_diffusion(  D, ...
@@ -58,7 +57,6 @@ for current_image_post_bleach = 1:number_of_post_bleach_images
 end
 figure
 plot(delta_t:delta_t:number_of_post_bleach_images*delta_t, recovery_curve)
-
 
 %% Save data.
 clear result_pde current_image_post_bleach X Y ind recovery_curve slice

@@ -62,7 +62,6 @@ end
 figure
 plot(delta_t:delta_t:number_of_post_bleach_images*delta_t, recovery_curve)
 
-
 %% Save data.
 clear result_pde current_image_post_bleach X Y ind recovery_curve slice
-save('simulated_data_zero_noise.mat')
+save('simulated_data_diffusion_and_binding.mat')
