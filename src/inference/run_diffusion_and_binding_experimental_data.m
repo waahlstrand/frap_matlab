@@ -155,4 +155,3 @@ for current_iteration = 1:number_of_iterations
     
     disp([param_hat_1 param_hat_2])
 end
-
