@@ -3,31 +3,44 @@ clear
 clc
 close all hidden
 
-%% Parallel initialization.
-% delete(gcp('nocreate'));
-% c = parcluster('local');
-% number_of_workers = 8;
-% c.NumWorkers = number_of_workers;
-% parpool(c, c.NumWorkers);
-
 %% Load data.
+
+% Load.
 % file_path = '../../../data/data_binding_early_wood_6A/FRAP_002.mat';
 file_path = '../../../data/data_binding_early_wood_27A/FRAP_002.mat';
 raw_data = load(file_path);
+
+% Extract image data.
 image_data_pre_bleach = raw_data.imdata{1};
 image_data_post_bleach = raw_data.imdata{3};
-clear file_path raw_data
 
-bit_depth = 16;
-pixel_size = 7.5980e-07; % m.
-delta_t = 0.2650; % s.
+% Extract pixel size.
+pixel_size = raw_data.imfo.frapPb1Series22.hardwaresettinglist.scannersettingrecord.variant{37};
+
+% Extract bit depth.
+bit_depth = raw_data.imfo.frapPb1Series22.hardwaresettinglist.scannersettingrecord.variant{61};
+
+% Time lag between frames.
+delta_t = raw_data.imfo.frapPb1Series22.contextdescription.block_frap_time_info.time{3};
+
+% Extract bleaching profile information.
+mask = raw_data.imdata{2}(:,:,1) == 2^16 - 1;
+area = sum(mask(:)) * raw_data.imfo.frapBleachSeries20.hardwaresettinglist.scannersettingrecord.variant{37}^2;
+r_bleach_SI = sqrt(area/pi);
+r_bleach = r_bleach_SI / pixel_size;
+
+clear file_path raw_data mask area
+
+% bit_depth = 16;
+% pixel_size = 7.5980e-07; % m.
+% delta_t = 0.2650; % s.
 
 number_of_pixels = size(image_data_post_bleach, 1);
-number_of_post_bleach_images = 50;
+number_of_post_bleach_images = 2;
 
 x_bleach = 128;
 y_bleach = 128;
-r_bleach = 0.5 * 20e-6 / pixel_size; % The 0.5 => diameter -> radius
+% r_bleach = 0.5 * 50e-6 / pixel_size % The 0.5 => diameter -> radius
 
 number_of_time_points_fine_per_coarse = 500;
 number_of_pad_pixels = 128;
@@ -57,29 +70,22 @@ for current_image_post_bleach = 1:number_of_post_bleach_images
     slice = image_data_post_bleach(:, :, current_image_post_bleach);
     recovery_curve(current_image_post_bleach) = mean(slice(ind));
 end
-% figure, hold on
-% plot(1:number_of_post_bleach_images, recovery_curve)
-% plot(1:number_of_post_bleach_images, mean(image_data_pre_bleach(:))*ones(1,number_of_post_bleach_images))
-% hold off
-% return
 
 %% Parameter estimation pre-work.
 
 % Set parameter bounds for first estimation.
-lb_1 = [0.5, -0.5, 0.15]; % mobile_fraction, intensity_inside_bleach_region, intensity_outside_bleach_region
-ub_1 = [1, 1, 1];
+lb_1 = [0, min(image_data_post_bleach(:)), min(image_data_post_bleach(:))]; % mobile_fraction, intensity_inside_bleach_region, intensity_outside_bleach_region
+ub_1 = [1, max(image_data_post_bleach(:)), max(image_data_post_bleach(:))];
 
 % Initial guess for first estimation.
-mobile_fraction_hat = (max(recovery_curve)-min(recovery_curve))/(mean(image_data_pre_bleach(:))-min(recovery_curve))
-intensity_inside_bleach_region_hat = min(recovery_curve)
-intensity_outside_bleach_region_hat = mean(image_data_pre_bleach(:))
-% return
+mobile_fraction_hat = (max(recovery_curve)-min(recovery_curve))/(mean(image_data_pre_bleach(:))-min(recovery_curve));
+intensity_inside_bleach_region_hat = min(recovery_curve);
+intensity_outside_bleach_region_hat = mean(image_data_pre_bleach(:));
 param_hat_1 = [mobile_fraction_hat, intensity_inside_bleach_region_hat, intensity_outside_bleach_region_hat];
-% param_hat_1 = [0.9, 0.15, 0.4];
 
 % Set parameter bounds for second estimation.
 lb_2_SI = 1e-12;
-ub_2_SI = 1e-8;
+ub_2_SI = 1e-9;
 lb_2 = lb_2_SI / pixel_size^2;
 ub_2 = ub_2_SI / pixel_size^2;
 
@@ -107,6 +113,9 @@ options_2.StepTolerance = 1e-6;
 options_2.MaxIterations = 1;
 options_2.UseParallel = true;
 
+param_hat = zeros(number_of_iterations, 4);
+ss = zeros(number_of_iterations, 1);
+
 for current_iteration = 1:number_of_iterations
     [image_data_post_bleach_model_unscaled, initial_condition_model_unscaled] = signal_diffusion(   param_hat_2, ...
                                                                                                     1.0, ...
@@ -129,7 +138,7 @@ for current_iteration = 1:number_of_iterations
 
     [param_hat_1, ss_1] = lsqnonlin(fun_1, param_hat_1, lb_1, ub_1, options_1);
     
-    disp([param_hat_1 param_hat_2])
+    disp([param_hat_2 param_hat_1])
     
     fun_2 = @(param)residual_diffusion_full(param, ...
                                             param_hat_1(1), ...
@@ -145,5 +154,8 @@ for current_iteration = 1:number_of_iterations
 
     [param_hat_2, ss_2] = lsqnonlin(fun_2, param_hat_2, lb_2, ub_2, options_2);
     
-    disp([param_hat_1 param_hat_2])
+    param_hat(current_iteration, :) = [param_hat_2 param_hat_1];
+    ss(current_iteration) = ss_2;
+    
+    disp([param_hat_2 param_hat_1])
 end
