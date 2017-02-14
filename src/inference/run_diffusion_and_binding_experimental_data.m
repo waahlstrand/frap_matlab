@@ -31,7 +31,7 @@ r_bleach = 0.5 * 20e-6 / pixel_size; % The 0.5 => diameter -> radius
 
 number_of_time_points_fine_per_coarse = 500;
 number_of_pad_pixels = 128;
-number_of_iterations = 10;
+number_of_iterations = 1000;
 
 %% Extract desired numbers of images/frames to include in analysis.
 image_data_post_bleach = image_data_post_bleach(:, :, 1:number_of_post_bleach_images);
