@@ -59,7 +59,7 @@ end
 %% Parameter estimation pre-work.
 
 % Set parameter bounds for first estimation.
-lb_1 = [0.5, -0.5, 0.15]; % mobile_fraction, intensity_inside_bleach_region, intensity_outside_bleach_region
+lb_1 = [0, -0.5, 0.15]; % mobile_fraction, intensity_inside_bleach_region, intensity_outside_bleach_region
 ub_1 = [1, 1, 1];
 
 % Initial guess for first estimation.
