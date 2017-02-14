@@ -35,13 +35,6 @@ image_data_post_bleach = signal_diffusion(  D, ...
                                             number_of_post_bleach_images, ...
                                             number_of_pad_pixels);
 
-%% Add Gaussian noise.
-sigma_noise = 0.0;
-image_data_post_bleach = image_data_post_bleach + sigma_noise * randn(size(image_data_post_bleach));
-
-%% Save data.
-% save('simulated_data_zero_noise.mat', 'image_data_post_bleach', 'delta_t', 'pixel_size', 'D_SI', 'D', 'k_on', 'k_off', 'mobile_fraction', 'x_bleach', 'y_bleach', 'r_bleach_region', 'intensity_inside_bleach_region', 'intensity_outside_bleach_region');
-
 %% Plot.
 result_pde = [];
 for current_image_post_bleach = 1:number_of_post_bleach_images
@@ -66,3 +59,7 @@ end
 figure
 plot(delta_t:delta_t:number_of_post_bleach_images*delta_t, recovery_curve)
 
+
+%% Save data.
+clear result_pde current_image_post_bleach X Y ind recovery_curve slice
+save('simulated_data_diffusion.mat')
