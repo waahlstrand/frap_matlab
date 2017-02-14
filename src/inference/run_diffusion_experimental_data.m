@@ -23,7 +23,7 @@ pixel_size = 7.5980e-07; % m.
 delta_t = 0.2650; % s.
 
 number_of_pixels = size(image_data_post_bleach, 1);
-number_of_post_bleach_images = 10;
+number_of_post_bleach_images = 50;
 
 x_bleach = 128;
 y_bleach = 128;
@@ -95,7 +95,7 @@ options_1.Display = 'iter';
 options_1.FunctionTolerance = 1e-6;
 options_1.OptimalityTolerance = 1e-6;
 options_1.StepTolerance = 1e-6;
-options_1.CheckGradients = true;
+options_1.CheckGradients = false;%true;
 options_1.SpecifyObjectiveGradient = true;
 
 options_2 = optimoptions(@lsqnonlin);
