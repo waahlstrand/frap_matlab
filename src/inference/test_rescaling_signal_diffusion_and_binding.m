@@ -58,14 +58,3 @@ image_data_post_bleach = signal_diffusion_and_binding(  D, ...
 image_data_post_bleach_special = 2 * (intensity_outside_bleach_region - intensity_inside_bleach_region) * ( mobile_fraction * image_data_post_bleach_unscaled + (1 - mobile_fraction) * initial_condition ) + 2 * intensity_inside_bleach_region - intensity_outside_bleach_region;
 
 sum(abs(image_data_post_bleach_special(:) - image_data_post_bleach(:)))
-
-% %% Plot.
-% result_pde = [];
-% for current_image_post_bleach = 1:number_of_post_bleach_images
-%     result_pde = [result_pde, image_data_post_bleach(:, :, current_image_post_bleach)];
-% end
-% figure
-% imagesc(result_pde)
-% axis 'equal'
-% axis([0 number_of_post_bleach_images*number_of_pixels 0 number_of_pixels])
-% axis off
