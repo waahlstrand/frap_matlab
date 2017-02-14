@@ -3,13 +3,6 @@ clear
 clc
 close all hidden
 
-%% Parallel initialization.
-delete(gcp('nocreate'));
-c = parcluster('local');
-number_of_workers = 8;
-c.NumWorkers = number_of_workers;
-parpool(c, c.NumWorkers);
-
 %% Load data.
 % file_path = '../../../data/data_binding_early_wood_6A/FRAP_002.mat';
 file_path = '../../../data/data_binding_early_wood_27A/FRAP_002.mat';
