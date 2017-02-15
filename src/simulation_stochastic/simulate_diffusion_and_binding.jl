@@ -25,7 +25,7 @@ function simulate_diffusion_and_binding()
 	k_off::Float64 = 0.5 # 1/s
 	mobile_fraction::Float64 = 0.5
 
-	number_of_particles::Int64 = 1000000
+	number_of_particles::Int64 = 10000000
 	
 	lambda_free::Float64 = 1.0 / k_on
 	lambda_bound::Float64 = 1.0 / k_off
@@ -137,8 +137,10 @@ function simulate_diffusion_and_binding()
 		end        
 	end
 
-	file_name_output::String = join(("simulated_frap_data_", string(random_seed), ".dat"))
+	file_name_output::String = "simulated_frap_data.dat"
 	file_stream_output::IOStream = open(file_name_output, "w")
+	write(file_stream_output, number_of_pixels)
+	write(file_stream_output, number_of_post_bleach_images)
 	write(file_stream_output, image_data_post_bleach)
 	close(file_stream_output)
 	
