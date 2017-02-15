@@ -25,7 +25,7 @@ function simulate_diffusion_and_binding()
 	k_off::Float64 = 0.5 # 1/s
 	mobile_fraction::Float64 = 0.5
 
-	number_of_particles::Int64 = 100000000000
+	number_of_particles::Int64 = 1000000
 	
 	lambda_free::Float64 = 1.0 / k_on
 	lambda_bound::Float64 = 1.0 / k_off
