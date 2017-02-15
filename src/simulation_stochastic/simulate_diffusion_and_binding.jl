@@ -24,8 +24,8 @@ function simulate_diffusion_and_binding()
 	mobile_fraction::Float64 = 0.85
 
 	# Simulation parameters.
-	number_of_pad_pixels::Int64 = 128 #  pixels
-	number_of_particles::Int64 = 10000000
+	number_of_pad_pixels::Int64 = 128 # pixels
+	number_of_particles::Int64 = 100000000
 	
 	number_of_pixels_float::Float64 = convert(Float64, number_of_pixels)
 	number_of_pad_pixels_float::Float64 = convert(Float64, number_of_pad_pixels)
@@ -156,7 +156,7 @@ function simulate_diffusion_and_binding()
 	
 	# Measure and print execution time.
 	t_exec::Int64 = convert(Int64, time_ns()) - t_start
-	println(join(("Execution time: ", round(t_exec/1e9), " seconds.")))
+	println(join(("Execution time: ", round(t_exec/1e9 * 10.0) / 10.0, " seconds.")))
 
 	nothing
 end
