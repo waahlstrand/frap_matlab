@@ -1,26 +1,28 @@
 %% Initialization.
 clear
 clc
-% close all hidden
+close all hidden
 
 %% Parameters.
-D_SI = 2.5e-10; % m^2/s
+D_SI = 5e-11; % m^2/s
 pixel_size = 7.598e-07; % m
 D = D_SI / pixel_size^2; % pixels^2 / s
-k_on = 4%0.05; % 1/s
-k_off = 0.5%0.01; % 1/s
+k_on = 50%0.05; % 1/s
+k_off = 50%0.01; % 1/s
 mobile_fraction = 0.8;%0.90; % dimensionless
 
 delta_t = 0.265; % s.
-number_of_time_points_fine_per_coarse = 500; % dimensionless
+number_of_time_points_fine_per_coarse = ceil(D * delta_t / 0.225); % dimensionless
 number_of_pixels = 256;
-number_of_post_bleach_images = 20;
+number_of_post_bleach_images = 40;
 number_of_pad_pixels = 128;
 x_bleach = number_of_pixels / 2; % pixels
 y_bleach = number_of_pixels / 2; % pixels
 r_bleach = 32; % pixels
 intensity_inside_bleach_region = 0.6; % a.u.
 intensity_outside_bleach_region = 0.85; % a.u.
+
+D*delta_t/number_of_time_points_fine_per_coarse
 
 %% Simulate.
 image_data_post_bleach = signal_diffusion_and_binding(  D, ...
