@@ -1,20 +1,20 @@
 %% Initialization.
 clear
 clc
-close all hidden
+% close all hidden
 
 %% Parameters.
 D_SI = 2.5e-10; % m^2/s
-pixel_size = 7.5e-07; % m
+pixel_size = 7.598e-07; % m
 D = D_SI / pixel_size^2; % pixels^2 / s
-k_on = 0.5; % 1/s
-k_off = 0.5; % 1/s
+k_on = 4%0.05; % 1/s
+k_off = 0.5%0.01; % 1/s
 mobile_fraction = 0.8;%0.90; % dimensionless
 
-delta_t = 0.25; % s.
+delta_t = 0.265; % s.
 number_of_time_points_fine_per_coarse = 500; % dimensionless
 number_of_pixels = 256;
-number_of_post_bleach_images = 10;
+number_of_post_bleach_images = 20;
 number_of_pad_pixels = 128;
 x_bleach = number_of_pixels / 2; % pixels
 y_bleach = number_of_pixels / 2; % pixels
@@ -63,5 +63,5 @@ figure
 plot(delta_t:delta_t:number_of_post_bleach_images*delta_t, recovery_curve)
 
 %% Save data.
-clear result_pde current_image_post_bleach X Y ind recovery_curve slice
-save('simulated_data_diffusion_and_binding.mat')
+% clear result_pde current_image_post_bleach X Y ind recovery_curve slice
+% save('simulated_data_diffusion_and_binding.mat')
