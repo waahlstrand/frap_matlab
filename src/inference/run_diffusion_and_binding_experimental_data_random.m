@@ -42,7 +42,7 @@ r_bleach = r_bleach_SI / pixel_size;
 clear file_path raw_data mask area r_bleach_SI list_field_names ind_field pixel_size_bleach
 
 number_of_pixels = size(image_data_post_bleach, 1);
-number_of_post_bleach_images = 100;
+number_of_post_bleach_images = 25%100;
 
 x_bleach = 128;
 y_bleach = 128;
@@ -101,7 +101,7 @@ options_2.Display = 'iter';
 options_2.FunctionTolerance = 1e-6;
 options_2.OptimalityTolerance = 1e-6;
 options_2.StepTolerance = 1e-6;
-options_2.MaxIterations = 1;
+%options_2.MaxIterations = 1;
 
 param_hat = [];
 ss = [];
