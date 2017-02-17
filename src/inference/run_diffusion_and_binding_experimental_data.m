@@ -84,15 +84,15 @@ intensity_outside_bleach_region_hat = mean(image_data_pre_bleach(:));
 param_hat_1 = [mobile_fraction_hat, intensity_inside_bleach_region_hat, intensity_outside_bleach_region_hat];
 
 % Set parameter bounds for second estimation.
-lb_2_SI = [1e-12, 0, 0];
-ub_2_SI = [1e-9, 50, 50];
+lb_2_SI = [1e-12, 0.01, 0.01];
+ub_2_SI = [1e-9, 10, 10];
 lb_2 = lb_2_SI;
 lb_2(1) = lb_2(1) / pixel_size^2;
 ub_2 = ub_2_SI;
 ub_2(1) = ub_2(1) / pixel_size^2;
 
 % Initial guess for second estimation.
-param_hat_2_SI = [1e-10, 0.15, 7.5];
+param_hat_2_SI = [1e-10, 1.0, 1.0];
 param_hat_2 = param_hat_2_SI;
 param_hat_2(1) = param_hat_2(1) / pixel_size^2;
 
@@ -171,7 +171,9 @@ while ~is_converged
     disp([param_hat_2 param_hat_1])
     
     if size(param_hat, 1) >= 2
-        if max(abs(param_hat(end, :) - param_hat(end - 1, :))) < 1e-3
+        max_jump = max(abs(param_hat(end, :) - param_hat(end - 1, :)));
+        disp(max_jump)
+        if max_jump < 1e-3
             is_converged = true;
         end
     end
