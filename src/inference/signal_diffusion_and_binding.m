@@ -13,8 +13,11 @@ function [image_data_post_bleach, initial_condition] = signal_diffusion_and_bind
                                                                 number_of_post_bleach_images, ...
                                                                 number_of_pad_pixels)
 
-% disp([D, k_on, k_off, mobile_fraction, x_bleach, y_bleach, r_bleach, intensity_inside_bleach_region, intensity_outside_bleach_region])
-
+% If time step not given, compute the 'adaptive' time step.
+if isempty(number_of_time_points_fine_per_coarse)
+    number_of_time_points_fine_per_coarse= ceil( D * delta_t / 0.225 );
+end
+                                                            
 p_free = k_off / ( k_on + k_off );
 p_bound = k_on / ( k_on + k_off );
 

@@ -11,7 +11,10 @@ function [image_data_post_bleach, initial_condition] = signal_diffusion(D, ...
                                                                         number_of_post_bleach_images, ...
                                                                         number_of_pad_pixels)
 
-disp([D, mobile_fraction, x_bleach, y_bleach, r_bleach, intensity_inside_bleach_region, intensity_outside_bleach_region])
+% If time step not given, compute the 'adaptive' time step.
+if isempty(number_of_time_points_fine_per_coarse)
+    number_of_time_points_fine_per_coarse= ceil( D * delta_t / 0.225 );
+end
 
 % Initial condition. Create a high resolution initial condition which is 
 % then downsampled to avoid too sharp edges. Distribute bound and free 

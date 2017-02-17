@@ -42,7 +42,7 @@ x_bleach = 128;
 y_bleach = 128;
 % r_bleach = 0.5 * 50e-6 / pixel_size % The 0.5 => diameter -> radius
 
-number_of_time_points_fine_per_coarse = 500;
+number_of_time_points_fine_per_coarse = [];%500;
 number_of_pad_pixels = 128;
 number_of_iterations = 1000;
 

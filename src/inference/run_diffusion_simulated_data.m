@@ -12,6 +12,8 @@ image_data_post_bleach = image_data_post_bleach(:, :, 1:number_of_post_bleach_im
 
 number_of_iterations = 1000;
 
+number_of_time_points_fine_per_coarse = [];%500;
+
 %% Add noise.
 sigma_noise = 0.01;
 image_data_post_bleach = image_data_post_bleach + sigma_noise * randn(size(image_data_post_bleach));

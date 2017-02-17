@@ -47,7 +47,7 @@ number_of_post_bleach_images = 20%100;
 x_bleach = 128;
 y_bleach = 128;
 
-number_of_time_points_fine_per_coarse = 500;
+number_of_time_points_fine_per_coarse = [];%500;
 number_of_pad_pixels = 128;
 
 %% Extract desired numbers of images/frames to include in analysis.
@@ -74,8 +74,8 @@ param_hat_1 = lb_1 + (ub_1 - lb_1) .* rand(size(lb_1));
 param_hat_1(2:3) = sort(param_hat_1(2:3), 'ascend'); % Make sure the two intensity levels are not switched.
 
 % Set parameter bounds for second estimation.
-lb_2_SI = [1e-12, 0, 0];
-ub_2_SI = [1e-10, 50, 50];
+lb_2_SI = [1e-12, 0.01, 0.01];
+ub_2_SI = [1e-10, 10, 10];
 lb_2 = lb_2_SI;
 lb_2(1) = lb_2(1) / pixel_size^2;
 ub_2 = ub_2_SI;
@@ -158,7 +158,9 @@ while ~is_converged
     disp([param_hat_2 param_hat_1])
     
     if size(param_hat, 1) >= 2
-        if max(abs(param_hat(end, :) - param_hat(end - 1, :))) < 1e-3
+        max_jump = max(abs(param_hat(end, :) - param_hat(end - 1, :)));
+        disp(max_jump)
+        if max_jump < 1e-3
             is_converged = true;
         end
     end
