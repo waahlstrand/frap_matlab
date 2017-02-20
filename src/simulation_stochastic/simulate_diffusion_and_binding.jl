@@ -2,7 +2,7 @@ workspace()
 
 @everywhere include("simulate.jl")
 
-function simulate_diffusion_and_binding_parallel()
+function simulate_diffusion_and_binding()
 	# Inititalization of random number generation device.
 	random_seed::Int64 = convert(Int64, time_ns())
 	srand(random_seed)
@@ -31,7 +31,7 @@ function simulate_diffusion_and_binding_parallel()
 	
 	number_of_time_steps_fine_per_course::Int64 = 10
 	
-	number_of_particles_per_worker::Int64 = 100000
+	number_of_particles_per_worker::Int64 = 10000000
 	number_of_workers::Int64 = nworkers()
 
 	# Generate particle trajectories and FRAP image data.
@@ -51,9 +51,8 @@ function simulate_diffusion_and_binding_parallel()
 					number_of_particles_per_worker)
 	end
 
-	println(sum(image_data_post_bleach))
 	# Save output.
-	file_name_output::String = "simulated_frap_data_parallel.dat"
+	file_name_output::String = "simulated_frap_data.dat"
 	file_stream_output::IOStream = open(file_name_output, "w")
 	write(file_stream_output, D)
 	write(file_stream_output, k_on)
@@ -74,4 +73,4 @@ function simulate_diffusion_and_binding_parallel()
 	nothing
 end
 
-@time simulate_diffusion_and_binding_parallel()
+simulate_diffusion_and_binding()
