@@ -1,10 +1,11 @@
 %% Initialization.
 clear
 clc
-close all hidden
+% close all hidden
 
 %% Read file.
-file_id = fopen('simulated_frap_data.dat');
+% file_id = fopen('simulated_frap_data.dat');
+file_id = fopen('simulated_frap_data_parallel.dat');
 file_data = fread(file_id, '*int64');
 fclose(file_id);
 

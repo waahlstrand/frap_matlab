@@ -1,6 +1,6 @@
 workspace()
 
-function simulate_diffusion_and_binding()
+function simulate_diffusion_and_binding_parallel()
 	# Inititalization of random number generation device.
 	random_seed::Int64 = convert(Int64, time_ns())
 	srand(random_seed)
@@ -55,21 +55,30 @@ function simulate_diffusion_and_binding()
 	p_inside_bleach_region::Float64 = integral_inside_bleach_region / ( integral_inside_bleach_region + integral_outside_bleach_region )
 
 	# Generate particle trajectories and FRAP image data.
-	x::Float64 = 0.0
-	y::Float64 = 0.0
-	is_inside_bleach_region::Bool = false
-	is_outside_bleach_region::Bool = false
-	is_mobile::Bool = false
-	is_free::Bool = false
-	ind_x::Int64 = 0
-	ind_y::Int64 = 0
+	#x::Float64 = 0.0
+	#y::Float64 = 0.0
+	#is_inside_bleach_region::Bool = false
+	#is_outside_bleach_region::Bool = false
+	#is_mobile::Bool = false
+	#is_free::Bool = false
+	#ind_x::Int64 = 0
+	#ind_y::Int64 = 0
 	
-	image_data_post_bleach::Array{Int64, 3} = zeros(number_of_pixels, number_of_pixels, number_of_post_bleach_images)
+	image_data_post_bleach::SharedArray{Int64, 3} = zeros(number_of_pixels, number_of_pixels, number_of_post_bleach_images)
 
-	for current_particle = 1:number_of_particles
-		if mod(current_particle, 1000000) == 0
-			println(current_particle)
-		end
+	@parallel for current_particle = 1:number_of_particles
+		#if mod(current_particle, 1000000) == 0
+		println(current_particle)
+		#end
+		
+		x = 0.0
+		y = 0.0
+		is_inside_bleach_region = false
+		is_outside_bleach_region = false
+		is_mobile = false
+		is_free = false
+		ind_x = 0
+		ind_y = 0
 		
 		# Find random initial position.
 		if rand() <= p_inside_bleach_region
@@ -147,7 +156,7 @@ function simulate_diffusion_and_binding()
 	end
 	
 	# Save output.
-	file_name_output::String = "simulated_frap_data.dat"
+	file_name_output::String = "simulated_frap_data_parallel.dat"
 	file_stream_output::IOStream = open(file_name_output, "w")
 	write(file_stream_output, number_of_pixels)
 	write(file_stream_output, number_of_post_bleach_images)
@@ -161,4 +170,4 @@ function simulate_diffusion_and_binding()
 	nothing
 end
 
-simulate_diffusion_and_binding()
+simulate_diffusion_and_binding_parallel()
