@@ -25,7 +25,7 @@ function simulate_diffusion_and_binding()
 
 	# Simulation parameters.
 	number_of_pad_pixels::Int64 = 128 # pixels
-	number_of_particles::Int64 = 10000000
+	number_of_particles::Int64 = 80000000
 	
 	number_of_pixels_float::Float64 = convert(Float64, number_of_pixels)
 	number_of_pad_pixels_float::Float64 = convert(Float64, number_of_pad_pixels)
@@ -161,4 +161,4 @@ function simulate_diffusion_and_binding()
 	nothing
 end
 
-simulate_diffusion_and_binding()
+@time simulate_diffusion_and_binding()

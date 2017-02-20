@@ -25,12 +25,13 @@ function simulate_diffusion_and_binding_parallel()
 
 	# Simulation parameters.
 	number_of_pad_pixels::Int64 = 128 # pixels
-	number_of_particles::Int64 = 10000000
-	
 	number_of_pixels_float::Float64 = convert(Float64, number_of_pixels)
 	number_of_pad_pixels_float::Float64 = convert(Float64, number_of_pad_pixels)
 	
 	number_of_time_steps_fine_per_course::Int64 = 10
+	
+	number_of_particles_per_worker::Int64 = 10000000
+	number_of_workers::Int64 = nworkers()
 	
 	
 	# Compute parameters of Markov chain from the on and off reaction rates.	
@@ -66,93 +67,98 @@ function simulate_diffusion_and_binding_parallel()
 	
 	image_data_post_bleach::SharedArray{Int64, 3} = zeros(number_of_pixels, number_of_pixels, number_of_post_bleach_images)
 
-	@parallel for current_particle = 1:number_of_particles
-		#if mod(current_particle, 1000000) == 0
-		println(current_particle)
-		#end
-		
+	@sync @parallel for current_worker = 1:number_of_workers
+		image_data_post_bleach_worker = zeros(number_of_pixels, number_of_pixels, number_of_post_bleach_images)
 		x = 0.0
 		y = 0.0
-		is_inside_bleach_region = false
-		is_outside_bleach_region = false
-		is_mobile = false
-		is_free = false
-		ind_x = 0
-		ind_y = 0
-		
-		# Find random initial position.
-		if rand() <= p_inside_bleach_region
-			is_inside_bleach_region = false
-			while !is_inside_bleach_region
-				x = number_of_pad_pixels_float + 0.5 * number_of_pixels_float - r_bleach + 2.0 * r_bleach * rand()
-				y = number_of_pad_pixels_float + 0.5 * number_of_pixels_float - r_bleach + 2.0 * r_bleach * rand()
-				
-				if (x - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float) )^2 + (y - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float) )^2 <= r_bleach^2
-					is_inside_bleach_region = true
+		for current_particle = 1:number_of_particles_per_worker
+			#if mod(current_particle, 100000) == 0
+			#	println(current_particle)
+			#end
+			
+
+			#is_inside_bleach_region = false
+			#is_outside_bleach_region = false
+			#is_mobile = false
+			#is_free = false
+			#ind_x = 0
+			#ind_y = 0
+
+			# Find random initial position.
+			if rand() <= p_inside_bleach_region
+				is_inside_bleach_region = false
+				while !is_inside_bleach_region
+					x = number_of_pad_pixels_float + 0.5 * number_of_pixels_float - r_bleach + 2.0 * r_bleach * rand()
+					y = number_of_pad_pixels_float + 0.5 * number_of_pixels_float - r_bleach + 2.0 * r_bleach * rand()
+					
+					if (x - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float) )^2 + (y - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float) )^2 <= r_bleach^2
+						is_inside_bleach_region = true
+					end
 				end
-			end
-		else 
-			is_outside_bleach_region = false
-			while !is_outside_bleach_region
-				x = (number_of_pixels_float + 2.0 * number_of_pad_pixels_float) * rand()
-				y = (number_of_pixels_float + 2.0 * number_of_pad_pixels_float) * rand()
-				
-				if (x - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float) )^2 + (y - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float) )^2 > r_bleach^2
-					is_outside_bleach_region = true
+			else 
+				is_outside_bleach_region = false
+				while !is_outside_bleach_region
+					x = (number_of_pixels_float + 2.0 * number_of_pad_pixels_float) * rand()
+					y = (number_of_pixels_float + 2.0 * number_of_pad_pixels_float) * rand()
+					
+					if (x - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float) )^2 + (y - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float) )^2 > r_bleach^2
+						is_outside_bleach_region = true
+					end
 				end
-			end
-		end
-		
-		# Perform particle motion.
-		is_mobile = rand() <= mobile_fraction
-		
-		if is_mobile
-			if rand() <= p_free
-				is_free = true
-			else
-				is_free = false
 			end
 			
-			for current_image_post_bleach = 1:number_of_post_bleach_images
-				for current_time_step_fine = 1:number_of_time_steps_fine_per_course
-					if is_free
-						x = x + sigma_fine * randn()
-						y = y + sigma_fine * randn()
-					end
-					
-					if is_free
-						if rand() <= p_free_to_bound
-							is_free = false
-						end
-					else
-						if rand() <= p_bound_to_free
-							is_free = true
-						end
-					end
-					
+			# Perform particle motion.
+			is_mobile = rand() <= mobile_fraction
+			
+			if is_mobile
+				if rand() <= p_free
+					is_free = true
+				else
+					is_free = false
 				end
 				
-				# Add 1 to the the pixel where the particle currently resides.
-				ind_x = convert(Int64, ceil(mod(x, number_of_pixels_float + 2.0 * number_of_pad_pixels_float) - number_of_pad_pixels_float))
+				for current_image_post_bleach = 1:number_of_post_bleach_images
+					for current_time_step_fine = 1:number_of_time_steps_fine_per_course
+						if is_free
+							x = x + sigma_fine * randn()
+							y = y + sigma_fine * randn()
+						end
+						
+						if is_free
+							if rand() <= p_free_to_bound
+								is_free = false
+							end
+						else
+							if rand() <= p_bound_to_free
+								is_free = true
+							end
+						end
+						
+					end
+					
+					# Add 1 to the the pixel where the particle currently resides.
+					ind_x = convert(Int64, ceil(mod(x, number_of_pixels_float + 2.0 * number_of_pad_pixels_float) - number_of_pad_pixels_float))
+					if ind_x >= 1 && ind_x <= number_of_pixels
+						ind_y = convert(Int64, ceil(mod(y, number_of_pixels_float + 2.0 * number_of_pad_pixels_float) - number_of_pad_pixels_float))
+						if ind_y >= 1 && ind_y <= number_of_pixels
+							image_data_post_bleach_worker[ind_x, ind_y, current_image_post_bleach] += 1
+						end
+					end
+				end
+			else # Not mobile
+				# Add 1 to the the pixel where the particle resides.
+				ind_x = convert(Int64, ceil(x - number_of_pad_pixels_float))
 				if ind_x >= 1 && ind_x <= number_of_pixels
-					ind_y = convert(Int64, ceil(mod(y, number_of_pixels_float + 2.0 * number_of_pad_pixels_float) - number_of_pad_pixels_float))
+					ind_y = convert(Int64, ceil(y - number_of_pad_pixels_float))
 					if ind_y >= 1 && ind_y <= number_of_pixels
-						image_data_post_bleach[ind_x, ind_y, current_image_post_bleach] += 1
+						for current_image_post_bleach = 1:number_of_post_bleach_images
+							image_data_post_bleach_worker[ind_x, ind_y, current_image_post_bleach] += 1
+						end
 					end
 				end
-			end
-		else # Not mobile
-			# Add 1 to the the pixel where the particle resides.
-			ind_x = convert(Int64, ceil(x - number_of_pad_pixels_float))
-			if ind_x >= 1 && ind_x <= number_of_pixels
-				ind_y = convert(Int64, ceil(y - number_of_pad_pixels_float))
-				if ind_y >= 1 && ind_y <= number_of_pixels
-					for current_image_post_bleach = 1:number_of_post_bleach_images
-						image_data_post_bleach[ind_x, ind_y, current_image_post_bleach] += 1
-					end
-				end
-			end
-		end        
+			end        
+		end
+		image_data_post_bleach += image_data_post_bleach_worker
 	end
 	
 	# Save output.
@@ -170,4 +176,4 @@ function simulate_diffusion_and_binding_parallel()
 	nothing
 end
 
-simulate_diffusion_and_binding_parallel()
+@time simulate_diffusion_and_binding_parallel()
