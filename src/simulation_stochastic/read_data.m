@@ -21,4 +21,6 @@ axis 'equal'
 axis([0 number_of_post_bleach_images*number_of_pixels 0 number_of_pixels])
 axis off
 
-sum(image_data_post_bleach(:))
+max(image_data_post_bleach(:))
+min(image_data_post_bleach(:))
+mean(image_data_post_bleach(:))
