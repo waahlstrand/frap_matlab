@@ -20,11 +20,11 @@ function simulate_diffusion_and_binding_parallel()
 	pixel_size::Float64 = 7.59e-7 # m
 
 	# Particle parameters.
-	D_SI::Float64 = 2e-10 # m^2 / s
+	D_SI::Float64 = 5e-10 # m^2 / s
 	D::Float64 = D_SI / pixel_size^2 # pixels^2 / s
 	k_on::Float64 = 0.05 # 1/s
-	k_off::Float64 = 0.5 # 1/s
-	mobile_fraction::Float64 = 0.85
+	k_off::Float64 = 1.0 # 1/s
+	mobile_fraction::Float64 = 1.0#0.85
 
 	# Simulation parameters.
 	number_of_pad_pixels::Int64 = 256 # pixels
