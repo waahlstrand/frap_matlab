@@ -4,12 +4,12 @@ clc
 close all hidden
 
 %% Parameters.
-D_SI = 5e-11; % m^2/s
+D_SI = 2.5e-10; % m^2/s
 pixel_size = 7.598e-07; % m
 D = D_SI / pixel_size^2; % pixels^2 / s
-k_on = 50%0.05; % 1/s
-k_off = 50%0.01; % 1/s
-mobile_fraction = 0.8;%0.90; % dimensionless
+k_on = 0.5;%0.05; % 1/s
+k_off = 1.0;%0.01; % 1/s
+mobile_fraction = 0.95;%0.90; % dimensionless
 
 delta_t = 0.265; % s.
 number_of_time_points_fine_per_coarse = ceil(D * delta_t / 0.225); % dimensionless

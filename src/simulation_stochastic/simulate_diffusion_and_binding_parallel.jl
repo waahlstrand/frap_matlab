@@ -11,20 +11,20 @@ function simulate_diffusion_and_binding_parallel()
 	t_start::Int64 = convert(Int64, time_ns())
 	
 	# Experimental parameters. 
-	delta_t::Float64 = 0.25 # s
-	number_of_post_bleach_images::Int64 = 10
+	delta_t::Float64 = 0.2650 # s
+	number_of_post_bleach_images::Int64 = 40
 	number_of_pixels::Int64 = 256 #  pixels
 	r_bleach::Float64 = 32.0 #  pixels
 	intensity_inside_bleach_region::Float64 = 0.6
 	intensity_outside_bleach_region::Float64 = 0.9
-	pixel_size::Float64 = 7.59e-7 # m
+	pixel_size::Float64 = 7.598e-7 # m
 
 	# Particle parameters.
-	D_SI::Float64 = 5e-10 # m^2 / s
+	D_SI::Float64 = 2.5e-10 # m^2 / s
 	D::Float64 = D_SI / pixel_size^2 # pixels^2 / s
-	k_on::Float64 = 0.05 # 1/s
+	k_on::Float64 = 0.5 # 1/s
 	k_off::Float64 = 1.0 # 1/s
-	mobile_fraction::Float64 = 1.0#0.85
+	mobile_fraction::Float64 = 0.9
 
 	# Simulation parameters.
 	number_of_pad_pixels::Int64 = 256 # pixels
