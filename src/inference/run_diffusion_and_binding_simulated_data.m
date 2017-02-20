@@ -1,7 +1,7 @@
 %% Initialization.
 clear
 clc
-close all hidden
+% close all hidden
 
 %% Load data.
 load('../simulation_stochastic/simulated_frap_data.mat');
@@ -20,8 +20,8 @@ y_bleach = 128;
 image_data_post_bleach = double(image_data_post_bleach);
 image_data_post_bleach = 0.5 * image_data_post_bleach  / mean(image_data_post_bleach(:));
 
-% imagesc(image_data_post_bleach(:,:,10))
-% return
+imagesc(reshape(image_data_post_bleach, [256, 256*40]))
+return
 
 %% Parameter estimation pre-work.
 

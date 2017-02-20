@@ -9,7 +9,7 @@ pixel_size = 7.598e-07; % m
 D = D_SI / pixel_size^2; % pixels^2 / s
 k_on = 0.5;%0.05; % 1/s
 k_off = 1.0;%0.01; % 1/s
-mobile_fraction = 0.95;%0.90; % dimensionless
+mobile_fraction = 0.9;%0.90; % dimensionless
 
 delta_t = 0.265; % s.
 number_of_time_points_fine_per_coarse = ceil(D * delta_t / 0.225); % dimensionless
@@ -20,7 +20,7 @@ x_bleach = number_of_pixels / 2; % pixels
 y_bleach = number_of_pixels / 2; % pixels
 r_bleach = 32; % pixels
 intensity_inside_bleach_region = 0.6; % a.u.
-intensity_outside_bleach_region = 0.85; % a.u.
+intensity_outside_bleach_region = 0.9; % a.u.
 
 D*delta_t/number_of_time_points_fine_per_coarse
 
@@ -65,5 +65,5 @@ figure
 plot(delta_t:delta_t:number_of_post_bleach_images*delta_t, recovery_curve)
 
 %% Save data.
-% clear result_pde current_image_post_bleach X Y ind recovery_curve slice
-% save('simulated_data_diffusion_and_binding.mat')
+clear result_pde current_image_post_bleach X Y ind recovery_curve slice
+save('simulated_data_diffusion_and_binding.mat')
