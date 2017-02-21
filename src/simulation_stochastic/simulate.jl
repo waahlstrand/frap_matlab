@@ -17,16 +17,16 @@ function simulate(	D::Float64,
 	number_of_pad_pixels_float::Float64 = convert(Float64, number_of_pad_pixels)
 		
 	# Compute parameters of Markov chain from the on and off reaction rates.	
-	lambda_free::Float64 = 1.0 / k_on
-	lambda_bound::Float64 = 1.0 / k_off
+	mu_free::Float64 = 1.0 / k_on
+	mu_bound::Float64 = 1.0 / k_off
 	p_free::Float64 = k_off / ( k_on + k_off )
 	p_bound::Float64 = k_on / ( k_on + k_off )
 	
 	delta_t_fine::Float64 = delta_t / convert(Float64, number_of_time_steps_fine_per_course)
 	sigma_fine::Float64 = sqrt( 2.0 * D * delta_t_fine )
 
-	p_bound_to_free::Float64 = delta_t_fine / lambda_free
-	p_free_to_bound::Float64 = delta_t_fine / lambda_bound
+	p_bound_to_free::Float64 = delta_t_fine / mu_bound
+	p_free_to_bound::Float64 = delta_t_fine / mu_free
 	
 	# Pre-work for picking random initial positions.
 	area_inside_bleach_region::Float64 = pi * r_bleach^2

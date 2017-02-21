@@ -20,18 +20,18 @@ function simulate_diffusion_and_binding()
 	pixel_size::Float64 = 7.598e-7 # m
 
 	# Particle parameters.
-	D_SI::Float64 = 2.5e-10 # m^2 / s
+	D_SI::Float64 = 5.0e-10 # m^2 / s
 	D::Float64 = D_SI / pixel_size^2 # pixels^2 / s
 	k_on::Float64 = 0.5 # 1/s
-	k_off::Float64 = 1.0 # 1/s
-	mobile_fraction::Float64 = 0.9
+	k_off::Float64 = 0.5#1.0 # 1/s
+	mobile_fraction::Float64 = 1.0
 
 	# Simulation parameters.
-	number_of_pad_pixels::Int64 = 256#256 # pixels
+	number_of_pad_pixels::Int64 = 0#256 # pixels
 	
-	number_of_time_steps_fine_per_course::Int64 = 1#10
+	number_of_time_steps_fine_per_course::Int64 = 8
 	
-	number_of_particles_per_worker::Int64 = 320000000
+	number_of_particles_per_worker::Int64 = 640000000
 	number_of_workers::Int64 = nworkers()
 
 	# Generate particle trajectories and FRAP image data.

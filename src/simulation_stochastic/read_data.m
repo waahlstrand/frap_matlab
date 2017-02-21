@@ -30,16 +30,18 @@ clear file_id
 save('simulated_frap_data.mat')
 
 %% Plot data.
-k = 1 / (a0*pi*r_bleach^2 + a1 *((number_of_pixels+2*number_of_pad_pixels)^2 - pi*r_bleach^2));
-k*a0*pi*r_bleach^2+k*a1*((number_of_pixels+2*number_of_pad_pixels)^2-pi*r_bleach^2)
-expected = number_of_particles * a1 * k;
+k = 1 / (intensity_inside_bleach_region*pi*r_bleach^2 + intensity_outside_bleach_region * ((number_of_pixels+2*number_of_pad_pixels)^2 - pi*r_bleach^2));
+%k*intensity_inside_bleach_region*pi*r_bleach^2+k*intensity_outside_bleach_region*((number_of_pixels+2*number_of_pad_pixels)^2-pi*r_bleach^2)
+%expected = number_of_particles * intensity_outside_bleach_region * k;
 image_data_post_bleach = image_data_post_bleach / (number_of_particles * k);
 
 M = load('../inference/simulated_data_diffusion_and_binding.mat');
 
 figure
 hold on
-imagesc(reshape(image_data_post_bleach-M.image_data_post_bleach, [number_of_pixels, number_of_pixels*number_of_post_bleach_images]));
+%imagesc([reshape(M.image_data_post_bleach, [number_of_pixels, number_of_pixels*number_of_post_bleach_images]) ; reshape(image_data_post_bleach-M.image_data_post_bleach, [number_of_pixels, number_of_pixels*number_of_post_bleach_images])]);
+%imagesc(reshape(image_data_post_bleach-M.image_data_post_bleach, [number_of_pixels, number_of_pixels*number_of_post_bleach_images]));
+imagesc(reshape(image_data_post_bleach, [number_of_pixels, number_of_pixels*number_of_post_bleach_images]));
 axis 'equal'
 axis([0 number_of_post_bleach_images*number_of_pixels 0 number_of_pixels])
 axis off
@@ -49,6 +51,9 @@ figure
 hold on
 hist(image_data_post_bleach(:) - M.image_data_post_bleach(:), 100)
 hold off
+
+sum(M.image_data_post_bleach(:))
+sum(image_data_post_bleach(:))
 
 %max(image_data_post_bleach(:))
 %min(image_data_post_bleach(:))
