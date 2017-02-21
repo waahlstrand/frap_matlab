@@ -12,7 +12,7 @@ function simulate_diffusion_and_binding()
 	
 	# Experimental parameters. 
 	delta_t::Float64 = 0.2650 # s
-	number_of_post_bleach_images::Int64 = 2#40
+	number_of_post_bleach_images::Int64 = 1#4#40
 	number_of_pixels::Int64 = 256 #  pixels
 	r_bleach::Float64 = 32.0 #  pixels
 	intensity_inside_bleach_region::Float64 = 0.6
@@ -27,11 +27,11 @@ function simulate_diffusion_and_binding()
 	mobile_fraction::Float64 = 0.9
 
 	# Simulation parameters.
-	number_of_pad_pixels::Int64 = 256 # pixels
+	number_of_pad_pixels::Int64 = 1#256 # pixels
 	
-	number_of_time_steps_fine_per_course::Int64 = 10
+	number_of_time_steps_fine_per_course::Int64 = 1#10
 	
-	number_of_particles_per_worker::Int64 = 1000000
+	number_of_particles_per_worker::Int64 = 320000000
 	number_of_workers::Int64 = nworkers()
 
 	# Generate particle trajectories and FRAP image data.
