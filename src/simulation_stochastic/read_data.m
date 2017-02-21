@@ -40,8 +40,8 @@ M = load('../inference/simulated_data_diffusion_and_binding.mat');
 figure
 hold on
 %imagesc([reshape(M.image_data_post_bleach, [number_of_pixels, number_of_pixels*number_of_post_bleach_images]) ; reshape(image_data_post_bleach-M.image_data_post_bleach, [number_of_pixels, number_of_pixels*number_of_post_bleach_images])]);
-%imagesc(reshape(image_data_post_bleach-M.image_data_post_bleach, [number_of_pixels, number_of_pixels*number_of_post_bleach_images]));
-imagesc(reshape(image_data_post_bleach, [number_of_pixels, number_of_pixels*number_of_post_bleach_images]));
+imagesc(reshape(image_data_post_bleach-M.image_data_post_bleach, [number_of_pixels, number_of_pixels*number_of_post_bleach_images]));
+%imagesc(reshape(image_data_post_bleach, [number_of_pixels, number_of_pixels*number_of_post_bleach_images]));
 axis 'equal'
 axis([0 number_of_post_bleach_images*number_of_pixels 0 number_of_pixels])
 axis off
@@ -54,6 +54,7 @@ hold off
 
 sum(M.image_data_post_bleach(:))
 sum(image_data_post_bleach(:))
+std(image_data_post_bleach(:) - M.image_data_post_bleach(:))
 
 %max(image_data_post_bleach(:))
 %min(image_data_post_bleach(:))
