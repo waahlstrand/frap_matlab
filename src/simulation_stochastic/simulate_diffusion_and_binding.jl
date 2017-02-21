@@ -27,7 +27,7 @@ function simulate_diffusion_and_binding()
 	mobile_fraction::Float64 = 0.9
 
 	# Simulation parameters.
-	number_of_pad_pixels::Int64 = 1#256 # pixels
+	number_of_pad_pixels::Int64 = 256#256 # pixels
 	
 	number_of_time_steps_fine_per_course::Int64 = 1#10
 	
@@ -63,6 +63,10 @@ function simulate_diffusion_and_binding()
 	write(file_stream_output, pixel_size)
 	write(file_stream_output, number_of_pixels)
 	write(file_stream_output, number_of_post_bleach_images)
+	write(file_stream_output, number_of_pad_pixels)
+	write(file_stream_output, intensity_inside_bleach_region)
+	write(file_stream_output, intensity_outside_bleach_region)
+	write(file_stream_output, number_of_particles_per_worker*number_of_workers)
 	write(file_stream_output, image_data_post_bleach)
 	close(file_stream_output)
 	
