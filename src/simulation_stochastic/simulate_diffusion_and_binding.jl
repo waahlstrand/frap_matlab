@@ -31,7 +31,7 @@ function simulate_diffusion_and_binding()
 	
 	number_of_time_steps_fine_per_course::Int64 = 64
 	
-	number_of_particles_per_worker::Int64 = 10000000
+	number_of_particles_per_worker::Int64 = 2000000000
 	number_of_workers::Int64 = nworkers()
 
 	# Generate particle trajectories and FRAP image data.
