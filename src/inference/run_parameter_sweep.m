@@ -92,4 +92,6 @@ end
    
 figure, hold on
 surf(log10(K_ON), log10(K_OFF), log10(SS_pixel_based))
+
+figure, hold on
 surf(log10(K_ON), log10(K_OFF), log10(SS_curve_based))
