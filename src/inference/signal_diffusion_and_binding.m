@@ -15,7 +15,7 @@ function [image_data_post_bleach, initial_condition] = signal_diffusion_and_bind
 
 % If time step not given, compute the 'adaptive' time step.
 if isempty(number_of_time_points_fine_per_coarse)
-    number_of_time_points_fine_per_coarse= ceil( D * delta_t / 0.225 );
+    number_of_time_points_fine_per_coarse = ceil( D * delta_t / 0.225 );
 end
                                                             
 p_free = k_off / ( k_on + k_off );
