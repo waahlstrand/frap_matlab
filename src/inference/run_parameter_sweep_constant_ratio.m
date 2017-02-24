@@ -44,6 +44,7 @@ image_data_post_bleach_true = signal_diffusion_and_binding(  D, ...
                                                         number_of_pad_pixels);
                                                     
                                                     
+
 [X, Y] = meshgrid(1:number_of_pixels, 1:number_of_pixels);
 X = X - 0.5;
 Y = Y - 0.5;
@@ -57,11 +58,12 @@ end
 
 %% Sweep parameters.
 number_of_grid_points = 4+3*3;
-[K_ON, K_OFF] = ndgrid(logspace(-2, 1, number_of_grid_points), logspace(-2, 1, number_of_grid_points));
-SS_pixel_based = zeros(number_of_grid_points, number_of_grid_points);
-SS_curve_based = zeros(number_of_grid_points, number_of_grid_points);
+K_ON = logspace(-2, 1, number_of_grid_points);
+K_OFF = k_off / k_on * K_ON;
+SS_pixel_based = zeros(number_of_grid_points, 1);
+SS_curve_based = zeros(number_of_grid_points, 1);
 
-parfor i = 1:number_of_grid_points^2
+parfor i = 1:number_of_grid_points
     disp([K_ON(i) K_OFF(i)])
     image_data_post_bleach_model = signal_diffusion_and_binding(D, ...
                                                                 K_ON(i), ...
@@ -91,7 +93,7 @@ parfor i = 1:number_of_grid_points^2
 end
    
 figure, hold on
-surf(log10(K_ON), log10(K_OFF), log10(SS_pixel_based))
+plot(log10(K_ON), log10(SS_pixel_based))
 
 figure, hold on
-surf(log10(K_ON), log10(K_OFF), log10(SS_curve_based))
+plot(log10(K_ON), log10(SS_curve_based))
