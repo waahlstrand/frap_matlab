@@ -57,7 +57,7 @@ for current_image_post_bleach = 1:number_of_post_bleach_images
 end                                    
 
 %% Sweep parameters.
-number_of_grid_points = 4+3*3;
+number_of_grid_points = 4+3*20;
 K_ON = logspace(-2, 1, number_of_grid_points);
 K_OFF = k_off / k_on * K_ON;
 SS_pixel_based = zeros(number_of_grid_points, 1);
@@ -93,7 +93,6 @@ parfor i = 1:number_of_grid_points
 end
    
 figure, hold on
-plot(log10(K_ON), log10(SS_pixel_based))
-
+plot(log10(K_ON), SS_pixel_based)
 figure, hold on
-plot(log10(K_ON), log10(SS_curve_based))
+plot(log10(K_ON), SS_curve_based)
