@@ -21,7 +21,7 @@ mobile_fraction = 0.9;%0.90; % dimensionless
 delta_t = 0.2650; % s.
 number_of_time_points_fine_per_coarse = 1000; % dimensionless
 number_of_pixels = 256;
-number_of_post_bleach_images = 4;
+number_of_post_bleach_images = 40;
 number_of_pad_pixels = 256;
 x_bleach = number_of_pixels / 2; % pixels
 y_bleach = number_of_pixels / 2; % pixels
@@ -44,11 +44,8 @@ image_data_post_bleach = signal_diffusion_and_binding(  D, ...
                                                         number_of_post_bleach_images, ...
                                                         number_of_pad_pixels);
 
-sigma_noise = 0%0.025;
+sigma_noise = 0.025;
 image_data_post_bleach = image_data_post_bleach + sigma_noise * randn(size(image_data_post_bleach));
-
-% imagesc(image_data_post_bleach(:,:,1))
-% return
 
 %% Compute redovery curve from simulated data.
 [X, Y] = meshgrid(1:number_of_pixels, 1:number_of_pixels);
@@ -63,6 +60,8 @@ for current_image_post_bleach = 1:number_of_post_bleach_images
     recovery_curve(current_image_post_bleach) = mean(slice(ind));
 end
 
+plot(recovery_curve)
+return
 %% Pixel-based fitting.
 
 % Set parameter bounds for first estimation.
