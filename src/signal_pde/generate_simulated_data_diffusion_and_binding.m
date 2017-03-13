@@ -15,7 +15,7 @@ delta_t = 0.2650; % s.
 %number_of_time_points_fine_per_coarse = ceil(D * delta_t / 0.225); % dimensionless
 number_of_time_points_fine_per_coarse = 1000; % dimensionless
 number_of_pixels = 256;
-number_of_post_bleach_images = 1;
+number_of_post_bleach_images = 10;
 number_of_pad_pixels = 256;
 x_bleach = number_of_pixels / 2; % pixels
 y_bleach = number_of_pixels / 2; % pixels
@@ -26,6 +26,7 @@ intensity_outside_bleach_region = 0.9; % a.u.
 D*delta_t/number_of_time_points_fine_per_coarse
 
 %% Simulate.
+tic
 image_data_post_bleach = signal_diffusion_and_binding(  D, ...
                                                         k_on, ...
                                                         k_off, ...
@@ -40,6 +41,7 @@ image_data_post_bleach = signal_diffusion_and_binding(  D, ...
                                                         number_of_pixels, ...
                                                         number_of_post_bleach_images, ...
                                                         number_of_pad_pixels);
+toc
 
 %% Plot.
 result_pde = [];
