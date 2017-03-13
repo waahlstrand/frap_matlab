@@ -42,13 +42,6 @@ image_data_post_bleach = signal_diffusion_and_binding(  D, ...
                                                         number_of_post_bleach_images, ...
                                                         number_of_pad_pixels);
 
-%% Rescale data
-image_data_post_bleach = double(image_data_post_bleach);
-image_data_post_bleach = 0.5 * image_data_post_bleach  / mean(image_data_post_bleach(:));
-
-% imagesc(reshape(image_data_post_bleach, [256, 256*40]))
-% return
-
 %% Parameter estimation pre-work.
 
 % Set parameter bounds for first estimation.
