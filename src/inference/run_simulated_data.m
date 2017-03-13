@@ -3,18 +3,44 @@ clear
 clc
 close all hidden
 
-%% Load data.
-load('../simulation_stochastic/simulated_frap_data.mat');
-number_of_pixels = size(image_data_post_bleach, 1);
+%% Init reandom stream.
+random_seed = sum( 1e6 * clock() );
+random_stream = RandStream('mt19937ar', 'Seed', random_seed);
+RandStream.setGlobalStream(random_stream);
 
-number_of_post_bleach_images = 40;
-image_data_post_bleach = image_data_post_bleach(:, :, 1:number_of_post_bleach_images);
+%% Simulated data.
+D_SI = 2.5e-10; % m^2/s
+pixel_size = 7.598e-07; % m
+D = D_SI / pixel_size^2; % pixels^2 / s
+k_on = 0.5;%0.05; % 1/s
+k_off = 1.0;%0.01; % 1/s
+mobile_fraction = 0.9;%0.90; % dimensionless
 
-number_of_time_points_fine_per_coarse = [];
-number_of_pad_pixels = 128;
+delta_t = 0.2650; % s.
+number_of_time_points_fine_per_coarse = 1000; % dimensionless
+number_of_pixels = 256;
+number_of_post_bleach_images = 1;
+number_of_pad_pixels = 256;
+x_bleach = number_of_pixels / 2; % pixels
+y_bleach = number_of_pixels / 2; % pixels
+r_bleach = 32; % pixels
+intensity_inside_bleach_region = 0.6; % a.u.
+intensity_outside_bleach_region = 0.9; % a.u.
 
-x_bleach = 128;
-y_bleach = 128;
+image_data_post_bleach = signal_diffusion_and_binding(  D, ...
+                                                        k_on, ...
+                                                        k_off, ...
+                                                        mobile_fraction, ...
+                                                        x_bleach, ...
+                                                        y_bleach, ...
+                                                        r_bleach, ...
+                                                        intensity_inside_bleach_region, ...
+                                                        intensity_outside_bleach_region, ...
+                                                        delta_t, ...
+                                                        number_of_time_points_fine_per_coarse, ...
+                                                        number_of_pixels, ...
+                                                        number_of_post_bleach_images, ...
+                                                        number_of_pad_pixels);
 
 %% Rescale data
 image_data_post_bleach = double(image_data_post_bleach);
