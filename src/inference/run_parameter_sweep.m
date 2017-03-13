@@ -5,12 +5,12 @@ close all hidden
 
 delete(gcp('nocreate'))
 c = parcluster('local');
-c.NumWorkers = 4;
+c.NumWorkers = 32;
 parpool(c, c.NumWorkers);
 
 %% Experiment parameters.
 delta_t = 0.25; % s
-number_of_post_bleach_images = 10;
+number_of_post_bleach_images = 40;
 number_of_pixels = 256;
 number_of_pad_pixels = 128;
 r_bleach = 32; % pixels
