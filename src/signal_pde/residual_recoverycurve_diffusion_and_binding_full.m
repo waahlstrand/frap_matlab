@@ -29,7 +29,25 @@ image_data_post_bleach_model = signal_diffusion_and_binding(D, ...
                                                             number_of_post_bleach_images, ...
                                                             number_of_pad_pixels);
 
-F = image_data_post_bleach_model(:) - image_data_post_bleach(:);
+[X, Y] = meshgrid(1:number_of_pixels, 1:number_of_pixels);
+X = X - 0.5;
+Y = Y - 0.5;
+ind = find( (X - x_bleach).^2 + (Y - y_bleach).^2 <= r_bleach^2 );
+ind = ind(:);
+
+recovery_curve = zeros(1, number_of_post_bleach_images);
+for current_image_post_bleach = 1:number_of_post_bleach_images
+    slice = image_data_post_bleach(:, :, current_image_post_bleach);
+    recovery_curve(current_image_post_bleach) = mean(slice(ind));
+end
+
+recovery_curve_model = zeros(1, number_of_post_bleach_images);
+for current_image_post_bleach = 1:number_of_post_bleach_images
+    slice = image_data_post_bleach_model(:, :, current_image_post_bleach);
+    recovery_curve_model(current_image_post_bleach) = mean(slice(ind));
+end
+
+F = recovery_curve_model(:) - recovery_curve(:);
 
 end
 
