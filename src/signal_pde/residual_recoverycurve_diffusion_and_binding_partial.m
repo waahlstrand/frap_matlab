@@ -4,8 +4,6 @@ function F = residual_recoverycurve_diffusion_and_binding_partial(  mobile_fract
                                                                     image_data_post_bleach, ...
                                                                     image_data_post_bleach_model_unscaled, ...
                                                                     initial_condition_model_unscaled)
-
-% disp([mobile_fraction intensity_inside_bleach_region intensity_outside_bleach_region])
                                                         
 initial_condition_model_unscaled = repmat(initial_condition_model_unscaled, [1, 1, size(image_data_post_bleach_model_unscaled, 3)]);
 
