@@ -10,7 +10,7 @@ random_seed = sum( 1e6 * clock() );
 random_stream = RandStream('mt19937ar', 'Seed', random_seed);
 RandStream.setGlobalStream(random_stream);
 
-%% Simulated data.
+%% Simulate data.
 D_SI = 2.5e-10; % m^2/s
 pixel_size = 7.598e-07; % m
 D = D_SI / pixel_size^2; % pixels^2 / s
@@ -44,6 +44,13 @@ image_data_post_bleach = signal_diffusion_and_binding(  D, ...
                                                         number_of_post_bleach_images, ...
                                                         number_of_pad_pixels);
 
+sigma_noise = 0%0.025;
+image_data_post_bleach = image_data_post_bleach + sigma_noise * randn(size(image_data_post_bleach));
+
+% imagesc(image_data_post_bleach(:,:,1))
+% return
+
+%% Compute redovery curve from simulated data.
 [X, Y] = meshgrid(1:number_of_pixels, 1:number_of_pixels);
 X = X - 0.5;
 Y = Y - 0.5;
@@ -261,3 +268,5 @@ end
 
 param_hat_recoverycurvebased = param_hat;
 ss_recoverycurvebased = ss;
+
+save(['est_' num2str(random_seed) '.mat'], 'param_hat_pixelbased', 'ss_pixelbased', 'param_hat_recoverycurvebased', 'ss_recoverycurvebased')
