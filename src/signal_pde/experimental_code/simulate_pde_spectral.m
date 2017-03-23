@@ -53,13 +53,11 @@ U0 = imresize(U0, [number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels
 clear X Y
 
 
-
-
 F_U0 = fft2(U0);
 F_U0 = fftshift(F_U0);
 % F_B0 = fft2(B0);
 
-surf(imag(F_U0))
+surf(log10(abs(F_U0)))
 
 
 return
