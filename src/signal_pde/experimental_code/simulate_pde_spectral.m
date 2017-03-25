@@ -14,7 +14,7 @@ intensity_inside_bleach_region = 0.6;
 intensity_outside_bleach_region = 0.9;
 
 %% Particle parameters.
-D = 10000; % pixels^2 / s
+D = 400; % pixels^2 / s
 k_on = 0.5; % 1/s
 k_off = 1.0; % 1/s
 mobile_fraction = 1.0;%0.8;
@@ -22,7 +22,7 @@ mobile_fraction = 1.0;%0.8;
 p_free = k_off / ( k_on + k_off );
 p_bound = k_on / ( k_on + k_off );
 
-%% Generate post bleach image data for pure diffusion.
+%% Generate post bleach image data
 
 % Initial condition. Create a high resolution initial condition which is 
 % then downsampled to avoid too sharp edges.
@@ -80,9 +80,9 @@ XSISQ = XSI1.^2 + XSI2.^2;
 T = delta_t * (1:number_of_post_bleach_images);
 % 
 % for i = 1:number_of_post_bleach_images
-%     F_image_data_post_bleach_u(:, :, i) = exp( ( - XSISQ - k_on) * T(i) ) .* F_U0 + exp( k_off * T(i) ) .* F_B0;
+%     F_image_data_post_bleach_u(:, :, i) = exp( ( - D * XSISQ - k_on) * T(i) ) .* F_U0 + exp( k_off * T(i) ) .* F_B0;
 %     F_image_data_post_bleach_b(:, :, i) = exp( k_on * T(i) ) .* F_U0 + exp( - k_off * T(i) ) .* F_B0;
-% %     F_image_data_post_bleach_u(:, :, i) = exp( ( - XSISQ - k_on) .* T(i) .* F_U0 ) + exp( k_off * T(i) * F_B0 ); 
+% %     F_image_data_post_bleach_u(:, :, i) = exp( ( - D * XSISQ - k_on) .* T(i) .* F_U0 ) + exp( k_off * T(i) * F_B0 ); 
 % %     F_image_data_post_bleach_b(:, :, i) = exp( k_on * T(i) * F_U0 ) + exp( - k_off * T(i) * F_B0 ); 
 % 
 %     image_data_post_bleach_u(:, :, i) = ifftshift(F_image_data_post_bleach_u(:, :, i));
@@ -102,7 +102,7 @@ for t = 1:number_of_post_bleach_images
     for i = 1:number_of_pixels
         disp([t, i])
         for j = 1:number_of_pixels
-            A = [- XSISQ(i, j) - k_on, k_off ; k_on, - k_off];
+            A = [- D * XSISQ(i, j) - k_on, k_off ; k_on, - k_off];
             c_vector_hat = exp( A * T(t) ) * [F_U0(i, j) ; F_B0(i, j)];
             
             F_image_data_post_bleach_u(i, j, t) = c_vector_hat(1);
