@@ -17,7 +17,6 @@ intensity_outside_bleach_region = 0.9;
 D = 400; % pixels^2 / s
 k_on = 0.5; % 1/s
 k_off = 1.0; % 1/s
-mobile_fraction = 1.0;%0.8;
 
 p_free = k_off / ( k_on + k_off );
 p_bound = k_on / ( k_on + k_off );
