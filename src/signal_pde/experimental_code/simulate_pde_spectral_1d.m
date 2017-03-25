@@ -5,7 +5,7 @@ close all hidden
 
 %% Measurement parameters.
 delta_t = 0.25; % s
-number_of_post_bleach_images = 200;
+number_of_post_bleach_images = 100;
 number_of_pixels = 256;
 number_of_pad_pixels = 0;
 r_bleach_region = 32; % pixels
@@ -15,7 +15,7 @@ intensity_outside_bleach_region = 0.9;
 
 %% Particle parameters.
 D = 400; % pixels^2 / s
-k_on = 0.5; % 1/s
+k_on = 10.0; % 1/s
 k_off = 0.5; % 1/s
 
 p_free = k_off / ( k_on + k_off );
@@ -51,8 +51,8 @@ U0 = p_free * U0;
 
 %% FFT of initial conditions.
 
-F_U0 = fft(U0);
-F_B0 = fft(B0);
+F_U0 = fftshift(fft(U0));
+F_B0 = fftshift(fft(B0));
 
 %% FFT space time evolution of PDE system.
 
@@ -61,35 +61,16 @@ F_image_data_post_bleach_b = zeros(number_of_pixels, number_of_post_bleach_image
 image_data_post_bleach_u = zeros(number_of_pixels, number_of_post_bleach_images);
 image_data_post_bleach_b = zeros(number_of_pixels, number_of_post_bleach_images);
 
-XSI = 0:number_of_pixels-1;
+XSI = -number_of_pixels/2:number_of_pixels/2-1;
+XSI = XSI / number_of_pixels;
 XSISQ = XSI.^2;
 
 T = delta_t * (1:number_of_post_bleach_images);
-% 
-% for i = 1:number_of_post_bleach_images
-%     F_image_data_post_bleach_u(:, :, i) = exp( ( - D * XSISQ - k_on) * T(i) ) .* F_U0 + exp( k_off * T(i) ) .* F_B0;
-%     F_image_data_post_bleach_b(:, :, i) = exp( k_on * T(i) ) .* F_U0 + exp( - k_off * T(i) ) .* F_B0;
-% %     F_image_data_post_bleach_u(:, :, i) = exp( ( - XSISQ - k_on) .* T(i) .* F_U0 ) + exp( k_off * T(i) * F_B0 ); 
-% %     F_image_data_post_bleach_b(:, :, i) = exp( k_on * T(i) * F_U0 ) + exp( - k_off * T(i) * F_B0 ); 
-% 
-%     image_data_post_bleach_u(:, :, i) = ifftshift(F_image_data_post_bleach_u(:, :, i));
-%     image_data_post_bleach_u(:, :, i) = ifft2(image_data_post_bleach_u(:, :, i));
-%     image_data_post_bleach_b(:, :, i) = ifftshift(F_image_data_post_bleach_b(:, :, i));
-%     image_data_post_bleach_b(:, :, i) = ifft2(image_data_post_bleach_b(:, :, i));
-% end
-% 
-% FRAP = abs(image_data_post_bleach_u) + abs(image_data_post_bleach_b);
-% % figure, imagesc(abs(image_data_post_bleach_u(:,:,i))+abs(image_data_post_bleach_b(:,:,i)))
-% 
-% imagesc(reshape(FRAP, [number_of_pixels, number_of_pixels*number_of_post_bleach_images]))
-% axis 'equal'
-
 
 for t = 1:number_of_post_bleach_images
     for i = 1:number_of_pixels
         disp([t, i])
         A = [- D * XSISQ(i) - k_on, k_off ; k_on, - k_off];
-%         A = [- k_on, k_off ; k_on, - k_off];
         c_vector_hat = expm( A * T(t) ) * [F_U0(i) ; F_B0(i)];
         
         F_image_data_post_bleach_u(i, t) = c_vector_hat(1);
@@ -98,8 +79,8 @@ for t = 1:number_of_post_bleach_images
 end
 
 for i = 1:number_of_post_bleach_images
-    image_data_post_bleach_u(:, i) = abs(ifft(F_image_data_post_bleach_u(:, i)));
-    image_data_post_bleach_b(:, i) = abs(ifft(F_image_data_post_bleach_b(:, i)));
+    image_data_post_bleach_u(:, i) = abs(ifft(ifftshift(F_image_data_post_bleach_u(:, i))));
+    image_data_post_bleach_b(:, i) = abs(ifft(ifftshift(F_image_data_post_bleach_b(:, i))));
 end
 
 FRAP = image_data_post_bleach_u + image_data_post_bleach_b;

@@ -26,11 +26,11 @@ X = X - 0.5;
 xc = number_of_pad_pixels + number_of_pixels / 2;
 
 U0 = zeros(size(X));
-% U0( (X - xc).^2 <= ( r_bleach_region)^2 ) = intensity_inside_bleach_region;
-% U0( (X - xc).^2 > ( r_bleach_region)^2 ) = intensity_outside_bleach_region;
+U0( (X - xc).^2 <= ( r_bleach_region)^2 ) = intensity_inside_bleach_region;
+U0( (X - xc).^2 > ( r_bleach_region)^2 ) = intensity_outside_bleach_region;
 
-sigma = 15;
-U0 = intensity_outside_bleach_region - (intensity_outside_bleach_region - intensity_inside_bleach_region) * exp( -(X - xc).^2 / (2*sigma^2));
+% sigma = 15;
+% U0 = intensity_outside_bleach_region - (intensity_outside_bleach_region - intensity_inside_bleach_region) * exp( -(X - xc).^2 / (2*sigma^2));
 
 % figure, plot(X, U0+B0)
 % return
