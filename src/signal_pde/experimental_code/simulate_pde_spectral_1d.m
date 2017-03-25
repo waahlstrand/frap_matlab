@@ -90,7 +90,7 @@ for t = 1:number_of_post_bleach_images
         disp([t, i])
         A = [- D * XSISQ(i) - k_on, k_off ; k_on, - k_off];
 %         A = [- k_on, k_off ; k_on, - k_off];
-        c_vector_hat = exp( A * T(t) ) * [F_U0(i) ; F_B0(i)];
+        c_vector_hat = expm( A * T(t) ) * [F_U0(i) ; F_B0(i)];
         
         F_image_data_post_bleach_u(i, t) = c_vector_hat(1);
         F_image_data_post_bleach_b(i, t) = c_vector_hat(2);
