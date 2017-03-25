@@ -6,17 +6,17 @@ close all hidden
 %% Measurement parameters.
 delta_t = 0.25; % s
 number_of_post_bleach_images = 200;
-number_of_pixels = 1024%256;
+number_of_pixels = 256;
 number_of_pad_pixels = 0;
-r_bleach_region = 128%32; % pixels
+r_bleach_region = 32; % pixels
 
 intensity_inside_bleach_region = 0.6;
 intensity_outside_bleach_region = 0.9;
 
 %% Particle parameters.
 D = 400; % pixels^2 / s
-k_on = 0.05; % 1/s
-k_off = 0.05; % 1/s
+k_on = 0.5; % 1/s
+k_off = 0.5; % 1/s
 
 p_free = k_off / ( k_on + k_off );
 p_bound = k_on / ( k_on + k_off );
