@@ -70,22 +70,30 @@ XSI1 = XSI1 / (number_of_pixels + 2 * number_of_pad_pixels);
 XSI2 = XSI2 / (number_of_pixels + 2 * number_of_pad_pixels);
 XSISQ = XSI1.^2 + XSI2.^2;
 
-T = delta_t * (1:number_of_post_bleach_images);
+% Diagonalization, excluding time t which DD will be multiplied with.
+PP11 = -(k_on - k_off + (D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ + k_on^2 + 2.*k_on.*k_off + k_off^2).^(1./2) + D.*XSISQ)./(2.*k_on);
+PP12 = -(k_on - k_off - (D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ + k_on^2 + 2.*k_on.*k_off + k_off^2).^(1./2) + D.*XSISQ)./(2.*k_on);
+PP21 = 1;
+PP22 = 1;
+
+DD11 = -((k_on + k_off + (D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ + k_on^2 + 2.*k_on.*k_off + k_off^2).^(1./2) + D.*XSISQ))./2;
+DD22 = -((k_on + k_off - (D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ + k_on^2 + 2.*k_on.*k_off + k_off^2).^(1./2) + D.*XSISQ))./2;
+
+PPinv11 = -k_on./(2.*k_on.*k_off + k_on^2 + k_off^2 + D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ).^(1./2);
+PPinv12 = -(k_on - k_off - (D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ + k_on^2 + 2.*k_on.*k_off + k_off^2).^(1./2) + D.*XSISQ)./(2.*(2.*k_on.*k_off + k_on^2 + k_off^2 + D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ).^(1./2));
+PPinv21 = k_on./(2.*k_on.*k_off + k_on^2 + k_off^2 + D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ).^(1./2);
+PPinv22 = (k_on - k_off + (D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ + k_on^2 + 2.*k_on.*k_off + k_off^2).^(1./2) + D.*XSISQ)./(2.*(2.*k_on.*k_off + k_on^2 + k_off^2 + D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ).^(1./2));
+
 
 for t = 1:number_of_post_bleach_images
-    for i = 1:(number_of_pixels + 2 * number_of_pad_pixels)
-        disp([t, i])
-        for j = 1:(number_of_pixels + 2 * number_of_pad_pixels)
-            A = [- D * XSISQ(i, j) - k_on, k_off ; k_on, - k_off];
-            c_vector_hat = expm( A * T(t) ) * [F_U0(i, j) ; F_B0(i, j)];
-            
-            F_image_data_post_bleach_u(i, j, t) = c_vector_hat(1);
-            F_image_data_post_bleach_b(i, j, t) = c_vector_hat(2);
-        end
-    end
+    disp(t)
+    T = t * delta_t;
+    F_image_data_post_bleach_u(:, :, t) = (PP11 .* PPinv11 .* exp(DD11 * T) + PP12 .* PPinv21 .* exp(DD22 * T)) .* F_U0 + (PP11 .* PPinv12 .* exp(DD11 * T) + PP12 .* PPinv22 .* exp(DD22 * T)) .* F_B0;
+    F_image_data_post_bleach_b(:, :, t) = (PP21 .* PPinv11 .* exp(DD11 * T) + PP22 .* PPinv21 .* exp(DD22 * T)) .* F_U0 + (PP21 .* PPinv12 .* exp(DD11 * T) + PP22 .* PPinv22 .* exp(DD22 * T)) .* F_B0;
 end
-
+   
 for t = 1:number_of_post_bleach_images
+    disp(t)
     image_data_post_bleach_u(:, :, t) = abs(ifft2(ifftshift(F_image_data_post_bleach_u(:, :, t))));
     image_data_post_bleach_b(:, :, t) = abs(ifft2(ifftshift(F_image_data_post_bleach_b(:, :, t))));
 end
