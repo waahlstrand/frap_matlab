@@ -7,7 +7,7 @@ close all hidden
 delta_t = 0.25; % s
 number_of_post_bleach_images = 5;
 number_of_pixels = 256;
-number_of_pad_pixels = 128;
+number_of_pad_pixels = 0%128;
 r_bleach_region = 32; % pixels
 
 intensity_inside_bleach_region = 0.6;
@@ -49,11 +49,8 @@ clear X Y
 
 %% FFT of initial conditions.
 
-F_U0 = fft2(U0);
-% F_U0 = fftshift(F_U0);
-
-F_B0 = fft2(B0);
-% F_B0 = fftshift(F_B0);
+F_U0 = fftshift(fft2(U0));
+F_B0 = fftshift(fft2(B0));
 
 %% FFT space time evolution of PDE system.
 
@@ -82,8 +79,8 @@ for t = 1:number_of_post_bleach_images
 end
 
 for t = 1:number_of_post_bleach_images
-    image_data_post_bleach_u(:, :, t) = abs(ifft2(ifftshift2(F_image_data_post_bleach_u(:, :, t))));
-    image_data_post_bleach_b(:, :, t) = abs(ifft2(ifftshift2(F_image_data_post_bleach_b(:, :, t))));
+    image_data_post_bleach_u(:, :, t) = abs(ifft2(ifftshift(F_image_data_post_bleach_u(:, :, t))));
+    image_data_post_bleach_b(:, :, t) = abs(ifft2(ifftshift(F_image_data_post_bleach_b(:, :, t))));
 end
 
 image_data_post_bleach_u = image_data_post_bleach_u(number_of_pad_pixels+1:end-number_of_pad_pixels, :);
