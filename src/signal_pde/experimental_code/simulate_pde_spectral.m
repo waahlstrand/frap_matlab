@@ -5,7 +5,7 @@ close all hidden
 
 %% Measurement parameters.
 delta_t = 0.25; % s
-number_of_post_bleach_images = 2;
+number_of_post_bleach_images = 20;
 number_of_pixels = 256;
 number_of_pad_pixels = 32%128;
 r_bleach_region = 32; % pixels
