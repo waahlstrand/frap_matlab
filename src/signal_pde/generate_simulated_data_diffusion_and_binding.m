@@ -6,17 +6,17 @@ clc
 %% Parameters.
 D_SI = 2.5e-10; % m^2/s
 pixel_size = 7.598e-07; % m
-D = D_SI / pixel_size^2; % pixels^2 / s
-k_on = 0.5;%0.05; % 1/s
-k_off = 1.0;%0.01; % 1/s
-mobile_fraction = 0.9;%0.90; % dimensionless
+D = 700%D_SI / pixel_size^2; % pixels^2 / s
+k_on = 0.2%0.5;%0.05; % 1/s
+k_off = 3.0%1.0;%0.01; % 1/s
+mobile_fraction = 1.0%0.9;%0.90; % dimensionless
 
-delta_t = 0.2650; % s.
-%number_of_time_points_fine_per_coarse = ceil(D * delta_t / 0.225); % dimensionless
-number_of_time_points_fine_per_coarse = 1000; % dimensionless
+delta_t = 0.250%0.2650; % s.
+number_of_time_points_fine_per_coarse = ceil(D * delta_t / 0.225); % dimensionless
+% number_of_time_points_fine_per_coarse = 1000; % dimensionless
 number_of_pixels = 256;
 number_of_post_bleach_images = 10;
-number_of_pad_pixels = 256;
+number_of_pad_pixels = 128%256;
 x_bleach = number_of_pixels / 2; % pixels
 y_bleach = number_of_pixels / 2; % pixels
 r_bleach = 32; % pixels

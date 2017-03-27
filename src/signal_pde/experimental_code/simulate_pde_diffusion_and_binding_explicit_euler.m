@@ -5,19 +5,19 @@ close all hidden
 
 %% Measurement parameters.
 delta_t = 0.25; % s
-number_of_post_bleach_images = 20;
+number_of_post_bleach_images = 10;
 number_of_pixels = 256;
-number_of_pad_pixels = 256;
+number_of_pad_pixels = 128;
 r_bleach_region = 32; % pixels
 
 intensity_inside_bleach_region = 0.6;
 intensity_outside_bleach_region = 0.9;
 
 %% Particle parameters.
-D = 400; % pixels^2 / s
-k_on = 0.05; % 1/s
-k_off = 0.05; % 1/s
-mobile_fraction = 0.5;%0.8;
+D = 1200; % pixels^2 / s
+k_on = 0.2; % 1/s
+k_off = 3.0; % 1/s
+mobile_fraction = 1.0;%0.8;
 
 p_free_marginal = k_off / ( k_on + k_off );
 p_bound_marginal = k_on / ( k_on + k_off );
@@ -96,28 +96,5 @@ image_data_post_bleach = mobile_fraction * (image_data_post_bleach_u + image_dat
 toc
 
 %% Plot.
-result_pde = [];
-for current_image_post_bleach = 1:number_of_post_bleach_images
-    result_pde = [result_pde, image_data_post_bleach(:, :, current_image_post_bleach)];
-end
-figure
-imagesc(result_pde)
+imagesc(reshape(image_data_post_bleach, [number_of_pixels, number_of_pixels*number_of_post_bleach_images]))
 axis 'equal'
-axis([0 number_of_post_bleach_images*number_of_pixels 0 number_of_pixels])
-axis off
-% 
-% [X, Y] = meshgrid(1:number_of_pixels, 1:number_of_pixels);
-% X = X - 0.5;
-% Y = Y - 0.5;
-% xc = number_of_pixels / 2;
-% yc = number_of_pixels / 2;
-% ind = find( (X - xc).^2 + (Y - yc).^2 <= r_bleach_region^2 );
-% ind = ind(:);
-% recovery_curve = zeros(1, number_of_post_bleach_images);
-% for current_image_post_bleach = 1:number_of_post_bleach_images
-%     slice = image_data_post_bleach(:, :, current_image_post_bleach);
-%     recovery_curve(current_image_post_bleach) = mean(slice(ind));
-% end
-% figure
-% plot(delta_t:delta_t:number_of_post_bleach_images*delta_t, recovery_curve)
-
