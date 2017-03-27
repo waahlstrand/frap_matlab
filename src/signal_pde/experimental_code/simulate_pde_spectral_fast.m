@@ -5,16 +5,16 @@ close all hidden
 
 %% Measurement parameters.
 delta_t = 0.25; % s
-number_of_post_bleach_images = 20;
+number_of_post_bleach_images = 100;
 number_of_pixels = 256;
-number_of_pad_pixels = 32%128;
+number_of_pad_pixels = 128;
 r_bleach_region = 32; % pixels
 
 intensity_inside_bleach_region = 0.6;
 intensity_outside_bleach_region = 0.9;
 
 %% Particle parameters.
-D = 700; % pixels^2 / s
+D = 1200; % pixels^2 / s
 k_on = 0.2; % 1/s
 k_off = 3.0; % 1/s
 
@@ -85,12 +85,27 @@ PPinv21 = k_on./(2.*k_on.*k_off + k_on^2 + k_off^2 + D^2.*XSISQ.^2 + 2.*D.*k_on.
 PPinv22 = (k_on - k_off + (D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ + k_on^2 + 2.*k_on.*k_off + k_off^2).^(1./2) + D.*XSISQ)./(2.*(2.*k_on.*k_off + k_on^2 + k_off^2 + D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ).^(1./2));
 
 
+tic
 for t = 1:number_of_post_bleach_images
-    disp(t)
+%     disp(t)
     T = t * delta_t;
     F_image_data_post_bleach_u(:, :, t) = (PP11 .* PPinv11 .* exp(DD11 * T) + PP12 .* PPinv21 .* exp(DD22 * T)) .* F_U0 + (PP11 .* PPinv12 .* exp(DD11 * T) + PP12 .* PPinv22 .* exp(DD22 * T)) .* F_B0;
     F_image_data_post_bleach_b(:, :, t) = (PP21 .* PPinv11 .* exp(DD11 * T) + PP22 .* PPinv21 .* exp(DD22 * T)) .* F_U0 + (PP21 .* PPinv12 .* exp(DD11 * T) + PP22 .* PPinv22 .* exp(DD22 * T)) .* F_B0;
 end
+toc
+
+tic
+CONST11 = PP11 .* (PPinv11 .* F_U0 + PPinv12 .* F_B0);
+CONST12 = PP12 .* (PPinv21 .* F_U0 + PPinv22 .* F_B0);
+CONST21 = PP21 .* (PPinv11 .* F_U0 + PPinv12 .* F_B0);
+CONST22 = PP22 .* (PPinv21 .* F_U0 + PPinv22 .* F_B0);
+for t = 1:number_of_post_bleach_images
+%     disp(t)
+    T = t * delta_t;
+    F_image_data_post_bleach_u(:, :, t) = CONST11 .* exp(DD11 * T) + CONST12 .* exp(DD22 * T);
+    F_image_data_post_bleach_b(:, :, t) = CONST21 .* exp(DD11 * T) + CONST22 .* exp(DD22 * T);
+end
+toc
    
 for t = 1:number_of_post_bleach_images
     disp(t)
