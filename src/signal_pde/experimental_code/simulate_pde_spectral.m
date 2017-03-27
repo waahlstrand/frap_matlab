@@ -5,16 +5,16 @@ close all hidden
 
 %% Measurement parameters.
 delta_t = 0.25; % s
-number_of_post_bleach_images = 20;
+number_of_post_bleach_images = 1;
 number_of_pixels = 256;
-number_of_pad_pixels = 32%128;
+number_of_pad_pixels = 128;
 r_bleach_region = 32; % pixels
 
 intensity_inside_bleach_region = 0.6;
 intensity_outside_bleach_region = 0.9;
 
 %% Particle parameters.
-D = 700; % pixels^2 / s
+D = 10000; % pixels^2 / s
 k_on = 0.2; % 1/s
 k_off = 3.0; % 1/s
 

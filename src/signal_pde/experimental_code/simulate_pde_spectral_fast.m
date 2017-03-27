@@ -1,11 +1,11 @@
 %% Initialization.
 clear
 clc
-close all hidden
+% close all hidden
 
 %% Measurement parameters.
 delta_t = 0.25; % s
-number_of_post_bleach_images = 10;
+number_of_post_bleach_images = 1;
 number_of_pixels = 256;
 number_of_pad_pixels = 128;
 r_bleach_region = 32; % pixels
@@ -14,7 +14,7 @@ intensity_inside_bleach_region = 0.6;
 intensity_outside_bleach_region = 0.9;
 
 %% Particle parameters.
-D = 4000%1200; % pixels^2 / s
+D = 700%1200; % pixels^2 / s
 k_on = 0.2; % 1/s
 k_off = 3.0; % 1/s
 
@@ -66,8 +66,9 @@ image_data_post_bleach_b = zeros(number_of_pixels + 2 * number_of_pad_pixels, nu
 
 [XSI1, XSI2] = meshgrid(-(number_of_pixels + 2 * number_of_pad_pixels)/2:(number_of_pixels + 2 * number_of_pad_pixels)/2-1, ...
                         -(number_of_pixels + 2 * number_of_pad_pixels)/2:(number_of_pixels + 2 * number_of_pad_pixels)/2-1);
-XSI1 = XSI1 / (number_of_pixels + 2 * number_of_pad_pixels);
-XSI2 = XSI2 / (number_of_pixels + 2 * number_of_pad_pixels);
+
+XSI1 = XSI1 * 2 * pi / (number_of_pixels + 2 * number_of_pad_pixels);
+XSI2 = XSI2 * 2 * pi / (number_of_pixels + 2 * number_of_pad_pixels);
 XSISQ = XSI1.^2 + XSI2.^2;
 
 % Diagonalization, excluding time t which DD will be multiplied with.
@@ -118,5 +119,5 @@ image_data_post_bleach_b = image_data_post_bleach_b(number_of_pad_pixels+1:end-n
 
 image_data_post_bleach = image_data_post_bleach_u + image_data_post_bleach_b;
 
-imagesc(reshape(image_data_post_bleach, [number_of_pixels, number_of_pixels*number_of_post_bleach_images]))
+figure, imagesc(reshape(image_data_post_bleach, [number_of_pixels, number_of_pixels*number_of_post_bleach_images]))
 axis 'equal'
