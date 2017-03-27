@@ -5,18 +5,18 @@ close all hidden
 
 %% Measurement parameters.
 delta_t = 0.25; % s
-number_of_post_bleach_images = 5;
+number_of_post_bleach_images = 2;
 number_of_pixels = 256;
-number_of_pad_pixels = 0%128;
+number_of_pad_pixels = 32%128;
 r_bleach_region = 32; % pixels
 
 intensity_inside_bleach_region = 0.6;
 intensity_outside_bleach_region = 0.9;
 
 %% Particle parameters.
-D = 400; % pixels^2 / s
-k_on = 0.5; % 1/s
-k_off = 1.0; % 1/s
+D = 700; % pixels^2 / s
+k_on = 0.2; % 1/s
+k_off = 3.0; % 1/s
 
 p_free = k_off / ( k_on + k_off );
 p_bound = k_on / ( k_on + k_off );
@@ -52,6 +52,11 @@ clear X Y
 F_U0 = fftshift(fft2(U0));
 F_B0 = fftshift(fft2(B0));
 
+% figure, imagesc(log10(abs(F_U0)))
+% figure, imagesc(log10(abs(F_B0)))
+
+% return
+
 %% FFT space time evolution of PDE system.
 
 F_image_data_post_bleach_u = zeros(number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels, number_of_post_bleach_images);
@@ -61,6 +66,8 @@ image_data_post_bleach_b = zeros(number_of_pixels + 2 * number_of_pad_pixels, nu
 
 [XSI1, XSI2] = meshgrid(-(number_of_pixels + 2 * number_of_pad_pixels)/2:(number_of_pixels + 2 * number_of_pad_pixels)/2-1, ...
                         -(number_of_pixels + 2 * number_of_pad_pixels)/2:(number_of_pixels + 2 * number_of_pad_pixels)/2-1);
+XSI1 = XSI1 / (number_of_pixels + 2 * number_of_pad_pixels);
+XSI2 = XSI2 / (number_of_pixels + 2 * number_of_pad_pixels);
 XSISQ = XSI1.^2 + XSI2.^2;
 
 T = delta_t * (1:number_of_post_bleach_images);
@@ -83,8 +90,8 @@ for t = 1:number_of_post_bleach_images
     image_data_post_bleach_b(:, :, t) = abs(ifft2(ifftshift(F_image_data_post_bleach_b(:, :, t))));
 end
 
-image_data_post_bleach_u = image_data_post_bleach_u(number_of_pad_pixels+1:end-number_of_pad_pixels, :);
-image_data_post_bleach_b = image_data_post_bleach_b(number_of_pad_pixels+1:end-number_of_pad_pixels, :);
+image_data_post_bleach_u = image_data_post_bleach_u(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels, :);
+image_data_post_bleach_b = image_data_post_bleach_b(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels, :);
 
 FRAP = image_data_post_bleach_u + image_data_post_bleach_b;
 
