@@ -4,10 +4,10 @@ clc
 close all hidden
 
 %% Measurement parameters.
-delta_t = 25%0.25; % s
-number_of_post_bleach_images = 10%200;
+delta_t = 0.25; % s
+number_of_post_bleach_images = 100%200;
 number_of_pixels = 256;
-number_of_pad_pixels = 0;
+number_of_pad_pixels = 128;
 r_bleach_region = 32; % pixels
 
 intensity_inside_bleach_region = 0.6;
@@ -56,19 +56,19 @@ F_B0 = fftshift(fft(B0));
 
 %% FFT space time evolution of PDE system.
 
-F_image_data_post_bleach_u = zeros(number_of_pixels, number_of_post_bleach_images);
-F_image_data_post_bleach_b = zeros(number_of_pixels, number_of_post_bleach_images);
-image_data_post_bleach_u = zeros(number_of_pixels, number_of_post_bleach_images);
-image_data_post_bleach_b = zeros(number_of_pixels, number_of_post_bleach_images);
+F_image_data_post_bleach_u = zeros(number_of_pixels + 2 * number_of_pad_pixels, number_of_post_bleach_images);
+F_image_data_post_bleach_b = zeros(number_of_pixels + 2 * number_of_pad_pixels, number_of_post_bleach_images);
+image_data_post_bleach_u = zeros(number_of_pixels + 2 * number_of_pad_pixels, number_of_post_bleach_images);
+image_data_post_bleach_b = zeros(number_of_pixels + 2 * number_of_pad_pixels, number_of_post_bleach_images);
 
-XSI = -number_of_pixels/2:number_of_pixels/2-1;
-XSI = XSI / number_of_pixels;
+XSI = -(number_of_pixels + 2 * number_of_pad_pixels)/2:(number_of_pixels + 2 * number_of_pad_pixels)/2-1;
+XSI = XSI / (number_of_pixels + 2 * number_of_pad_pixels);
 XSISQ = XSI.^2;
 
 T = delta_t * (1:number_of_post_bleach_images);
 
 for t = 1:number_of_post_bleach_images
-    for i = 1:number_of_pixels
+    for i = 1:(number_of_pixels + 2 * number_of_pad_pixels)
         disp([t, i])
         A = [- D * XSISQ(i) - k_on, k_off ; k_on, - k_off];
         c_vector_hat = expm( A * T(t) ) * [F_U0(i) ; F_B0(i)];
@@ -83,8 +83,11 @@ for i = 1:number_of_post_bleach_images
     image_data_post_bleach_b(:, i) = abs(ifft(ifftshift(F_image_data_post_bleach_b(:, i))));
 end
 
+image_data_post_bleach_u = image_data_post_bleach_u(number_of_pad_pixels+1:end-number_of_pad_pixels, :);
+image_data_post_bleach_b = image_data_post_bleach_b(number_of_pad_pixels+1:end-number_of_pad_pixels, :);
+
 FRAP = image_data_post_bleach_u + image_data_post_bleach_b;
-semilogy(X, FRAP)
+semilogy(FRAP)
 
 % figure, imagesc(abs(image_data_post_bleach_u(:,:,i))+abs(image_data_post_bleach_b(:,:,i)))
 
