@@ -21,7 +21,7 @@ k_off = 1;
 p_free = k_off / ( k_on + k_off );
 p_bound = k_on / ( k_on + k_off );
 
-% tic
+tic
 %% Initial condition. 
 % Create a high resolution initial condition which is then downsampled to 
 % avoid too sharp edges.
@@ -81,7 +81,7 @@ CONST12 = PP12 .* (PPinv21 .* F_U0 + PPinv22 .* F_B0);
 CONST21 = PPinv11 .* F_U0 + PPinv12 .* F_B0;
 CONST22 = PPinv21 .* F_U0 + PPinv22 .* F_B0;
 
-tic
+
 for t = 1:number_of_post_bleach_images
     T = t * delta_t;
     CONST1 = exp(DD11 * T);
@@ -89,18 +89,20 @@ for t = 1:number_of_post_bleach_images
     F_image_data_post_bleach_u(:, :, t) = CONST11 .* CONST1 + CONST12 .* CONST2;
     F_image_data_post_bleach_b(:, :, t) = CONST21 .* CONST1 + CONST22 .* CONST2;
 end
-toc
+
    
+image_data_post_bleach = zeros(number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels, number_of_post_bleach_images);
 for t = 1:number_of_post_bleach_images
-    image_data_post_bleach_u(:, :, t) = abs(ifft2(F_image_data_post_bleach_u(:, :, t)));
-    image_data_post_bleach_b(:, :, t) = abs(ifft2(F_image_data_post_bleach_b(:, :, t)));
+%     image_data_post_bleach_u(:, :, t) = abs(ifft2(F_image_data_post_bleach_u(:, :, t)));
+%     image_data_post_bleach_b(:, :, t) = abs(ifft2(F_image_data_post_bleach_b(:, :, t)));
+    image_data_post_bleach(:, :, t) = abs(ifft2(F_image_data_post_bleach_u(:, :, t) + F_image_data_post_bleach_b(:, :, t)));
 end
+image_data_post_bleach = image_data_post_bleach(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels, :);
+% image_data_post_bleach_u = image_data_post_bleach_u(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels, :);
+% image_data_post_bleach_b = image_data_post_bleach_b(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels, :);
 
-image_data_post_bleach_u = image_data_post_bleach_u(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels, :);
-image_data_post_bleach_b = image_data_post_bleach_b(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels, :);
-
-image_data_post_bleach = image_data_post_bleach_u + image_data_post_bleach_b;
-% toc
+% image_data_post_bleach = image_data_post_bleach_u + image_data_post_bleach_b;
+toc
 %% Plot.
 figure, imagesc(reshape(image_data_post_bleach, [number_of_pixels, number_of_pixels * number_of_post_bleach_images]))
 axis 'equal'
