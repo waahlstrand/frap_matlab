@@ -17,6 +17,7 @@ intensity_outside_bleach_region = 0.9;
 D = 350;
 k_on = 1;
 k_off = 1;
+mobile_fraction = 0.5;
 
 p_free = k_off / ( k_on + k_off );
 p_bound = k_on / ( k_on + k_off );
@@ -100,6 +101,12 @@ image_data_post_bleach = image_data_post_bleach(number_of_pad_pixels+1:end-numbe
 % image_data_post_bleach_b = image_data_post_bleach_b(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels, :);
 
 % image_data_post_bleach = image_data_post_bleach_u + image_data_post_bleach_b;
+
+% Take (im)mobile fraction into account.
+image_data_post_bleach = mobile_fraction * (image_data_post_bleach) + ...
+    (1 - mobile_fraction) * (U0(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels) + ...
+    B0(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels));
+
 toc
 %% Plot.
 figure, imagesc(reshape(image_data_post_bleach, [number_of_pixels, number_of_pixels * number_of_post_bleach_images]))
