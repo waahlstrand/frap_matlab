@@ -25,7 +25,7 @@ r_bleach = 32; % pixels
 
 delta_t = 0.2650; % s
 number_of_pixels = 256;
-number_of_images = 20;
+number_of_images = 100;
 number_of_pad_pixels = 128;
 
 data = signal_db(   D, ...
