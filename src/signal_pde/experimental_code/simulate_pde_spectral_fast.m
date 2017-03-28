@@ -84,8 +84,10 @@ CONST22 = PPinv21 .* F_U0 + PPinv22 .* F_B0;
 tic
 for t = 1:number_of_post_bleach_images
     T = t * delta_t;
-    F_image_data_post_bleach_u(:, :, t) = CONST11 .* exp(DD11 * T) + CONST12 .* exp(DD22 * T);
-    F_image_data_post_bleach_b(:, :, t) = CONST21 .* exp(DD11 * T) + CONST22 .* exp(DD22 * T);
+    CONST1 = exp(DD11 * T);
+    CONST2 = exp(DD22 * T);
+    F_image_data_post_bleach_u(:, :, t) = CONST11 .* CONST1 + CONST12 .* CONST2;
+    F_image_data_post_bleach_b(:, :, t) = CONST21 .* CONST1 + CONST22 .* CONST2;
 end
 toc
    
