@@ -73,14 +73,13 @@ DD22 = -((k_on + k_off - (D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ
 
 PPinv11 = -k_on./(2.*k_on.*k_off + k_on^2 + k_off^2 + D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ).^(1./2);
 PPinv12 = -(k_on - k_off - (D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ + k_on^2 + 2.*k_on.*k_off + k_off^2).^(1./2) + D.*XSISQ)./(2.*(2.*k_on.*k_off + k_on^2 + k_off^2 + D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ).^(1./2));
-PPinv21 = k_on./(2.*k_on.*k_off + k_on^2 + k_off^2 + D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ).^(1./2);
+PPinv21 = -PPinv11;%k_on./(2.*k_on.*k_off + k_on^2 + k_off^2 + D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ).^(1./2);
 PPinv22 = (k_on - k_off + (D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ + k_on^2 + 2.*k_on.*k_off + k_off^2).^(1./2) + D.*XSISQ)./(2.*(2.*k_on.*k_off + k_on^2 + k_off^2 + D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ).^(1./2));
 
 CONST11 = PP11 .* (PPinv11 .* F_U0 + PPinv12 .* F_B0);
 CONST12 = PP12 .* (PPinv21 .* F_U0 + PPinv22 .* F_B0);
 CONST21 = PPinv11 .* F_U0 + PPinv12 .* F_B0;
 CONST22 = PPinv21 .* F_U0 + PPinv22 .* F_B0;
-
 
 for t = 1:number_of_post_bleach_images
     T = t * delta_t;
@@ -90,7 +89,6 @@ for t = 1:number_of_post_bleach_images
     F_image_data_post_bleach_b(:, :, t) = CONST21 .* CONST1 + CONST22 .* CONST2;
 end
 
-   
 image_data_post_bleach = zeros(number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels, number_of_post_bleach_images);
 for t = 1:number_of_post_bleach_images
 %     image_data_post_bleach_u(:, :, t) = abs(ifft2(F_image_data_post_bleach_u(:, :, t)));
