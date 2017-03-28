@@ -14,17 +14,17 @@ intensity_inside_bleach_region = 0.6;
 intensity_outside_bleach_region = 0.9;
 
 %% Particle parameters.
-D = 350%D_SI / pixel_size^2; % pixels^2 / s
-k_on = 1%0.2%0.5;%0.05; % 1/s
-k_off = 1%3.0%1.0;%0.01; % 1/s
+D = 350;
+k_on = 1;
+k_off = 1;
 
 p_free = k_off / ( k_on + k_off );
 p_bound = k_on / ( k_on + k_off );
 
+% tic
 %% Initial condition. 
 % Create a high resolution initial condition which is then downsampled to 
 % avoid too sharp edges.
-
 upsampling_factor = 3;
 
 [X, Y] = meshgrid(1:upsampling_factor*(number_of_pixels + 2 * number_of_pad_pixels), 1:upsampling_factor*(number_of_pixels + 2 * number_of_pad_pixels));
@@ -44,21 +44,13 @@ U0 = p_free * U0;
 
 B0 = imresize(B0, [number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels]);
 U0 = imresize(U0, [number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels]);
-
 clear X Y
 
 %% FFT of initial conditions.
-
-F_U0 = fftshift(fft2(U0));
-F_B0 = fftshift(fft2(B0));
-
-% figure, imagesc(log10(abs(F_U0)))
-% figure, imagesc(log10(abs(F_B0)))
-
-% return
+F_U0 = fft2(U0);
+F_B0 = fft2(B0);
 
 %% FFT space time evolution of PDE system.
-
 F_image_data_post_bleach_u = zeros(number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels, number_of_post_bleach_images);
 F_image_data_post_bleach_b = zeros(number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels, number_of_post_bleach_images);
 image_data_post_bleach_u = zeros(number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels, number_of_post_bleach_images);
@@ -70,12 +62,11 @@ image_data_post_bleach_b = zeros(number_of_pixels + 2 * number_of_pad_pixels, nu
 XSI1 = XSI1 * 2 * pi / (number_of_pixels + 2 * number_of_pad_pixels);
 XSI2 = XSI2 * 2 * pi / (number_of_pixels + 2 * number_of_pad_pixels);
 XSISQ = XSI1.^2 + XSI2.^2;
+XSISQ = ifftshift(XSISQ);
 
 % Diagonalization, excluding time t which DD will be multiplied with.
 PP11 = -(k_on - k_off + (D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ + k_on^2 + 2.*k_on.*k_off + k_off^2).^(1./2) + D.*XSISQ)./(2.*k_on);
 PP12 = -(k_on - k_off - (D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ + k_on^2 + 2.*k_on.*k_off + k_off^2).^(1./2) + D.*XSISQ)./(2.*k_on);
-PP21 = 1;
-PP22 = 1;
 
 DD11 = -((k_on + k_off + (D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ + k_on^2 + 2.*k_on.*k_off + k_off^2).^(1./2) + D.*XSISQ))./2;
 DD22 = -((k_on + k_off - (D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ + k_on^2 + 2.*k_on.*k_off + k_off^2).^(1./2) + D.*XSISQ))./2;
@@ -84,24 +75,14 @@ PPinv11 = -k_on./(2.*k_on.*k_off + k_on^2 + k_off^2 + D^2.*XSISQ.^2 + 2.*D.*k_on
 PPinv12 = -(k_on - k_off - (D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ + k_on^2 + 2.*k_on.*k_off + k_off^2).^(1./2) + D.*XSISQ)./(2.*(2.*k_on.*k_off + k_on^2 + k_off^2 + D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ).^(1./2));
 PPinv21 = k_on./(2.*k_on.*k_off + k_on^2 + k_off^2 + D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ).^(1./2);
 PPinv22 = (k_on - k_off + (D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ + k_on^2 + 2.*k_on.*k_off + k_off^2).^(1./2) + D.*XSISQ)./(2.*(2.*k_on.*k_off + k_on^2 + k_off^2 + D^2.*XSISQ.^2 + 2.*D.*k_on.*XSISQ - 2.*D.*k_off.*XSISQ).^(1./2));
-% 
-% 
-% tic
-% for t = 1:number_of_post_bleach_images
-% %     disp(t)
-%     T = t * delta_t;
-%     F_image_data_post_bleach_u(:, :, t) = (PP11 .* PPinv11 .* exp(DD11 * T) + PP12 .* PPinv21 .* exp(DD22 * T)) .* F_U0 + (PP11 .* PPinv12 .* exp(DD11 * T) + PP12 .* PPinv22 .* exp(DD22 * T)) .* F_B0;
-%     F_image_data_post_bleach_b(:, :, t) = (PP21 .* PPinv11 .* exp(DD11 * T) + PP22 .* PPinv21 .* exp(DD22 * T)) .* F_U0 + (PP21 .* PPinv12 .* exp(DD11 * T) + PP22 .* PPinv22 .* exp(DD22 * T)) .* F_B0;
-% end
-% toc
 
-tic
 CONST11 = PP11 .* (PPinv11 .* F_U0 + PPinv12 .* F_B0);
 CONST12 = PP12 .* (PPinv21 .* F_U0 + PPinv22 .* F_B0);
-CONST21 = PP21 .* (PPinv11 .* F_U0 + PPinv12 .* F_B0);
-CONST22 = PP22 .* (PPinv21 .* F_U0 + PPinv22 .* F_B0);
+CONST21 = PPinv11 .* F_U0 + PPinv12 .* F_B0;
+CONST22 = PPinv21 .* F_U0 + PPinv22 .* F_B0;
+
+tic
 for t = 1:number_of_post_bleach_images
-%     disp(t)
     T = t * delta_t;
     F_image_data_post_bleach_u(:, :, t) = CONST11 .* exp(DD11 * T) + CONST12 .* exp(DD22 * T);
     F_image_data_post_bleach_b(:, :, t) = CONST21 .* exp(DD11 * T) + CONST22 .* exp(DD22 * T);
@@ -109,16 +90,15 @@ end
 toc
    
 for t = 1:number_of_post_bleach_images
-    disp(t)
-    image_data_post_bleach_u(:, :, t) = abs(ifft2(ifftshift(F_image_data_post_bleach_u(:, :, t))));
-    image_data_post_bleach_b(:, :, t) = abs(ifft2(ifftshift(F_image_data_post_bleach_b(:, :, t))));
+    image_data_post_bleach_u(:, :, t) = abs(ifft2(F_image_data_post_bleach_u(:, :, t)));
+    image_data_post_bleach_b(:, :, t) = abs(ifft2(F_image_data_post_bleach_b(:, :, t)));
 end
 
 image_data_post_bleach_u = image_data_post_bleach_u(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels, :);
 image_data_post_bleach_b = image_data_post_bleach_b(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels, :);
 
 image_data_post_bleach = image_data_post_bleach_u + image_data_post_bleach_b;
-
+% toc
 %% Plot.
 figure, imagesc(reshape(image_data_post_bleach, [number_of_pixels, number_of_pixels * number_of_post_bleach_images]))
 axis 'equal'
