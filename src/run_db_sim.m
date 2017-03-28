@@ -78,7 +78,7 @@ options.Display = 'iter';
 options.FunctionTolerance = 1e-6;
 options.OptimalityTolerance = 1e-6;
 options.StepTolerance = 1e-6;
-options.UseParallel = true;
+% options.UseParallel = true;
 
 % Optimization.
 % param_hat = [];
