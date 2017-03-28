@@ -5,10 +5,14 @@ close all hidden
 
 %% Measurement parameters.
 delta_t = 0.25; % s
-number_of_post_bleach_images = 100;
+number_of_post_bleach_images = 10;
 number_of_pixels = 256;
 number_of_pad_pixels = 128;
 r_bleach = 32; % pixels
+
+x_bleach = 128;
+y_bleach = 128;
+
 
 intensity_inside_bleach_region = 0.6;
 intensity_outside_bleach_region = 0.9;
@@ -17,7 +21,7 @@ intensity_outside_bleach_region = 0.9;
 D = 350;
 k_on = 1;
 k_off = 1;
-mobile_fraction = 0.5;
+mobile_fraction = 1;
 
 p_free = k_off / ( k_on + k_off );
 p_bound = k_on / ( k_on + k_off );
@@ -31,8 +35,8 @@ upsampling_factor = 3;
 [X, Y] = meshgrid(1:upsampling_factor*(number_of_pixels + 2 * number_of_pad_pixels), 1:upsampling_factor*(number_of_pixels + 2 * number_of_pad_pixels));
 X = X - 0.5;
 Y = Y - 0.5;
-xc = number_of_pad_pixels + number_of_pixels / 2;
-yc = number_of_pad_pixels + number_of_pixels / 2;
+xc = number_of_pad_pixels + x_bleach;
+yc = number_of_pad_pixels + y_bleach;
 
 U0 = zeros(size(X));
 U0( (X - upsampling_factor * xc).^2 + (Y - upsampling_factor * yc).^2 <= (upsampling_factor * r_bleach)^2 ) = intensity_inside_bleach_region;
@@ -113,9 +117,6 @@ figure, imagesc(reshape(image_data_post_bleach, [number_of_pixels, number_of_pix
 axis 'equal'
 axis([0 number_of_post_bleach_images*number_of_pixels 0 number_of_pixels])
 axis off
-
-x_bleach = 128;
-y_bleach = 128;
 
 [X, Y] = meshgrid(1:number_of_pixels, 1:number_of_pixels);
 X = X - 0.5;
