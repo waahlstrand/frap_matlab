@@ -16,60 +16,56 @@ pixel_size = 7.598e-07; % m
 D = D_SI / pixel_size^2; % pixels^2 / s
 k_on = 0.5;%0.05; % 1/s
 k_off = 1.0;%0.01; % 1/s
-mobile_fraction = 0.9;%0.90; % dimensionless
-
-delta_t = 0.2650; % s.
-number_of_time_points_fine_per_coarse = [];%1000; % dimensionless
-number_of_pixels = 256;
-number_of_post_bleach_images = 20;
-number_of_pad_pixels = 256;
-x_bleach = number_of_pixels / 2; % pixels
-y_bleach = number_of_pixels / 2; % pixels
+mf = 0.9; % dimensionless
+Ib = 0.6; % a.u.
+Iu = 1.0; % a.u.
+x_bleach = 128; % pixels
+y_bleach = 128; % pixels
 r_bleach = 32; % pixels
-intensity_inside_bleach_region = 0.6; % a.u.
-intensity_outside_bleach_region = 1.0; % a.u.
 
-image_data_post_bleach = signal_diffusion_and_binding(  D, ...
-                                                        k_on, ...
-                                                        k_off, ...
-                                                        mobile_fraction, ...
-                                                        x_bleach, ...
-                                                        y_bleach, ...
-                                                        r_bleach, ...
-                                                        intensity_inside_bleach_region, ...
-                                                        intensity_outside_bleach_region, ...
-                                                        delta_t, ...
-                                                        number_of_time_points_fine_per_coarse, ...
-                                                        number_of_pixels, ...
-                                                        number_of_post_bleach_images, ...
-                                                        number_of_pad_pixels);
+delta_t = 0.2650; % s
+number_of_pixels = 256;
+number_of_images = 20;
+number_of_pad_pixels = 128;
+
+data = signal_db(   D, ...
+                    k_on, ...
+                    k_off, ...
+                    mf, ...
+                    Ib, ...
+                    Iu, ...
+                    x_bleach, ...
+                    y_bleach, ...
+                    r_bleach, ...
+                    delta_t, ...
+                    number_of_pixels, ...
+                    number_of_images, ...
+                    number_of_pad_pixels);
 
 sigma_noise = 0.025;
-image_data_post_bleach = image_data_post_bleach + sigma_noise * randn(size(image_data_post_bleach));
+data = data + sigma_noise * randn(size(data));
 
-%% Compute redovery curve from simulated data.
-[X, Y] = meshgrid(1:number_of_pixels, 1:number_of_pixels);
-X = X - 0.5;
-Y = Y - 0.5;
-ind = find( (X - x_bleach).^2 + (Y - y_bleach).^2 <= r_bleach^2 );
-ind = ind(:);
+%% Estimate parameters.
 
-recovery_curve = zeros(1, number_of_post_bleach_images);
-for current_image_post_bleach = 1:number_of_post_bleach_images
-    slice = image_data_post_bleach(:, :, current_image_post_bleach);
-    recovery_curve(current_image_post_bleach) = mean(slice(ind));
-end
+lb_D_SI = 1e-12;
+ub_D_SI = 1e-8;
+lb_D = lb_D_SI / pixel_size^2;
+ub_D = ub_D_SI / pixel_size^2;
 
-%plot(recovery_curve)
-%return
-%% Pixel-based fitting.
+lb_k_on = 0;
+ub_k_on = 10;
 
-% Set parameter bounds for first estimation.
-lb_1 = [0.0, 0.0, 1.0]; % mobile_fraction, intensity_inside_bleach_region, intensity_outside_bleach_region
-ub_1 = [1.0, 1.0, 1.0];
+lb_k_off = 0;
+ub_k_off = 10;
+
+lb_
+
+% Set parameter bounds.
+lb = [0.0, 0.0, 1.0]; % mf, Ib, Iu
+ub = [1.0, 1.0, 1.0];
 
 % Initial guess for first estimation.
-param_hat_1 = [mobile_fraction, intensity_inside_bleach_region, intensity_outside_bleach_region];
+param_hat_1 = [mf, Ib, Iu];
 
 % Set parameter bounds for second estimation.
 lb_2_SI = [1e-12, 0, 0];
@@ -128,7 +124,7 @@ while ~is_converged
     fun_1 = @(param)residual_diffusion_and_binding_partial( param(1), ...
                                                             param(2), ...
                                                             param(3), ...
-                                                            image_data_post_bleach, ...
+                                                            data, ...
                                                             image_data_post_bleach_model_unscaled, ...
                                                             initial_condition_model_unscaled);
 
@@ -148,7 +144,7 @@ while ~is_converged
                                                         delta_t, ...
                                                         number_of_time_points_fine_per_coarse, ...
                                                         number_of_pad_pixels, ...
-                                                        image_data_post_bleach);
+                                                        data);
 
     [param_hat_2, ss_2] = lsqnonlin(fun_2, param_hat_2, lb_2, ub_2, options_2);
     
@@ -173,7 +169,7 @@ ss_pixelbased = ss;
 %% Recovery curve-based fitting.
 
 % Initial guess for first estimation.
-param_hat_1 = [mobile_fraction, intensity_inside_bleach_region, intensity_outside_bleach_region];
+param_hat_1 = [mf, Ib, Iu];
 
 % Initial guess for second estimation.
 param_hat_2_SI = [D_SI, k_on, k_off];
@@ -226,7 +222,7 @@ while ~is_converged
                                                                             x_bleach, ...
                                                                             y_bleach, ...
                                                                             r_bleach, ...
-                                                                            image_data_post_bleach, ...
+                                                                            data, ...
                                                                             image_data_post_bleach_model_unscaled, ...
                                                                             initial_condition_model_unscaled);
 
@@ -246,7 +242,7 @@ while ~is_converged
                                                                         delta_t, ...
                                                                         number_of_time_points_fine_per_coarse, ...
                                                                         number_of_pad_pixels, ...
-                                                                        image_data_post_bleach);
+                                                                        data);
 
     [param_hat_2, ss_2] = lsqnonlin(fun_2, param_hat_2, lb_2, ub_2, options_2);
     
