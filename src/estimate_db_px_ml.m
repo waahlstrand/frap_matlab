@@ -20,12 +20,15 @@ options.OptimalityTolerance = 1e-7;
 options.StepTolerance = 1e-7;
 
 % Residual function handle.
-log_gamma_term = zeros(size(data));
-tic
-for current_pixel = 1:numel(log_gamma_term)
-    log_gamma_term(current_pixel) = sum( log( 1:data(current_pixel) ) );
-end
-toc
+% tic
+log_gamma_term = data;
+log_gamma_term(log_gamma_term == 0) = 1; % Just in case...
+log_gamma_sequence = cumsum( log( 1:max(data(:)) ) );
+log_gamma_term = log_gamma_sequence(log_gamma_term);
+% for current_pixel = 1:numel(log_gamma_term)
+%     log_gamma_term(current_pixel) = sum( log( 1:data(current_pixel) ) );
+% end
+% toc
 
 fun = @(param)negloglik_db_px(  param(1), ...
                                 param(2), ...
