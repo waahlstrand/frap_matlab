@@ -1,4 +1,4 @@
-function [param_hat, ss] = estimate_db_px_ml(  data, ...
+function [param_hat, loglik] = estimate_db_px_ml(  data, ...
                                                 x_bleach, ...
                                                 y_bleach, ...
                                                 r_bleach, ...
@@ -38,20 +38,22 @@ fun = @(param)negloglik_db_px(  param(1), ...
 % One fit with user-provided parameter guess or arbitrary many fits using
 % random parameter guesses.
 if ~isempty(param_guess)
-    [param_hat, ss] = fmincon(fun, param_guess, [], [], [], [], lb, ub, [], options);
+    [param_hat, nll] = fmincon(fun, param_guess, [], [], [], [], lb, ub, [], options);
 else
     param_hat = zeros(1, 6);
-    ss = inf;
+    nll = inf;
     
     for current_fit = 1:number_of_fits
         param_guess = lb + (ub - lb) .* rand(size(lb));
-        [param_hat_, ss_] = fmincon(fun, param_guess, [], [], [], [], lb, ub, [], options);
-        if ss_ < ss
+        [param_hat_, nll_] = fmincon(fun, param_guess, [], [], [], [], lb, ub, [], options);
+        if nll_ < nll
             param_hat = param_hat_;
-            ss = ss_;
+            nll = nll_;
         end
     end
 end
+
+loglik = - nll;
 
 end
 
