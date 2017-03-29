@@ -3,19 +3,20 @@ clear
 clc
 close all hidden
 
-addpath('signal_pde');
+addpath('..');
+addpath('../signal_pde');
 
 %% Init parallel pool.
-delete(gcp('nocreate'))
-c = parcluster('local');
-c.NumWorkers = 8;
-parpool(c, c.NumWorkers);
+% delete(gcp('nocreate'))
+% c = parcluster('local');
+% c.NumWorkers = 4;
+% parpool(c, c.NumWorkers);
 
 %% Run simulation study.
 pixel_size = 7.598e-07; % m
 delta_t = 0.2650; % s
 number_of_pixels = 256;
-number_of_images = 100;
+number_of_images = 7;
 number_of_pad_pixels = 128;
 
 mf = 0.9; % dimensionless
@@ -34,10 +35,10 @@ lb_D = lb_D_SI / pixel_size^2;
 ub_D = ub_D_SI / pixel_size^2;
 
 lb_k_on = 0;
-ub_k_on = 10;
+ub_k_on = 150;
 
 lb_k_off = 0;
-ub_k_off = 10;
+ub_k_off = 150;
 
 lb_mf = 0.0;
 ub_mf = 1.0;
@@ -71,11 +72,11 @@ parfor i = 1:100000
     
     % Randomize true parameters.
     D_SI = randsample(D_SI_VECTOR, 1); % m^2/s
-    D = D_SI / pixel_size^2; % pixels^2 / s
+    D = D_SI / pixel_size^2 % pixels^2 / s
     
     ind = randsample(1:size(K_ON_OFF_MATRIX, 1), 1);
-    k_on = K_ON_OFF_MATRIX(ind, 1); % 1/s
-    k_off = K_ON_OFF_MATRIX(ind, 2); % 1/s
+    k_on = K_ON_OFF_MATRIX(ind, 1) % 1/s
+    k_off = K_ON_OFF_MATRIX(ind, 2) % 1/s
     
     param_true = [D, k_on, k_off, mf, Ib, Iu];
     param_guess = param_true;
