@@ -11,11 +11,11 @@ random_stream = RandStream('mt19937ar', 'Seed', random_seed);
 RandStream.setGlobalStream(random_stream);
 
 %% Simulate data.
-D_SI = 2.5e-10; % m^2/s
+D_SI = 1e-12;%2.5e-10; % m^2/s
 pixel_size = 7.598e-07; % m
 D = D_SI / pixel_size^2; % pixels^2 / s
-k_on = 0.5;%0.05; % 1/s
-k_off = 1.0;%0.01; % 1/s
+% k_on = 0.5;%0.05; % 1/s
+% k_off = 1.0;%0.01; % 1/s
 mf = 0.9; % dimensionless
 Ib = 0.6; % a.u.
 Iu = 1.0; % a.u.
@@ -25,7 +25,7 @@ r_bleach = 32; % pixels
 
 delta_t = 0.2650; % s
 number_of_pixels = 256;
-number_of_images = 20;
+number_of_images = 100;
 number_of_pad_pixels = 128;
 
 % data = signal_db(   D, ...
@@ -56,6 +56,9 @@ data = signal_d(D, ...
 
 sigma_noise = 0.0;%0.025;
 data = data + sigma_noise * randn(size(data));
+
+imagesc(reshape(data, [256, 256*number_of_images]))
+return
 
 %% Estimate parameters.
 

@@ -4,22 +4,23 @@ clc
 close all hidden
 
 %% Parameters.
-D_SI = 2.5e-10; % m^2/s
+D_SI = 5e-11; % m^2/s
 pixel_size = 7.598e-07; % m
 D = D_SI / pixel_size^2; % pixels^2 / s
-k_on = 1.0; % 1/s
-k_off = 1.0; % 1/s
+k_on = 100; % 1/s
+k_off = 10; % 1/s
 mf = 1.0; % dimensionless
 
 delta_t = 0.2650; % s
 number_of_pixels = 256;
-number_of_images = 100;
+number_of_images = 200;
 number_of_pad_pixels = 128;
 Ib = 0.6; % a.u.
 Iu = 0.9; % a.u.
 x_bleach = 128; % pixels
 y_bleach = 128; % pixels
-r_bleach = 32; % pixels
+% r_bleach = 32; % pixels
+r_bleach = 15e-6 / pixel_size; % pixels corresponding to 15 µm radius (30 µm diameter)
 
 %% Simulate.
 tic
@@ -42,7 +43,7 @@ toc
 figure
 hold on
 imagesc(reshape(signal, [number_of_pixels, number_of_pixels * number_of_images]))
-axis 'equal'
+% axis 'equal'
 axis([0 number_of_images*number_of_pixels 0 number_of_pixels])
 axis off
 hold off

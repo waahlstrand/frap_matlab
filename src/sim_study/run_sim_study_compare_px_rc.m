@@ -11,28 +11,25 @@ c = parcluster('local');
 c.NumWorkers = 8;
 parpool(c, c.NumWorkers);
 
-%% Simulate data.
+%% Run simulation study.
 pixel_size = 7.598e-07; % m
 delta_t = 0.2650; % s
 number_of_pixels = 256;
-number_of_images = 100
+number_of_images = 100;
 number_of_pad_pixels = 128;
 
-D_SI = 2.5e-10; % m^2/s
-D = D_SI / pixel_size^2; % pixels^2 / s
-k_on = 0.5;%0.05; % 1/s
-k_off = 1.0;%0.01; % 1/s
 mf = 0.9; % dimensionless
 Ib = 0.6; % a.u.
 Iu = 0.9; % a.u.
 
 x_bleach = 128; % pixels
 y_bleach = 128; % pixels
-r_bleach = 32; % pixels
+% r_bleach = 32; % pixels
+r_bleach = 15e-6 / pixel_size; % pixels corresponding to 15 µm radius (30 µm diameter)
 
 % Set parameter bounds.
 lb_D_SI = 1e-12;
-ub_D_SI = 1e-8;
+ub_D_SI = 1e-9;
 lb_D = lb_D_SI / pixel_size^2;
 ub_D = ub_D_SI / pixel_size^2;
 
@@ -54,15 +51,34 @@ ub_Iu = 1.0;
 lb = [lb_D, lb_k_on, lb_k_off, lb_mf, lb_Ib, lb_Iu]; 
 ub = [ub_D, ub_k_on, ub_k_off, ub_mf, ub_Ib, ub_Iu]; 
 
-param_true = [D, k_on, k_off, mf, Ib, Iu];
-param_guess = param_true;
 number_of_fits = 1;
 
+D_SI_VECTOR = [5e-12, 1e-11, 5e-11, 1e-10, 5e-10];
+K_ON_OFF_MATRIX = [];
+for k_on_exp = -2:2
+    for k_off_exp = -2:2
+        if k_on_exp <= k_off_exp + 1
+            K_ON_OFF_MATRIX = [ K_ON_OFF_MATRIX ; 10^k_on_exp , 10^k_off_exp ];
+        end
+    end
+end
+    
 % Loop forever in parallel.
 parfor i = 1:100000
     random_seed = sum( 1e6 * clock() );
     random_stream = RandStream('mt19937ar', 'Seed', random_seed);
     RandStream.setGlobalStream(random_stream);
+    
+    % Randomize true parameters.
+    D_SI = randsample(D_SI_VECTOR, 1); % m^2/s
+    D = D_SI / pixel_size^2; % pixels^2 / s
+    
+    ind = randsample(1:size(K_ON_OFF_MATRIX, 1), 1);
+    k_on = K_ON_OFF_MATRIX(ind, 1); % 1/s
+    k_off = K_ON_OFF_MATRIX(ind, 2); % 1/s
+    
+    param_true = [D, k_on, k_off, mf, Ib, Iu];
+    param_guess = param_true;
 
     data = signal_db(   D, ...
                         k_on, ...
