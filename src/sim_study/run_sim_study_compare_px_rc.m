@@ -7,16 +7,16 @@ addpath('..');
 addpath('../signal_pde');
 
 %% Init parallel pool.
-% delete(gcp('nocreate'))
-% c = parcluster('local');
-% c.NumWorkers = 4;
-% parpool(c, c.NumWorkers);
+delete(gcp('nocreate'))
+c = parcluster('local');
+c.NumWorkers = 8;
+parpool(c, c.NumWorkers);
 
 %% Run simulation study.
 pixel_size = 7.598e-07; % m
 delta_t = 0.2650; % s
 number_of_pixels = 256;
-number_of_images = 7;
+number_of_images = 200;
 number_of_pad_pixels = 128;
 
 mf = 0.9; % dimensionless
