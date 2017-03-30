@@ -57,10 +57,8 @@ end
 signal = signal(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels, :);
 
 % Take (im)mobile fraction into account and add the free and bound
-% contribution to the fluorescence. Even though U0 and B0 are 2-dim
-% matrices, they are actually added to each slice in dim 3 of the 3-D
-% matrix by writing like this.
-signal = mf * signal + (1 - mf) * C0(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels);
+% contribution to the fluorescence.
+signal = mf * signal + (1 - mf) * repmat(C0(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels), [1, 1, number_of_images]);
 
 end
 
