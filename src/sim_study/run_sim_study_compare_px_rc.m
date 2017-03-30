@@ -7,10 +7,10 @@ addpath('..');
 addpath('../signal_pde');
 
 %% Init parallel pool.
-delete(gcp('nocreate'))
-c = parcluster('local');
-c.NumWorkers = 8;
-parpool(c, c.NumWorkers);
+% delete(gcp('nocreate'))
+% c = parcluster('local');
+% c.NumWorkers = 8;
+% parpool(c, c.NumWorkers);
 
 %% Run simulation study.
 pixel_size = 7.598e-07; % m
@@ -65,7 +65,8 @@ for k_on_exp = -2:2
 end
     
 % Loop forever in parallel.
-parfor i = 1:100000
+% parfor i = 1:100000
+while true
     random_seed = sum( 1e6 * clock() );
     random_stream = RandStream('mt19937ar', 'Seed', random_seed);
     RandStream.setGlobalStream(random_stream);
