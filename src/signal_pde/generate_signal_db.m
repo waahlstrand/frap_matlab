@@ -13,10 +13,10 @@ mf = 1.0; % dimensionless
 
 delta_t = 0.2650; % s
 number_of_pixels = 256;
-number_of_images = 200;
+number_of_images = 20;
 number_of_pad_pixels = 128;
 Ib = 0.6; % a.u.
-Iu = 0.9; % a.u.
+Iu = 1.0%0.9; % a.u.
 x_bleach = 128; % pixels
 y_bleach = 128; % pixels
 % r_bleach = 32; % pixels
@@ -38,6 +38,9 @@ signal = signal_db( D, ...
                     number_of_images, ...
                     number_of_pad_pixels);
 toc
+
+sigma_noise = 0.10;
+signal = signal + sigma_noise * randn(size(signal));
 
 %% Plot solution.
 figure
