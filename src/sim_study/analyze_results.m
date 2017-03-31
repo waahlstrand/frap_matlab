@@ -16,8 +16,8 @@ end
 sigma_vector = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05];
 
 
-ind_D = 5;
-ind_k = 1;
+ind_D = 1;
+ind_k = 5;
 ind_sigma = 6;
 ind = param_true(:, 1) == D_VECTOR(ind_D) & param_true(:, 2) == K_ON_OFF_MATRIX(ind_k, 1) & param_true(:, 3) == K_ON_OFF_MATRIX(ind_k, 2) & sigma_noise == sigma_vector(ind_sigma);
 sum(ind)
