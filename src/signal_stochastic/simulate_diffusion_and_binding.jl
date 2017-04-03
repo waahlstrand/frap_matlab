@@ -11,13 +11,13 @@ function simulate_diffusion_and_binding(D_SI::Float64, k_on::Float64, k_off::Flo
 	t_start::Int64 = convert(Int64, time_ns())
 	
 	# Experimental parameters. 
+	pixel_size::Float64 = 7.598e-7 # m
 	delta_t::Float64 = 0.2650 # s
 	number_of_post_bleach_images::Int64 = 10#4#40
 	number_of_pixels::Int64 = 256 #  pixels
 	r_bleach::Float64 = 15e-6 / pixel_size # pixels corresponding to 15 µm radius (30 µm diameter)
 	intensity_inside_bleach_region::Float64 = 0.6
-	intensity_outside_bleach_region::Float64 = 0.9
-	pixel_size::Float64 = 7.598e-7 # m
+	intensity_outside_bleach_region::Float64 = 1.0
 
 	# Particle parameters.
 	#D_SI::Float64 = 5.0e-10 # m^2 / s
@@ -31,11 +31,11 @@ function simulate_diffusion_and_binding(D_SI::Float64, k_on::Float64, k_off::Flo
 	
 	number_of_time_steps_fine_per_course::Int64 = 64
 	
-	number_of_particles_per_worker::Int64 = 2000000000
+	number_of_particles_per_worker::Int64 = 200000000
 	number_of_workers::Int64 = nworkers()
 
 	# Generate particle trajectories and FRAP image data.
-	image_data_post_bleach::Array{Int64, 3} = @parallel (+) for current_worker = 1:number_of_workers
+	data::Array{Int64, 3} = @parallel (+) for current_worker = 1:number_of_workers
 		simulate(	D, 
 					k_on, 
 					k_off, 
@@ -52,7 +52,7 @@ function simulate_diffusion_and_binding(D_SI::Float64, k_on::Float64, k_off::Flo
 	end
 
 	# Save output.
-	file_name_output::String = join(("simulated_frap_data_", str(D), "_", str(k_on), "_", str(k_off), ".dat"))
+	file_name_output::String = join(("simulated_stochastic_data_", string(D_SI), "_", string(k_on), "_", string(k_off), ".dat"))
 	file_stream_output::IOStream = open(file_name_output, "w")
 	write(file_stream_output, D)
 	write(file_stream_output, k_on)
@@ -67,7 +67,7 @@ function simulate_diffusion_and_binding(D_SI::Float64, k_on::Float64, k_off::Flo
 	write(file_stream_output, intensity_inside_bleach_region)
 	write(file_stream_output, intensity_outside_bleach_region)
 	write(file_stream_output, number_of_particles_per_worker*number_of_workers)
-	write(file_stream_output, image_data_post_bleach)
+	write(file_stream_output, data)
 	close(file_stream_output)
 	
 	# Measure and print execution time.
@@ -77,4 +77,13 @@ function simulate_diffusion_and_binding(D_SI::Float64, k_on::Float64, k_off::Flo
 	nothing
 end
 
-simulate_diffusion_and_binding()
+D_SI_VECTOR = [5e-12, 1e-11, 5e-11, 1e-10, 5e-10]
+for i = 1:length(D_SI_VECTOR)
+	for k_on_exp = -2:2
+		for k_off_exp = -2:2
+		    if k_on_exp <= k_off_exp + 1
+		        simulate_diffusion_and_binding(D_SI_VECTOR[i], 10.0^k_on_exp, 10.0^k_off_exp)
+		    end
+		end
+	end
+end
