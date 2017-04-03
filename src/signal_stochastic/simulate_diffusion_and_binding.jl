@@ -27,7 +27,7 @@ function simulate_diffusion_and_binding()
 	mobile_fraction::Float64 = 0.9
 
 	# Simulation parameters.
-	number_of_pad_pixels::Int64 = 256 # pixels
+	number_of_pad_pixels::Int64 = 128#256 # pixels
 	
 	number_of_time_steps_fine_per_course::Int64 = 64
 	
