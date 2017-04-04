@@ -6,17 +6,18 @@ close all hidden
 addpath('..');
 addpath('../signal_pde');
 
-%% Init parallel pool.
-% delete(gcp('nocreate'))
-% c = parcluster('local');
-% c.NumWorkers = 8;
-% parpool(c, c.NumWorkers);
+random_seed = sum( 1e6 * clock() );
+random_stream = RandStream('mt19937ar', 'Seed', random_seed);
+RandStream.setGlobalStream(random_stream);
+
+WALL_TIME = 3600 * 1;
+time_start = tic();
 
 %% Run simulation study.
-pixel_size = 7.598e-07; % m
-delta_t = 0.2650; % s
+pixel_size = 7.5e-07; % m
+delta_t = 0.2; % s
 number_of_pixels = 256;
-number_of_images = 200;
+number_of_images = 100;
 number_of_pad_pixels = 128;
 
 mf = 1.0; % dimensionless
@@ -25,7 +26,6 @@ Iu = 1.0; % a.u.
 
 x_bleach = 128; % pixels
 y_bleach = 128; % pixels
-% r_bleach = 32; % pixels
 r_bleach = 15e-6 / pixel_size; % pixels corresponding to 15 µm radius (30 µm diameter)
 
 % Set parameter bounds.
@@ -35,10 +35,10 @@ lb_D = lb_D_SI / pixel_size^2;
 ub_D = ub_D_SI / pixel_size^2;
 
 lb_k_on = 0;
-ub_k_on = 150;
+ub_k_on = 100;
 
 lb_k_off = 0;
-ub_k_off = 150;
+ub_k_off = 100;
 
 lb_mf = 1.0;
 ub_mf = 1.0;
@@ -55,28 +55,25 @@ ub = [ub_D, ub_k_on, ub_k_off, ub_mf, ub_Ib, ub_Iu];
 number_of_fits = 1;
 
 D_SI_VECTOR = [5e-12, 1e-11, 5e-11, 1e-10, 5e-10];
-K_ON_OFF_MATRIX = [];
-for k_on_exp = -2:2
-    for k_off_exp = -2:2
-        if k_on_exp <= k_off_exp + 1
-            K_ON_OFF_MATRIX = [ K_ON_OFF_MATRIX ; 10^k_on_exp , 10^k_off_exp ];
-        end
-    end
-end
-    
+K_ON_VECTOR = [0.05, 0.1, 0.5, 1, 5];
+K_OFF_VECTOR = [0.05, 0.1, 0.5, 1, 5];
+
+PARAM_TRUE = [];
+PARAM_HAT_PX = [];
+PARAM_HAT_RC = [];
+SS_PX = [];
+SS_RC = [];
+SIGMA_NOISE = [];
+
 % Loop forever.
-while true
-    random_seed = sum( 1e6 * clock() );
-    random_stream = RandStream('mt19937ar', 'Seed', random_seed);
-    RandStream.setGlobalStream(random_stream);
-    
+while toc(time_start) < WALL_TIME - 300
+    toc(time_start)
     % Randomize true parameters.
     D_SI = randsample(D_SI_VECTOR, 1); % m^2/s
     D = D_SI / pixel_size^2; % pixels^2 / s
     
-    ind = randsample(1:size(K_ON_OFF_MATRIX, 1), 1);
-    k_on = K_ON_OFF_MATRIX(ind, 1); % 1/s
-    k_off = K_ON_OFF_MATRIX(ind, 2); % 1/s
+    k_on = randsample(K_ON_VECTOR, 1); % 1/s
+    k_off = randsample(K_OFF_VECTOR, 1); % 1/s
     
     param_true = [D, k_on, k_off, mf, Ib, Iu];
     param_guess = param_true;
@@ -95,7 +92,7 @@ while true
                         number_of_images, ...
                         number_of_pad_pixels);
 
-    sigma_noise = randsample([0.001 0.01 0.1], 1);
+    sigma_noise = randsample([0.1 0.2 0.5], 1);
     data = data + sigma_noise * randn(size(data));
 
     [param_hat_px, ss_px] = estimate_db_px( data, ...
@@ -123,13 +120,12 @@ while true
                                             ub, ...
                                             param_guess, ...
                                             number_of_fits);
-
-    save(['est_' num2str(random_seed) '.mat'], 'param_true', 'sigma_noise', 'param_hat_px', 'param_hat_rc', 'ss_px', 'ss_rc');
-%     mat_file = matfile(['est_' num2str(random_seed) '.mat'], 'writable', true);
-%     mat_file.param_true = param_true;
-%     mat_file.sigma_noise = sigma_noise;
-%     mat_file.param_hat_px = param_hat_px;
-%     mat_file.ss_px = ss_px;
-%     mat_file.param_hat_rc = param_hat_rc;
-%     mat_file.ss_rc = ss_rc;
+                                        
+    PARAM_TRUE = [PARAM_TRUE ; param_true];
+    PARAM_HAT_PX = [PARAM_HAT_PX ; param_hat_px];
+    PARAM_HAT_RC = [PARAM_HAT_RC ; param_hat_rc];
+    SS_PX = [SS_PX ; ss_px];
+    SS_RC = [SS_RC ; ss_rc];
+    SIGMA_NOISE = [SIGMA_NOISE ; sigma_noise];
 end
+save(['est_' num2str(random_seed) '.mat'], 'param_true', 'sigma_noise', 'param_hat_px', 'param_hat_rc', 'ss_px', 'ss_rc');

@@ -5,21 +5,20 @@ close all hidden
 
 %% Parameters.
 D_SI = 5e-11; % m^2/s
-pixel_size = 7.598e-07; % m
+pixel_size = 7.5e-07; % m
 D = D_SI / pixel_size^2; % pixels^2 / s
-k_on = 100; % 1/s
-k_off = 10; % 1/s
+k_on = 0.5; % 1/s
+k_off = 5; % 1/s
 mf = 1.0; % dimensionless
 
-delta_t = 0.2650; % s
+delta_t = 0.2; % s
 number_of_pixels = 256;
-number_of_images = 20;
+number_of_images = 100;
 number_of_pad_pixels = 128;
 Ib = 0.6; % a.u.
-Iu = 1.0%0.9; % a.u.
+Iu = 1.0;%0.9; % a.u.
 x_bleach = 128; % pixels
 y_bleach = 128; % pixels
-% r_bleach = 32; % pixels
 r_bleach = 15e-6 / pixel_size; % pixels corresponding to 15 µm radius (30 µm diameter)
 
 %% Simulate.
@@ -39,7 +38,7 @@ signal = signal_db( D, ...
                     number_of_pad_pixels);
 toc
 
-sigma_noise = 0.10;
+sigma_noise = 0.5;
 signal = signal + sigma_noise * randn(size(signal));
 
 %% Plot solution.
