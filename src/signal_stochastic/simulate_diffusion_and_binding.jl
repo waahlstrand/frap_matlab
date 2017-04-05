@@ -71,7 +71,7 @@ function simulate_diffusion_and_binding(D_SI::Float64, k_on::Float64, k_off::Flo
 	nothing
 end
 
-simulate_diffusion_and_binding(1e-10, 5.0, 5.0)
+simulate_diffusion_and_binding(1e-10, 5.0, 5.0, 1.0)
 
 #D_SI_VECTOR = [5e-12, 1e-11, 5e-11, 1e-10, 5e-10]
 #for i = 1:length(D_SI_VECTOR)
