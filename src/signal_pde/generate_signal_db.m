@@ -23,7 +23,7 @@ r_bleach = 15e-6 / pixel_size; % pixels corresponding to 15 µm radius (30 µm dia
 
 %% Simulate.
 tic
-signal = signal_db( D, ...
+data = signal_db( D, ...
                     k_on, ...
                     k_off, ...
                     mf, ...
@@ -39,12 +39,12 @@ signal = signal_db( D, ...
 toc
 
 sigma_noise = 0.5;
-signal = signal + sigma_noise * randn(size(signal));
+data = data + sigma_noise * randn(size(data));
 
 %% Plot solution.
 figure
 hold on
-imagesc(reshape(signal, [number_of_pixels, number_of_pixels * number_of_images]))
+imagesc(reshape(data, [number_of_pixels, number_of_pixels * number_of_images]))
 % axis 'equal'
 axis([0 number_of_images*number_of_pixels 0 number_of_pixels])
 axis off
@@ -58,7 +58,7 @@ ind = find( (X - x_bleach).^2 + (Y - y_bleach).^2 <= r_bleach^2 );
 ind = ind(:);
 recovery_curve = zeros(1, number_of_images);
 for current_image = 1:number_of_images
-    slice = signal(:, :, current_image);
+    slice = data(:, :, current_image);
     recovery_curve(current_image) = mean(slice(ind));
 end
 figure

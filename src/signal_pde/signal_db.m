@@ -1,4 +1,4 @@
-function signal = signal_db(D, ...
+function data = signal_db(D, ...
                             k_on, ...
                             k_off, ...
                             mf, ...
@@ -13,8 +13,8 @@ function signal = signal_db(D, ...
                             number_of_pad_pixels)
 
 % Marginal probabilities of the states.
-p_free = k_off / ( k_on + k_off );
-p_bound = k_on / ( k_on + k_off );
+p_u = k_off / ( k_on + k_off );
+p_b = k_on / ( k_on + k_off );
 
 % Initial condition. Create a high resolution initial condition which is 
 % then downsampled to avoid too sharp edges. Distribute bound and free 
@@ -34,8 +34,8 @@ C0( (X - upsampling_factor * x_bleach).^2 + (Y - upsampling_factor * y_bleach).^
 
 C0 = imresize(C0, [number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels]);
 
-B0 = p_bound * C0;
-U0 = p_free * C0;
+B0 = p_b * C0;
+U0 = p_u * C0;
 
 % FFT of initial conditions.
 F_U0 = fft2(U0);
@@ -45,7 +45,7 @@ F_B0 = fft2(B0);
 F_U = zeros(number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels, number_of_images);
 F_B = zeros(number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels, number_of_images);
 
-signal = zeros(number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels, number_of_images);
+data = zeros(number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels, number_of_images);
 
 % Fourier space grid and squared magnitude, correctly shifted.
 [XSI1, XSI2] = meshgrid(-(number_of_pixels + 2 * number_of_pad_pixels)/2:(number_of_pixels + 2 * number_of_pad_pixels)/2-1, ...
@@ -85,13 +85,13 @@ end
 
 % Inverse transform.
 for t = 1:number_of_images
-    signal(:, :, t) = abs(ifft2(F_U(:, :, t) + F_B(:, :, t)));
+    data(:, :, t) = abs(ifft2(F_U(:, :, t) + F_B(:, :, t)));
 end
-signal = signal(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels, :);
+data = data(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels, :);
 
 % Take (im)mobile fraction into account and add the free and bound
 % contribution to the fluorescence.
-signal = mf * signal + (1 - mf) * repmat(C0(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels), [1, 1, number_of_images]);
+data = mf * data + (1 - mf) * repmat(C0(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels), [1, 1, number_of_images]);
 
 end
 

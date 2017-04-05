@@ -17,16 +17,16 @@ function simulate(	D::Float64,
 	number_of_pad_pixels_float::Float64 = convert(Float64, number_of_pad_pixels)
 		
 	# Compute parameters of Markov chain from the on and off reaction rates.	
-	mu_free::Float64 = 1.0 / k_on
-	mu_bound::Float64 = 1.0 / k_off
-	p_free::Float64 = k_off / ( k_on + k_off )
-	p_bound::Float64 = k_on / ( k_on + k_off )
+	tau_u::Float64 = 1.0 / k_on
+	tau_b::Float64 = 1.0 / k_off
+	p_u::Float64 = k_off / ( k_on + k_off )
+	p_b::Float64 = k_on / ( k_on + k_off )
 	
 	delta_t_fine::Float64 = delta_t / convert(Float64, number_of_time_steps_fine_per_course)
 	sigma_fine::Float64 = sqrt( 2.0 * D * delta_t_fine )
 
-	p_bound_to_free::Float64 = delta_t_fine / mu_bound
-	p_free_to_bound::Float64 = delta_t_fine / mu_free
+	p_bu::Float64 = delta_t_fine / tau_b
+	p_ub::Float64 = delta_t_fine / tau_u
 	
 	# Pre-work for picking random initial positions.
 	area_inside_bleach_region::Float64 = pi * r_bleach^2
@@ -43,7 +43,7 @@ function simulate(	D::Float64,
 	is_inside_bleach_region::Bool = false
 	is_outside_bleach_region::Bool = false
 	is_mobile::Bool = false
-	is_free::Bool = false
+	is_unbound::Bool = false
 	ind_x::Int64 = 0
 	ind_y::Int64 = 0
 	
@@ -81,26 +81,26 @@ function simulate(	D::Float64,
 		is_mobile = rand() <= mf
 		
 		if is_mobile
-			if rand() <= p_free
-				is_free = true
+			if rand() <= p_u
+				is_unbound = true
 			else
-				is_free = false
+				is_unbound = false
 			end
 			
-			for current_image_post_bleach = 1:number_of_images
+			for current_image = 1:number_of_images
 				for current_time_step_fine = 1:number_of_time_steps_fine_per_course
-					if is_free
+					if is_unbound
 						x = x + sigma_fine * randn()
 						y = y + sigma_fine * randn()
 					end
 					
-					if is_free
-						if rand() <= p_free_to_bound
-							is_free = false
+					if is_unbound
+						if rand() <= p_ub
+							is_unbound = false
 						end
 					else
-						if rand() <= p_bound_to_free
-							is_free = true
+						if rand() <= p_bu
+							is_unbound = true
 						end
 					end
 					
@@ -111,7 +111,7 @@ function simulate(	D::Float64,
 				if ind_x >= 1 && ind_x <= number_of_pixels
 					ind_y = convert(Int64, ceil(mod(y, number_of_pixels_float + 2.0 * number_of_pad_pixels_float) - number_of_pad_pixels_float))
 					if ind_y >= 1 && ind_y <= number_of_pixels
-						data[ind_x, ind_y, current_image_post_bleach] += 1
+						data[ind_x, ind_y, current_image] += 1
 					end
 				end
 			end
@@ -121,8 +121,8 @@ function simulate(	D::Float64,
 			if ind_x >= 1 && ind_x <= number_of_pixels
 				ind_y = convert(Int64, ceil(y - number_of_pad_pixels_float))
 				if ind_y >= 1 && ind_y <= number_of_pixels
-					for current_image_post_bleach = 1:number_of_images
-						data[ind_x, ind_y, current_image_post_bleach] += 1
+					for current_image = 1:number_of_images
+						data[ind_x, ind_y, current_image] += 1
 					end
 				end
 			end
