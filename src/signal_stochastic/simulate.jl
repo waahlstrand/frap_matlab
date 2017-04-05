@@ -50,7 +50,7 @@ function simulate(	D::Float64,
 	data::Array{Int64, 3} = zeros(number_of_pixels, number_of_pixels, number_of_images)
 
 	for current_particle = 1:number_of_particles
-		if mod(current_particle, 1000000) == 0
+		if mod(current_particle, 100000) == 0
 			println(current_particle)
 		end
 
