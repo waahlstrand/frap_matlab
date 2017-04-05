@@ -1,15 +1,15 @@
 function simulate(	D::Float64, 
 					k_on::Float64, 
 					k_off::Float64, 
-					mobile_fraction::Float64,
+					mf::Float64,
+					Ib::Float64,
+					Iu::Float64,
 					r_bleach::Float64,
 					number_of_pixels::Int64,
-					number_of_post_bleach_images::Int64,
+					number_of_images::Int64,
 					number_of_pad_pixels::Int64,
 					delta_t::Float64,
 					number_of_time_steps_fine_per_course::Int64,
-					intensity_inside_bleach_region::Float64,
-					intensity_outside_bleach_region::Float64,
 					number_of_particles::Int64)
 
 	# Simulation parameters.
@@ -30,10 +30,10 @@ function simulate(	D::Float64,
 	
 	# Pre-work for picking random initial positions.
 	area_inside_bleach_region::Float64 = pi * r_bleach^2
-	integral_inside_bleach_region::Float64 = area_inside_bleach_region * intensity_inside_bleach_region
+	integral_inside_bleach_region::Float64 = area_inside_bleach_region * Ib
 
 	area_outside_bleach_region::Float64 = (number_of_pixels_float + 2.0 * number_of_pad_pixels_float)^2 - area_inside_bleach_region
-	integral_outside_bleach_region::Float64 = area_outside_bleach_region * intensity_outside_bleach_region
+	integral_outside_bleach_region::Float64 = area_outside_bleach_region * Iu
 
 	p_inside_bleach_region::Float64 = integral_inside_bleach_region / ( integral_inside_bleach_region + integral_outside_bleach_region )
 
@@ -47,7 +47,7 @@ function simulate(	D::Float64,
 	ind_x::Int64 = 0
 	ind_y::Int64 = 0
 	
-	image_data_post_bleach::Array{Int64, 3} = zeros(number_of_pixels, number_of_pixels, number_of_post_bleach_images)
+	data::Array{Int64, 3} = zeros(number_of_pixels, number_of_pixels, number_of_images)
 
 	for current_particle = 1:number_of_particles
 		if mod(current_particle, 1000000) == 0
@@ -78,7 +78,7 @@ function simulate(	D::Float64,
 		end
 		
 		# Perform particle motion.
-		is_mobile = rand() <= mobile_fraction
+		is_mobile = rand() <= mf
 		
 		if is_mobile
 			if rand() <= p_free
@@ -87,7 +87,7 @@ function simulate(	D::Float64,
 				is_free = false
 			end
 			
-			for current_image_post_bleach = 1:number_of_post_bleach_images
+			for current_image_post_bleach = 1:number_of_images
 				for current_time_step_fine = 1:number_of_time_steps_fine_per_course
 					if is_free
 						x = x + sigma_fine * randn()
@@ -111,7 +111,7 @@ function simulate(	D::Float64,
 				if ind_x >= 1 && ind_x <= number_of_pixels
 					ind_y = convert(Int64, ceil(mod(y, number_of_pixels_float + 2.0 * number_of_pad_pixels_float) - number_of_pad_pixels_float))
 					if ind_y >= 1 && ind_y <= number_of_pixels
-						image_data_post_bleach[ind_x, ind_y, current_image_post_bleach] += 1
+						data[ind_x, ind_y, current_image_post_bleach] += 1
 					end
 				end
 			end
@@ -121,13 +121,13 @@ function simulate(	D::Float64,
 			if ind_x >= 1 && ind_x <= number_of_pixels
 				ind_y = convert(Int64, ceil(y - number_of_pad_pixels_float))
 				if ind_y >= 1 && ind_y <= number_of_pixels
-					for current_image_post_bleach = 1:number_of_post_bleach_images
-						image_data_post_bleach[ind_x, ind_y, current_image_post_bleach] += 1
+					for current_image_post_bleach = 1:number_of_images
+						data[ind_x, ind_y, current_image_post_bleach] += 1
 					end
 				end
 			end
 		end        
 	end
 
-	return image_data_post_bleach
+	return data
 end
