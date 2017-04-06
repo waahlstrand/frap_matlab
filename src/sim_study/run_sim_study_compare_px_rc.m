@@ -10,7 +10,7 @@ random_seed = sum( 1e6 * clock() );
 random_stream = RandStream('mt19937ar', 'Seed', random_seed);
 RandStream.setGlobalStream(random_stream);
 
-WALL_TIME = 3600 * 1;
+WALL_TIME = 3600 * 12;
 time_start = tic();
 
 %% Run simulation study.
@@ -66,8 +66,7 @@ SS_RC = [];
 SIGMA_NOISE = [];
 
 % Loop forever.
-while toc(time_start) < WALL_TIME - 300
-    toc(time_start)
+while toc(time_start) < WALL_TIME - 600
     % Randomize true parameters.
     D_SI = randsample(D_SI_VECTOR, 1); % m^2/s
     D = D_SI / pixel_size^2; % pixels^2 / s
@@ -128,4 +127,4 @@ while toc(time_start) < WALL_TIME - 300
     SS_RC = [SS_RC ; ss_rc];
     SIGMA_NOISE = [SIGMA_NOISE ; sigma_noise];
 end
-save(['est_' num2str(random_seed) '.mat'], 'param_true', 'sigma_noise', 'param_hat_px', 'param_hat_rc', 'ss_px', 'ss_rc');
+save(['est_' num2str(random_seed) '.mat'], 'PARAM_TRUE', 'PARAM_HAT_PX', 'PARAM_HAT_RC', 'SS_PX', 'SS_RC', 'SIGMA_NOISE');

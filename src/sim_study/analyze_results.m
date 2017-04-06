@@ -4,16 +4,12 @@ close all hidden
 
 load('results.mat');
 
-D_VECTOR = sort(unique(param_true(:, 1)));
-K_ON_OFF_MATRIX = [];
-for k_on_exp = -2:1%2
-    for k_off_exp = -2:1%2
-        if k_on_exp <= k_off_exp + 1 && k_on_exp >= k_off_exp - 1 % SIC SIC SIC
-            K_ON_OFF_MATRIX = [ K_ON_OFF_MATRIX ; 10^k_on_exp , 10^k_off_exp ];
-        end
-    end
-end
-sigma_vector = [0.001, 0.01, 0.1];
+pixel_size = 7.5e-07; % m
+D_SI_VECTOR = [5e-12, 1e-11, 5e-11, 1e-10, 5e-10];
+D_VECTOR = D_SI_VECTOR / pixel_size^2;
+K_ON_VECTOR = [0.05, 0.1, 0.5, 1, 5];
+K_OFF_VECTOR = [0.05, 0.1, 0.5, 1, 5];
+SIGMA_VECTOR = [0.1, 0.2, 0.5];
 
 NUMBER_OF_SIMULATIONS = [];
 THETA_TRUE = [];
@@ -23,41 +19,20 @@ RE = [];
 
 
 for ind_D = 1:5
-    for ind_k = 1:size(K_ON_OFF_MATRIX, 1)
-        for ind_sigma = 3%1:3
-%             disp([ind_D ind_k ind_sigma]) 
-            ind = abs(param_true(:, 1) - D_VECTOR(ind_D)) < 1e-3 & abs(param_true(:, 2) - K_ON_OFF_MATRIX(ind_k, 1)) < 1e-3 & abs(param_true(:, 3) - K_ON_OFF_MATRIX(ind_k, 2)) < 1e-3 & abs(sigma_noise - sigma_vector(ind_sigma)) < 1e-3;
-            ind = find(ind);
-            NUMBER_OF_SIMULATIONS = [NUMBER_OF_SIMULATIONS ; numel(ind)];
-            THETA_TRUE = [THETA_TRUE ; D_VECTOR(ind_D) K_ON_OFF_MATRIX(ind_k, :) sigma_vector(ind_sigma)];
-            MSE_PX = [MSE_PX ; mean( (param_hat_px(ind, 1:3) - [D_VECTOR(ind_D) K_ON_OFF_MATRIX(ind_k, :)]).^2, 1)];
-            MSE_RC = [MSE_RC ; mean( (param_hat_rc(ind, 1:3) - [D_VECTOR(ind_D) K_ON_OFF_MATRIX(ind_k, :)]).^2, 1)];
-            RE = [RE ; MSE_PX(end, :) ./ MSE_RC(end, :)];
+    for ind_k_on = 1:5
+        for ind_k_off = 1:5
+            for ind_sigma = 1%1:3
+                disp([ind_D ind_k_on ind_k_off ind_sigma])
+                ind = abs(PARAM_TRUE(:, 1) - D_VECTOR(ind_D)) < 1e-3 & abs(PARAM_TRUE(:, 2) - K_ON_VECTOR(ind_k_on)) < 1e-3 & abs(PARAM_TRUE(:, 3) - K_OFF_VECTOR(ind_k_off)) < 1e-3 & abs(SIGMA_NOISE - SIGMA_VECTOR(ind_sigma)) < 1e-3;
+                ind = find(ind);
+                NUMBER_OF_SIMULATIONS = [NUMBER_OF_SIMULATIONS ; numel(ind)];
+                THETA_TRUE = [THETA_TRUE ; D_VECTOR(ind_D) K_ON_VECTOR(ind_k_on) K_OFF_VECTOR(ind_k_off) SIGMA_VECTOR(ind_sigma)];
+                MSE_PX = [MSE_PX ; mean( (PARAM_HAT_PX(ind, 1:3) - [D_VECTOR(ind_D) K_ON_VECTOR(ind_k_on) K_OFF_VECTOR(ind_k_off)]).^2, 1)];
+                MSE_RC = [MSE_RC ; mean( (PARAM_HAT_RC(ind, 1:3) - [D_VECTOR(ind_D) K_ON_VECTOR(ind_k_on) K_OFF_VECTOR(ind_k_off)]).^2, 1)];
+                RE = [RE ; MSE_PX(end, :) ./ MSE_RC(end, :)];
+            end
         end
     end
 end
 
 [THETA_TRUE RE]
-
-
-% ind_D = 1
-% ind_k = 5
-% ind_sigma = 2
-% ind = abs(param_true(:, 1) - D_VECTOR(ind_D)) < 1e-3 & abs(param_true(:, 2) - K_ON_OFF_MATRIX(ind_k, 1)) < 1e-3 & abs(param_true(:, 3) - K_ON_OFF_MATRIX(ind_k, 2)) < 1e-3 & abs(sigma_noise - sigma_vector(ind_sigma)) < 1e-3;
-% ind = find(ind);
-% [param_hat_px(ind, 1:3) param_hat_rc(ind, 1:3)]
-
-%             
-% 
-% std(param_hat_px(ind, :), [], 1) ./ param_true(ind(1), :)
-% std(param_hat_rc(ind, :), [], 1) ./ param_true(ind(1), :)
-% 
-% a = 0;
-% for ind_D = 1:5
-%     for ind_k = 1:19
-%         for ind_sigma = 1:6
-%             ind = param_true(:, 1) == D_VECTOR(ind_D) & param_true(:, 2) == K_ON_OFF_MATRIX(ind_k, 1) & param_true(:, 3) == K_ON_OFF_MATRIX(ind_k, 2) & sigma_noise == sigma_vector(ind_sigma);
-%             a = a + sum(ind);
-%         end
-%     end
-% end
