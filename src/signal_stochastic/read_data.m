@@ -4,7 +4,7 @@ clc
 close all hidden
 
 %% Read file.
-file_id = fopen('simulated_stochastic_data_1.0e-10_5.0_5.0.dat');
+file_id = fopen('simulated_stochastic_data_5.0e-12_0.05_0.05.dat');
 
 D = fread(file_id, 1, 'float64');
 k_on = fread(file_id, 1, 'float64');
@@ -41,7 +41,7 @@ hold on
 %imagesc([reshape(M.data, [number_of_pixels, number_of_pixels*number_of_images]) ; reshape(data-M.data, [number_of_pixels, number_of_pixels*number_of_images])]);
 %imagesc(reshape(data-M.data, [number_of_pixels, number_of_pixels*number_of_images]));
 imagesc(reshape(data, [number_of_pixels, number_of_pixels*number_of_images]));
-axis 'equal'
+%axis 'equal'
 axis([0 number_of_images*number_of_pixels 0 number_of_pixels])
 axis off
 hold off
