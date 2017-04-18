@@ -30,8 +30,8 @@ x_bleach = number_of_pad_pixels + x_bleach;
 y_bleach = number_of_pad_pixels + y_bleach;
 
 C0 = zeros(size(X));
-C0( (X - upsampling_factor * x_bleach).^2 + (Y - upsampling_factor * y_bleach).^2 <= (upsampling_factor * r_bleach)^2 ) = Ib;
-C0( (X - upsampling_factor * x_bleach).^2 + (Y - upsampling_factor * y_bleach).^2 > (upsampling_factor * r_bleach)^2 ) = Iu;
+C0( X >= upsampling_factor * (x_bleach - 0.5 * lx_bleach) & X <= upsampling_factor * (x_bleach + 0.5 * lx_bleach) & Y >= upsampling_factor * (y_bleach - 0.5 * ly_bleach) & Y <= upsampling_factor * (y_bleach + 0.5 * ly_bleach) ) = Ib;
+C0( C0 == 0 ) = Iu;
 
 C0 = imresize(C0, [number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels]);
 
