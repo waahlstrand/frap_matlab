@@ -21,7 +21,7 @@ RE = [];
 for ind_D = 1:5
     for ind_k_on = 1:5
         for ind_k_off = 1:5
-            for ind_sigma = 1%1:3
+            for ind_sigma = 2%1:3
                 disp([ind_D ind_k_on ind_k_off ind_sigma])
                 ind = abs(PARAM_TRUE(:, 1) - D_VECTOR(ind_D)) < 1e-3 & abs(PARAM_TRUE(:, 2) - K_ON_VECTOR(ind_k_on)) < 1e-3 & abs(PARAM_TRUE(:, 3) - K_OFF_VECTOR(ind_k_off)) < 1e-3 & abs(SIGMA_NOISE - SIGMA_VECTOR(ind_sigma)) < 1e-3;
                 ind = find(ind);
