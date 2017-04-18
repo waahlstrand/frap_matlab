@@ -60,7 +60,7 @@ ind = find(  X >= x_bleach - 0.5 * lx_bleach & X <= x_bleach + 0.5 * lx_bleach &
 ind = ind(:);
 recovery_curve = zeros(1, number_of_images);
 for current_image = 1:number_of_images
-    slice = signal(:, :, current_image);
+    slice = data(:, :, current_image);
     recovery_curve(current_image) = mean(slice(ind));
 end
 figure
