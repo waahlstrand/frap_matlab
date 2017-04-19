@@ -14,10 +14,8 @@ function data = signal_d( ...
 x_bleach = param_bleach(1);
 y_bleach = param_bleach(2);
 if numel(param_bleach) == 3 % Circular.
-    bleach_region = 'circular';
     r_bleach = param_bleach(3);
 else % Rectangular.
-    bleach_region = 'rectangular';
     lx_bleach = param_bleach(3);
     ly_bleach = param_bleach(4);
 end
@@ -35,13 +33,12 @@ x_bleach = number_of_pad_pixels + x_bleach;
 y_bleach = number_of_pad_pixels + y_bleach;
 
 C0 = zeros(size(X));
-switch bleach_region 
-    case 'circular'
-        C0( (X - upsampling_factor * x_bleach).^2 + (Y - upsampling_factor * y_bleach).^2 <= (upsampling_factor * r_bleach)^2 ) = Ib;
-        C0( C0 == 0 ) = Iu;
-    case 'rectangular'
-        C0( X >= upsampling_factor * (x_bleach - 0.5 * lx_bleach) & X <= upsampling_factor * (x_bleach + 0.5 * lx_bleach) & Y >= upsampling_factor * (y_bleach - 0.5 * ly_bleach) & Y <= upsampling_factor * (y_bleach + 0.5 * ly_bleach) ) = Ib;
-        C0( C0 == 0 ) = Iu;
+if numel(param_bleach) == 3 % Circular.
+    C0( (X - upsampling_factor * x_bleach).^2 + (Y - upsampling_factor * y_bleach).^2 <= (upsampling_factor * r_bleach)^2 ) = Ib;
+    C0( C0 == 0 ) = Iu;
+else % Rectangular.
+    C0( X >= upsampling_factor * (x_bleach - 0.5 * lx_bleach) & X <= upsampling_factor * (x_bleach + 0.5 * lx_bleach) & Y >= upsampling_factor * (y_bleach - 0.5 * ly_bleach) & Y <= upsampling_factor * (y_bleach + 0.5 * ly_bleach) ) = Ib;
+    C0( C0 == 0 ) = Iu;
 end
 C0 = imresize(C0, [number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels]);
 
