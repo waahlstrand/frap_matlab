@@ -111,4 +111,3 @@ data = data(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixel
 data = mf * data + (1 - mf) * repmat(C0(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels), [1, 1, number_of_images]);
 
 end
-
