@@ -8,6 +8,9 @@ addpath('estimation');
 %% Load SP2 data.
 load('data_sp2.mat');
 
+% number_of_images = 25;
+% data = data(:, :, 1:number_of_images);
+
 if exist('r_bleach', 'var') % Circular.
     param_bleach = [x_bleach, y_bleach, r_bleach];
 else % Rectangular.
@@ -17,25 +20,25 @@ end
 %% Estimate parameters.
 number_of_pad_pixels = 128;
 
-lb_D_SI = 1e-11;
+lb_D_SI = 1e-12;
 ub_D_SI = 1e-9;
 lb_D = lb_D_SI / pixel_size^2;
 ub_D = ub_D_SI / pixel_size^2;
 
-lb_mf = 0.7;
+lb_mf = 0.6;
 ub_mf = 1.0;
 
 lb_Ib = 0.0;
 ub_Ib = 1.0;
 
-lb_Iu = 0.5;
+lb_Iu = 0.0;
 ub_Iu = 1.2;
 
 lb = [lb_D, lb_mf, lb_Ib, lb_Iu]; 
 ub = [ub_D, ub_mf, ub_Ib, ub_Iu]; 
 
 param_guess = [];
-number_of_fits = 10;
+number_of_fits = 1;
 
 [param_hat, ss] = estimate_d_px( ...
     data, ...
@@ -91,3 +94,5 @@ end
 figure, hold on
 plot((1:number_of_images)*delta_t, rc_data, 'ro');
 plot((1:number_of_images)*delta_t, rc_model, 'k-');
+
+D = param_hat(1) * pixel_size^2

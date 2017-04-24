@@ -6,7 +6,7 @@ close all hidden
 addpath('../src/signal');
 
 %% Parameters.
-D_SI = 1e-11; % m^2/s
+D_SI = 5e-12; % m^2/s
 pixel_size = 7.5e-07; % m
 D = D_SI / pixel_size^2; % pixels^2 / s
 mf = 1.0; % dimensionless
@@ -19,7 +19,7 @@ Ib = 0.6; % a.u.
 Iu = 1.0;%0.9; % a.u.
 x_bleach = 128; % pixels
 y_bleach = 128; % pixels
-r_bleach = 25e-6 / pixel_size; % pixels corresponding to 15 µm radius (30 µm diameter)
+r_bleach = 20e-6 / pixel_size; % pixels corresponding to 15 µm radius (30 µm diameter)
 lx_bleach = r_bleach;
 ly_bleach = r_bleach;
 
@@ -40,7 +40,7 @@ data = signal_d( ...
     number_of_pad_pixels);
 toc
 
-sigma_noise = 0.005;
+sigma_noise = 0;
 data = data + sigma_noise * randn(size(data));
 
 %% Plot solution.

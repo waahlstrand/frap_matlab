@@ -29,9 +29,14 @@ model = signal_db( ...
 X = X - 0.5;
 Y = Y - 0.5;
 
+x_bleach = param_bleach(1);
+y_bleach = param_bleach(2);
 if numel(param_bleach) == 3 % Circular.
+    r_bleach = param_bleach(3);
     ind = find( (X - x_bleach).^2 + (Y - y_bleach).^2 <= r_bleach^2 );
 else % Rectangular.
+    lx_bleach = param_bleach(3);
+    ly_bleach = param_bleach(4);
     ind = find( X >= x_bleach - 0.5 * lx_bleach & X <= x_bleach + 0.5 * lx_bleach & Y >= y_bleach - 0.5 * ly_bleach & Y <= y_bleach + 0.5 * ly_bleach );
 end
 ind = ind(:);

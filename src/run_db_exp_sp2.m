@@ -17,7 +17,7 @@ end
 %% Estimate parameters.
 number_of_pad_pixels = 128;
 
-lb_D_SI = 1e-11;
+lb_D_SI = 1e-12;
 ub_D_SI = 1e-9;
 lb_D = lb_D_SI / pixel_size^2;
 ub_D = ub_D_SI / pixel_size^2;
@@ -28,7 +28,7 @@ ub_k_on = 10;
 lb_k_off = 0;
 ub_k_off = 10;
 
-lb_mf = 0.0;
+lb_mf = 0.6;
 ub_mf = 1.0;
 
 lb_Ib = 0.0;
@@ -41,7 +41,7 @@ lb = [lb_D, lb_k_on, lb_k_off, lb_mf, lb_Ib, lb_Iu];
 ub = [ub_D, ub_k_on, ub_k_off, ub_mf, ub_Ib, ub_Iu]; 
 
 param_guess = [];
-number_of_fits = 10;
+number_of_fits = 1;
 
 [param_hat, ss] = estimate_db_px( ...
     data, ...
@@ -99,3 +99,7 @@ end
 figure, hold on
 plot((1:number_of_images)*delta_t, rc_data, 'ro');
 plot((1:number_of_images)*delta_t, rc_model, 'k-');
+
+D = param_hat(1) * pixel_size^2
+k_on = param_hat(2)
+k_off = param_hat(3)
