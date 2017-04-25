@@ -1,4 +1,4 @@
-function data = signal_db( ...
+function data = signal_fourier_db( ...
     D, ...
     k_on, ...
     k_off, ...
@@ -8,8 +8,7 @@ function data = signal_db( ...
     param_bleach, ...
     delta_t, ...
     number_of_pixels, ...
-    number_of_images, ...
-    number_of_pad_pixels)
+    number_of_images)
 
 % Marginal probabilities of the states.
 p_u = k_off / ( k_on + k_off );
@@ -34,11 +33,9 @@ end
 
 upsampling_factor = 3;
 
-[X, Y] = meshgrid(1:upsampling_factor*(number_of_pixels + 2 * number_of_pad_pixels), 1:upsampling_factor*(number_of_pixels + 2 * number_of_pad_pixels));
+[X, Y] = meshgrid(1:upsampling_factor*number_of_pixels, 1:upsampling_factor*number_of_pixels);
 X = X - 0.5;
 Y = Y - 0.5;
-x_bleach = number_of_pad_pixels + x_bleach;
-y_bleach = number_of_pad_pixels + y_bleach;
 
 C0 = zeros(size(X));
 switch bleach_region 
@@ -49,7 +46,7 @@ switch bleach_region
         C0( X >= upsampling_factor * (x_bleach - 0.5 * lx_bleach) & X <= upsampling_factor * (x_bleach + 0.5 * lx_bleach) & Y >= upsampling_factor * (y_bleach - 0.5 * ly_bleach) & Y <= upsampling_factor * (y_bleach + 0.5 * ly_bleach) ) = Ib;
         C0( C0 == 0 ) = Iu;
 end
-C0 = imresize(C0, [number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels]);
+C0 = imresize(C0, [number_of_pixels, number_of_pixels]);
 
 B0 = p_b * C0;
 U0 = p_u * C0;
@@ -59,16 +56,14 @@ F_U0 = fft2(U0);
 F_B0 = fft2(B0);
 
 % Storage of FFT solution and final solution
-F_U = zeros(number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels, number_of_images);
-F_B = zeros(number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels, number_of_images);
-
-data = zeros(number_of_pixels + 2 * number_of_pad_pixels, number_of_pixels + 2 * number_of_pad_pixels, number_of_images);
+F_U = zeros(number_of_pixels, number_of_pixels, number_of_images);
+F_B = zeros(number_of_pixels, number_of_pixels, number_of_images);
 
 % Fourier space grid and squared magnitude, correctly shifted.
-[XSI1, XSI2] = meshgrid(-(number_of_pixels + 2 * number_of_pad_pixels)/2:(number_of_pixels + 2 * number_of_pad_pixels)/2-1, ...
-                        -(number_of_pixels + 2 * number_of_pad_pixels)/2:(number_of_pixels + 2 * number_of_pad_pixels)/2-1);
-XSI1 = XSI1 * 2 * pi / (number_of_pixels + 2 * number_of_pad_pixels);
-XSI2 = XSI2 * 2 * pi / (number_of_pixels + 2 * number_of_pad_pixels);
+[XSI1, XSI2] = meshgrid(-number_of_pixels/2:number_of_pixels/2-1, ...
+                        -number_of_pixels/2:number_of_pixels/2-1);
+XSI1 = XSI1 * 2 * pi / number_of_pixels;
+XSI2 = XSI2 * 2 * pi / number_of_pixels;
 XSISQ = XSI1.^2 + XSI2.^2;
 XSISQ = ifftshift(XSISQ);
 
@@ -100,14 +95,10 @@ for t = 1:number_of_images
     F_U(:, :, t) = CONST21 .* CONST1 + CONST22 .* CONST2;
 end
 
-% Inverse transform.
-for t = 1:number_of_images
-    data(:, :, t) = abs(ifft2(F_U(:, :, t) + F_B(:, :, t)));
-end
-data = data(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels, :);
+data = F_U + F_B;
 
 % Take (im)mobile fraction into account and add the free and bound
 % contribution to the fluorescence.
-data = mf * data + (1 - mf) * repmat(C0(number_of_pad_pixels+1:end-number_of_pad_pixels, number_of_pad_pixels+1:end-number_of_pad_pixels), [1, 1, number_of_images]);
+data = mf * data + (1 - mf) * repmat(F_U0 + F_B0, [1, 1, number_of_images]);
 
 end
