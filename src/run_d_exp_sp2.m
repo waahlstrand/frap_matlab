@@ -8,15 +8,14 @@ addpath('estimation');
 %% Load SP2 data.
 load('data_sp2.mat');
 
-% number_of_images = 25;
-% data = data(:, :, 1:number_of_images);
+number_of_images = 25;
+data = data(:, :, 1:number_of_images);
 
 if exist('r_bleach', 'var') % Circular.
     param_bleach = [x_bleach, y_bleach, r_bleach];
 else % Rectangular.
     param_bleach = [x_bleach, y_bleach, lx_bleach, ly_bleach];
 end
-
 %% Estimate parameters.
 number_of_pad_pixels = 128;
 

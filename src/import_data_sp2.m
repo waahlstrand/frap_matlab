@@ -2,21 +2,21 @@ clear
 clc
 close all hidden
 
-folder = '\\sp.se\FB\FBs\SM2Open\Hannes\20.4\alginate1mmFITC100ppm\100ppmFITC 4%alginate\In GEL';
-prefix_prebleach = 'alginate1mmFITC100ppm_FRAP Pre Series79_t';
-prefix_postbleach = 'alginate1mmFITC100ppm_FRAP Pb1 Series79_t';
+folder = '\\sp.se\FB\FBs\SM2Open\Tommy\CLSM\20170425_Sticky_90Glu';
+prefix_prebleach = '20170425_Sticky_90Glu_FRAP Pre Series71_t';
+prefix_postbleach = '20170425_Sticky_90Glu_FRAP Pb1 Series71_t';
 postfix = '_ch00';
-number_of_images_prebleach = 30;
-number_of_images_postbleach = 100;
+number_of_images_prebleach = 50;
+number_of_images_postbleach = 70;
 
 number_of_pixels = 256;
-bit_depth = 12;
+bit_depth = 8;
 
 delta_t = 0.500; % s
-pixel_size = 0.73242e-6; % m
+pixel_size = 0.36621e-6; % m
 x_bleach = number_of_pixels / 2; % pixels
 y_bleach = number_of_pixels / 2; % pixels
-lx_bleach = 50e-6 / pixel_size; % m to pixels conversion
+lx_bleach = 15e-6 / pixel_size; % m to pixels conversion
 ly_bleach = lx_bleach;
 
 %% Load prebleach data.
