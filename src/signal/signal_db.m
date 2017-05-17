@@ -96,8 +96,8 @@ for t = 1:number_of_images
     T = t * delta_t;
     CONST1 = exp(DD11 * T);
     CONST2 = exp(DD22 * T);
-    F_B(:, :, t) = CONST11 .* CONST1 + CONST12 .* CONST2;
-    F_U(:, :, t) = CONST21 .* CONST1 + CONST22 .* CONST2;
+    F_U(:, :, t) = CONST11 .* CONST1 + CONST12 .* CONST2;
+    F_B(:, :, t) = CONST21 .* CONST1 + CONST22 .* CONST2;
 end
 
 % Inverse transform.
