@@ -25,7 +25,7 @@ function simulate_diffusion_and_binding(D_SI::Float64, k_on::Float64, k_off::Flo
 	# Simulation parameters.
 	number_of_pad_pixels::Int64 = 128 # pixels
 	number_of_time_steps_fine_per_course::Int64 = 32
-	number_of_particles_per_worker::Int64 = 200000000
+	number_of_particles_per_worker::Int64 = 20000000#0
 	number_of_workers::Int64 = nworkers() # This is determined by the the '-p' input flag to Julia.
 
 	# Generate particle trajectories and FRAP image data.
@@ -71,13 +71,15 @@ function simulate_diffusion_and_binding(D_SI::Float64, k_on::Float64, k_off::Flo
 	nothing
 end
 
-D_SI_VECTOR = [5e-12, 1e-11, 5e-11, 1e-10, 5e-10]
-K_ON_VECTOR = [0.05, 0.1, 0.5, 1.0, 5.0]
-K_OFF_VECTOR = [0.05, 0.1, 0.5, 1.0, 5.0]
-for ind_D = 1:length(D_SI_VECTOR)
-	for ind_k_on = 1:length(K_ON_VECTOR)
-		for ind_k_off = 1:length(K_OFF_VECTOR)
-			simulate_diffusion_and_binding(D_SI_VECTOR[ind_D], K_ON_VECTOR[ind_k_on], K_OFF_VECTOR[ind_k_off], 1.0)
-		end
-	end
-end
+simulate_diffusion_and_binding(1e-10, 0.5, 1.0, 1.0)
+
+#D_SI_VECTOR = [5e-12, 1e-11, 5e-11, 1e-10, 5e-10]
+#K_ON_VECTOR = [0.05, 0.1, 0.5, 1.0, 5.0]
+#K_OFF_VECTOR = [0.05, 0.1, 0.5, 1.0, 5.0]
+#for ind_D = 1:length(D_SI_VECTOR)
+#	for ind_k_on = 1:length(K_ON_VECTOR)
+#		for ind_k_off = 1:length(K_OFF_VECTOR)
+#			simulate_diffusion_and_binding(D_SI_VECTOR[ind_D], K_ON_VECTOR[ind_k_on], K_OFF_VECTOR[ind_k_off], 1.0)
+#		end
+#	end
+#end
