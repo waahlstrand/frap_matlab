@@ -1,7 +1,7 @@
 %% Initialization.
 % clear
 clc
-close all hidden
+%close all hidden
 
 addpath('../src/signal');
 
@@ -47,7 +47,7 @@ data = signal_db( ...
 sigma_noise = 0.0;
 data = data + sigma_noise * randn(size(data));
 save('simulated_frap_data.mat')
-return
+%return
 %% Plot solution.
 figure
 hold on

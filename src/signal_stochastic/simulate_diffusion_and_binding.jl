@@ -25,7 +25,7 @@ function simulate_diffusion_and_binding(D_SI::Float64, k_on::Float64, k_off::Flo
 	# Simulation parameters.
 	number_of_pad_pixels::Int64 = 128 # pixels
 	number_of_time_steps_fine_per_course::Int64 = 32
-	number_of_particles_per_worker::Int64 = 200000000
+	number_of_particles_per_worker::Int64 = 10000000
 	number_of_workers::Int64 = nworkers() # This is determined by the the '-p' input flag to Julia.
 
 	# Generate particle trajectories and FRAP image data.

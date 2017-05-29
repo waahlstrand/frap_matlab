@@ -1,7 +1,7 @@
 %% Initialization.
 %clear
 clc
-close all hidden
+%close all hidden
 
 %% Read file.
 file_id = fopen('simulated_stochastic_data_1.0e-10_0.5_1.0.dat');
@@ -33,7 +33,7 @@ k = 1 / (Ib*pi*r_bleach^2 + Iu * ((number_of_pixels+2*number_of_pad_pixels)^2 - 
 %k*Ib*pi*r_bleach^2+k*Iu*((number_of_pixels+2*number_of_pad_pixels)^2-pi*r_bleach^2)
 %expected = number_of_particles * Iu * k;
 data = data / (number_of_particles * k);
-
+return
 %M = load('../inference/simulated_data_diffusion_and_binding.mat');
 
 data_deterministic = load('../../../../sim_study_stochastic_simulation/results_stochastic/simulated_stochastic_data_1.0e-10_0.5_1.0.mat');
