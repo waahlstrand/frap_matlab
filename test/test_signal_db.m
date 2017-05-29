@@ -6,27 +6,27 @@ close all hidden
 addpath('../src/signal');
 
 %% Parameters.
-D_SI = 5e-10; % m^2/s
+D_SI = 1e-10; % m^2/s
 pixel_size = 7.5e-07; % m
 D = D_SI / pixel_size^2; % pixels^2 / s
-k_on = 1; % 1/s
-k_off = 10; % 1/s
+k_on = 0.5; % 1/s
+k_off = 1.0; % 1/s
 mf = 1.0; % dimensionless
 
 delta_t = 0.2; % s
 number_of_pixels = 256;
-number_of_images = 20;
+number_of_images = 50;
 number_of_pad_pixels = 128;
 Ib = 0.6; % a.u.
 Iu = 1.0;%0.9; % a.u.
 x_bleach = 128; % pixels
 y_bleach = 128; % pixels
-r_bleach = 50e-6 / pixel_size; % pixels corresponding to 15 µm radius (30 µm diameter)
+r_bleach = 15e-6 / pixel_size; % pixels corresponding to 15 ï¿½m radius (30 ï¿½m diameter)
 lx_bleach = r_bleach;
 ly_bleach = r_bleach;
 
-% param_bleach = [x_bleach, y_bleach, r_bleach]; % Circular.
-param_bleach = [x_bleach, y_bleach, lx_bleach, ly_bleach]; % Rectangular.
+param_bleach = [x_bleach, y_bleach, r_bleach]; % Circular.
+%param_bleach = [x_bleach, y_bleach, lx_bleach, ly_bleach]; % Rectangular.
 
 %% Simulate.
 % tic
@@ -44,9 +44,10 @@ data = signal_db( ...
     number_of_pad_pixels);
 % toc
 
-sigma_noise = 0.1;
+sigma_noise = 0.0;
 data = data + sigma_noise * randn(size(data));
-
+save('simulated_frap_data.mat')
+return
 %% Plot solution.
 figure
 hold on

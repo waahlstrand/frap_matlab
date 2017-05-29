@@ -4,7 +4,7 @@ clc
 close all hidden
 
 %% Read file.
-file_id = fopen('simulated_stochastic_data_5.0e-12_0.05_0.05.dat');
+file_id = fopen('simulated_stochastic_data_1.0e-10_0.5_1.0.dat');
 
 D = fread(file_id, 1, 'float64');
 k_on = fread(file_id, 1, 'float64');
@@ -36,11 +36,13 @@ data = data / (number_of_particles * k);
 
 %M = load('../inference/simulated_data_diffusion_and_binding.mat');
 
+data_deterministic = load('../../test/simulated_frap_data.mat');
+
 figure
 hold on
 %imagesc([reshape(M.data, [number_of_pixels, number_of_pixels*number_of_images]) ; reshape(data-M.data, [number_of_pixels, number_of_pixels*number_of_images])]);
 %imagesc(reshape(data-M.data, [number_of_pixels, number_of_pixels*number_of_images]));
-imagesc(reshape(data, [number_of_pixels, number_of_pixels*number_of_images]));
+imagesc(reshape(data-data_deterministic.data, [number_of_pixels, number_of_pixels*number_of_images]), [-0.1,0.1]);
 %axis 'equal'
 axis([0 number_of_images*number_of_pixels 0 number_of_pixels])
 axis off
