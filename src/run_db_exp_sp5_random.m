@@ -53,17 +53,19 @@ disp(['Analyzing ' file_paths{idx_experiment} '...'])
 
 load(file_paths{idx_experiment});
 
-data = experiment.postbleach.image_data;%(:, :, 1:10);%(:, :, 1:number_of_images);
+data = experiment.postbleach.image_data;
 number_of_images = size(data, 3);
 data = double(data);
 data = data / (2^experiment.postbleach.bit_depth - 1);
 
-data_prebleach = experiment.prebleach.image_data / (2^experiment.prebleach.bit_depth - 1);
+data_prebleach = experiment.prebleach.image_data;
+data_prebleach = double(data_prebleach);
+data_prebleach = data_prebleach / (2^experiment.prebleach.bit_depth - 1);
 data_prebleach_avg = mean(data_prebleach, 3);
 data = data - repmat(data_prebleach_avg, [1, 1, number_of_images]) + mean(data_prebleach_avg(:));
 
 number_of_pixels = size(experiment.postbleach.image_data, 1);
-x_bleach = experiment.bleach.bleach_position_x / experiment.postbleach.pixel_size_x + number_of_pixels / 2;
+x_bleach =  - experiment.bleach.bleach_position_x / experiment.postbleach.pixel_size_x + number_of_pixels / 2;
 y_bleach = experiment.bleach.bleach_position_y / experiment.postbleach.pixel_size_y + number_of_pixels / 2;
 
 if isequal(experiment.bleach.bleach_type, 'circle')

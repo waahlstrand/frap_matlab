@@ -13,7 +13,7 @@ data = double(data);
 data = data / (2^experiment.postbleach.bit_depth - 1);
 
 number_of_pixels = size(experiment.postbleach.image_data, 1);
-x_bleach = experiment.bleach.bleach_position_x / experiment.postbleach.pixel_size_x + number_of_pixels / 2;
+x_bleach = - experiment.bleach.bleach_position_x / experiment.postbleach.pixel_size_x + number_of_pixels / 2;
 y_bleach = experiment.bleach.bleach_position_y / experiment.postbleach.pixel_size_y + number_of_pixels / 2;
 if isequal(experiment.bleach.bleach_type, 'circle')
     r_bleach = experiment.bleach.bleach_size_x / experiment.postbleach.pixel_size_x;
