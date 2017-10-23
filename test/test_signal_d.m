@@ -6,14 +6,14 @@ close all hidden
 addpath('../src/signal');
 
 %% Parameters.
-D_SI = 5e-12; % m^2/s
+D_SI = 5e-10; % m^2/s
 pixel_size = 7.5e-07; % m
 D = D_SI / pixel_size^2; % pixels^2 / s
 mf = 1.0; % dimensionless
 
 delta_t = 0.2; % s
 number_of_pixels = 256;
-number_of_images = 5;
+number_of_images = 300;
 number_of_pad_pixels = 128;
 Ib = 0.6; % a.u.
 Iu = 1.0;%0.9; % a.u.

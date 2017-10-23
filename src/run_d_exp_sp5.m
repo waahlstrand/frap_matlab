@@ -6,7 +6,7 @@ addpath('signal');
 addpath('estimation');
 
 %% Load data.
-load('\\sp.se\FB\FBs\SM\samdata\Annika K\Diffusion in wood\170913\6 native\frap_001.mat');
+load('\\sp.se\FB\FBs\SM\samdata\Annika K\Lantmännen\171012\FRAP 171012 t0 inm visc\frap_001.mat');
 
 data = experiment.postbleach.image_data;%(:, :, 1:number_of_images);
 data = double(data);
@@ -34,6 +34,8 @@ end
 pixel_size = experiment.postbleach.pixel_size_x;
 delta_t = experiment.postbleach.time_frame;
 
+
+
 %% Estimate parameters.
 number_of_pad_pixels = 128;
 
@@ -41,12 +43,6 @@ lb_D_SI = 1e-13;
 ub_D_SI = 2e-9;
 lb_D = lb_D_SI / pixel_size^2;
 ub_D = ub_D_SI / pixel_size^2;
-
-lb_k_on = 0;
-ub_k_on = 10;
-
-lb_k_off = 0;
-ub_k_off = 500;
 
 lb_mf = 0.6;
 ub_mf = 1.0;
@@ -57,13 +53,13 @@ ub_Ib = 1.0;
 lb_Iu = 0.0;
 ub_Iu = 1.2;
 
-lb = [lb_D, lb_k_on, lb_k_off, lb_mf, lb_Ib, lb_Iu]; 
-ub = [ub_D, ub_k_on, ub_k_off, ub_mf, ub_Ib, ub_Iu]; 
+lb = [lb_D, lb_mf, lb_Ib, lb_Iu]; 
+ub = [ub_D, ub_mf, ub_Ib, ub_Iu]; 
 
 param_guess = [];
 number_of_fits = 1;
 
-[param_hat, ss] = estimate_db_px( ...
+[param_hat, ss] = estimate_d_px( ...
     data, ...
     param_bleach, ...
     delta_t, ...
@@ -76,13 +72,11 @@ number_of_fits = 1;
     number_of_fits)
                             
 %% Show images.
-model = signal_db( ...
+model = signal_d( ...
     param_hat(1), ...
     param_hat(2), ...
     param_hat(3), ...
     param_hat(4), ...
-    param_hat(5), ...
-    param_hat(6), ...
     param_bleach, ...
     delta_t, ...
     number_of_pixels, ...
@@ -121,5 +115,3 @@ plot((1:number_of_images)*delta_t, rc_data, 'ro');
 plot((1:number_of_images)*delta_t, rc_model, 'k-');
 
 D = param_hat(1) * pixel_size^2
-k_on = param_hat(2)
-k_off = param_hat(3)
