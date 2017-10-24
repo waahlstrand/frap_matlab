@@ -41,13 +41,14 @@ file_paths = {  [main_folder 'FRAP 171012 t0 inm visc/frap.mat'], ...
                 [main_folder 'FRAP 171012 t20 inm visc/frap_015.mat'], ...
                 [main_folder 'FRAP 171012 t20 inm visc/frap_016.mat'], ...
                 [main_folder 'FRAP 171012 t20 inm visc/frap_017.mat']  }';
+
 number_of_experiments = numel(file_paths);
 idx_experiment = randsample(1:number_of_experiments, 1);
 disp(['Analyzing ' file_paths{idx_experiment} '...'])
 
 load(file_paths{idx_experiment});
 
-data = experiment.postbleach.image_data;
+data = experiment.postbleach.image_data;%(:, :, 1:10);%(:, :, 1:number_of_images);
 number_of_images = size(data, 3);
 data = double(data);
 data = data / (2^experiment.postbleach.bit_depth - 1);
@@ -98,7 +99,7 @@ ub = [ub_D, ub_mf, ub_Ib, ub_Iu];
 param_guess = [];
 number_of_fits = 1;
 
-[param_hat, ss] = estimate_d_rc( ...
+[param_hat, ss] = estimate_d_px( ...
     data, ...
     param_bleach, ...
     delta_t, ...
@@ -110,5 +111,5 @@ number_of_fits = 1;
     param_guess, ...
     number_of_fits);
 
-file_path_output = [file_paths{idx_experiment}(1:end-4) '_est_d_rc_' num2str(random_seed) '.mat'];
+file_path_output = [file_paths{idx_experiment}(1:end-4) '_est_d_px_' num2str(random_seed) '.mat'];
 save(file_path_output, 'param_hat', 'ss');

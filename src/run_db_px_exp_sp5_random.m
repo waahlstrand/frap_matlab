@@ -41,6 +41,7 @@ file_paths = {  [main_folder 'FRAP 171012 t0 inm visc/frap.mat'], ...
                 [main_folder 'FRAP 171012 t20 inm visc/frap_015.mat'], ...
                 [main_folder 'FRAP 171012 t20 inm visc/frap_016.mat'], ...
                 [main_folder 'FRAP 171012 t20 inm visc/frap_017.mat']  }';
+
 number_of_experiments = numel(file_paths);
 idx_experiment = randsample(1:number_of_experiments, 1);
 disp(['Analyzing ' file_paths{idx_experiment} '...'])
@@ -82,6 +83,11 @@ ub_D_SI = 2e-9;
 lb_D = lb_D_SI / pixel_size^2;
 ub_D = ub_D_SI / pixel_size^2;
 
+lb_k_on = 0;
+ub_k_on = 100;
+
+lb_k_off = 0;
+ub_k_off = 100;
 
 lb_mf = 0.6;
 ub_mf = 1.0;
@@ -92,13 +98,13 @@ ub_Ib = 1.0;
 lb_Iu = 0.0;
 ub_Iu = 1.2;
 
-lb = [lb_D, lb_mf, lb_Ib, lb_Iu];
-ub = [ub_D, ub_mf, ub_Ib, ub_Iu];
+lb = [lb_D, lb_k_on, lb_k_off, lb_mf, lb_Ib, lb_Iu];
+ub = [ub_D, ub_k_on, ub_k_off, ub_mf, ub_Ib, ub_Iu];
 
 param_guess = [];
 number_of_fits = 1;
 
-[param_hat, ss] = estimate_d_rc( ...
+[param_hat, ss] = estimate_db_px( ...
     data, ...
     param_bleach, ...
     delta_t, ...
@@ -110,5 +116,5 @@ number_of_fits = 1;
     param_guess, ...
     number_of_fits);
 
-file_path_output = [file_paths{idx_experiment}(1:end-4) '_est_d_rc_' num2str(random_seed) '.mat'];
+file_path_output = [file_paths{idx_experiment}(1:end-4) '_est_db_px_' num2str(random_seed) '.mat'];
 save(file_path_output, 'param_hat', 'ss');
