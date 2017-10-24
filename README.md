@@ -1,2 +1,2 @@
 # frap_matlab
-Recovery curve-based as well as pixel-based analysis of Fluorescence Recovery After Photobleaching (FRAP) data in Matlab. Covers both pure diffusion and diffusion and binding dynamics.
+Matlab tools for analysis of Fluorescence Recovery After Photobleaching (FRAP) data. Covers both cases of pure diffusion as well as diffusion and binding dynamics. Fitting can be based on recovery curve as well as all pixels in the image data. 
