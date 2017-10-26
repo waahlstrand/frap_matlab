@@ -6,7 +6,7 @@ addpath('signal');
 addpath('estimation');
 
 %% Load data.
-load('\\sp.se\FB\FBs\SM\samdata\Annika K\Lantmännen\171012\FRAP 171012 t0 inm visc\frap_001.mat');
+load('Z:\Pauline\25october2017\PEG FITC1000 Gluten 25oct Pauline\frap_001.mat');
 
 data = experiment.postbleach.image_data;%(:, :, 1:number_of_images);
 data = double(data);
@@ -23,7 +23,8 @@ number_of_pixels = size(experiment.postbleach.image_data, 1);
 x_bleach = - experiment.bleach.bleach_position_x / experiment.postbleach.pixel_size_x + number_of_pixels / 2;
 y_bleach = experiment.bleach.bleach_position_y / experiment.postbleach.pixel_size_y + number_of_pixels / 2;
 if isequal(experiment.bleach.bleach_type, 'circle')
-    r_bleach = experiment.bleach.bleach_size_x / experiment.postbleach.pixel_size_x;
+    r_bleach = 0.5 * experiment.bleach.bleach_size_x / experiment.postbleach.pixel_size_x
+    warn('r_bleach divided by 2. Strange things going on with diameter and radius')
     param_bleach = [x_bleach, y_bleach, r_bleach];
 elseif isequal(experiment.bleach.bleach_type, 'rectangle')
     lx_bleach = experiment.bleach.bleach_size_x / experiment.postbleach.pixel_size_x;

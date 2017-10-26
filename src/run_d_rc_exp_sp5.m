@@ -7,24 +7,25 @@ addpath('estimation');
 
 %% Load data.
 % load('\\sp.se\FB\FBs\SM\samdata\Annika K\Lantmännen\FRAP 170418 Viscoferm inm test\buffert\frap_002.mat');
-load('\\sp.se\FB\FBs\SM\samdata\Annika K\Lantmännen\FRAP 170418 Viscoferm inm test\Viscoferm\frap_002.mat');
+% load('\\sp.se\FB\FBs\SM\samdata\Annika K\Lantmännen\FRAP 170418 Viscoferm inm test\Viscoferm\frap_002.mat');
+load('Z:\Pauline\25october2017\PEG FITC1000 Gluten 25oct Pauline\frap.mat');
 
 data = experiment.postbleach.image_data;%(:, :, 1:number_of_images);
 data = double(data);
 data = data / (2^experiment.postbleach.bit_depth - 1);
 number_of_images = size(data, 3);
-% 
-% data_prebleach = experiment.prebleach.image_data;
-% data_prebleach = double(data_prebleach);
-% data_prebleach = data_prebleach / (2^experiment.prebleach.bit_depth - 1);
-% data_prebleach_avg = mean(data_prebleach, 3);
-% data = data - repmat(data_prebleach_avg, [1, 1, number_of_images]) + mean(data_prebleach_avg(:));
+
+data_prebleach = experiment.prebleach.image_data;
+data_prebleach = double(data_prebleach);
+data_prebleach = data_prebleach / (2^experiment.prebleach.bit_depth - 1);
+data_prebleach_avg = mean(data_prebleach, 3);
+data = data - repmat(data_prebleach_avg, [1, 1, number_of_images]) + mean(data_prebleach_avg(:));
 
 number_of_pixels = size(experiment.postbleach.image_data, 1);
 x_bleach = - experiment.bleach.bleach_position_x / experiment.postbleach.pixel_size_x + number_of_pixels / 2;
 y_bleach = experiment.bleach.bleach_position_y / experiment.postbleach.pixel_size_y + number_of_pixels / 2;
 if isequal(experiment.bleach.bleach_type, 'circle')
-    r_bleach = experiment.bleach.bleach_size_x / experiment.postbleach.pixel_size_x;
+    r_bleach = 0.5 * experiment.bleach.bleach_size_x / experiment.postbleach.pixel_size_x;
     param_bleach = [x_bleach, y_bleach, r_bleach];
 elseif isequal(experiment.bleach.bleach_type, 'rectangle')
     lx_bleach = experiment.bleach.bleach_size_x / experiment.postbleach.pixel_size_x;
@@ -60,7 +61,7 @@ ub = [ub_D, ub_mf, ub_Ib, ub_Iu];
 param_guess = [];
 number_of_fits = 1;
 
-[param_hat, ss] = estimate_d_px( ...
+[param_hat, ss] = estimate_d_rc( ...
     data, ...
     param_bleach, ...
     delta_t, ...
