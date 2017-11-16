@@ -3,7 +3,7 @@ function [data, data_prebleach] = preprocess(   experiment, ...
                                                 background_correction, ...
                                                 background_smoothing)
                                             
-%% Pre-work.
+%% Rescaling.
 
 data = experiment.postbleach.image_data;
 data = double(data);
@@ -23,14 +23,14 @@ if ~isempty(bleach_correction_indices)
     % Pre-bleach data.
     for current_image = 1:number_of_images_prebleach
         slice = data_prebleach(:, :, current_image);
-        mean(slice(bleach_correction_indices(:)))
+%         mean(slice(bleach_correction_indices(:)))
         data_prebleach(:, :, current_image) = slice ./ mean(slice(bleach_correction_indices(:)));
     end
     
     % Post-bleach data.
     for current_image = 1:number_of_images
         slice = data(:, :, current_image);
-        mean(slice(bleach_correction_indices(:)))
+%         mean(slice(bleach_correction_indices(:)))
         data(:, :, current_image) = slice ./ mean(slice(bleach_correction_indices(:)));
     end
 end

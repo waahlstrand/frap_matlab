@@ -50,38 +50,16 @@ bleaching_correction_indices = [];
 % prefiltering).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-background_correction = 'none';
+% background_correction = 'none';
 % background_correction = 'subtraction';
-% background_correction = 'division';
+background_correction = 'division';
 
 background_smoothing = 5;
 
 %% Preprocess data.
 [data, data_prebleach] = preprocess(experiment, bleaching_correction_indices, background_correction, background_smoothing);
 
-
-
-
-
-return
-
-
-
-
-
-
-
-
-
-
-
-
-
 %% Perform background subtraction.
-
-
-
-
 
 x_bleach =  - experiment.bleach.bleach_position_x / experiment.postbleach.pixel_size_x + number_of_pixels / 2;
 y_bleach = experiment.bleach.bleach_position_y / experiment.postbleach.pixel_size_y + number_of_pixels / 2;
