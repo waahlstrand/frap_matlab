@@ -18,11 +18,11 @@ load('\\sp.se\FB\FBs\SM\samdata\Annika K\Lantmännen\FRAP 171109\FITC samt inm vi
 %% Settings.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Fitting method, either pixel-based ('px') or recovery curve-based ('rc').
+% Fit type, either pixel-based ('px') or recovery curve-based ('rc').
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-fitting_method = 'px';
-% fitting_method = 'rc';
+estimation_mode = 'px';
+% estimation_mode = 'rc';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Bleaching (and laser fluctuation) correction. Specified by a list of 
@@ -117,7 +117,7 @@ ub = [ub_D, ub_mf, ub_Ib, ub_Iu];
 param_guess = [];
 number_of_fits = 1;
 
-if isequal(fitting_method, 'px')
+if isequal(estimation_mode, 'px')
     [param_hat, ss] = estimate_d_px( ...
         data, ...
         param_bleach, ...
@@ -129,7 +129,7 @@ if isequal(fitting_method, 'px')
         ub, ...
         param_guess, ...
         number_of_fits);
-elseif isequal(fitting_method, 'rc')
+elseif isequal(estimation_mode, 'rc')
     [param_hat, ss] = estimate_d_rc( ...
         data, ...
         param_bleach, ...
