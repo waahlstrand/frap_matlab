@@ -65,21 +65,10 @@ if isequal(estimation_mode, 'rc')
         slice = model(:, :, current_image);
         rc_model(current_image) = mean(slice(ind));
     end
-    
-%     if ~isempty(data_prebleach)
-%         rc_data_prebleach = zeros(1, number_of_images_prebleach);
-%         for current_image = 1:number_of_images_prebleach
-%             slice = data_prebleach(:, :, current_image);
-%             rc_data_prebleach(current_image) = mean(slice(ind));
-%         end
-%         rc_data = [rc_data_prebleach, rc_data];
-%         
-%         rc_model = [Iu * ones(1, number_of_images_prebleach), rc_data];
-%     end
 
     F = rc_model(:) - rc_data(:);
 elseif isequal(estimation_mode, 'px')
     F = model(:) - data(:);
 end
-    
+    disp(D)
 end

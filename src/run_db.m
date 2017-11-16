@@ -31,16 +31,16 @@ estimation_mode = 'px';
 % [] then no bleaching correction is performed.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% bleaching_correction_indices = [];
-
-number_of_pixels = size(experiment.postbleach.image_data, 1);
-[subX, subY] = ndgrid(1:number_of_pixels, 1:number_of_pixels);
-ind = ones(number_of_pixels, number_of_pixels);
-ind(2:end-1, 2:end-1) = 0;
-subX = subX(ind(:) == 1);
-subY = subY(ind(:) == 1);
-bleaching_correction_indices = sub2ind([number_of_pixels number_of_pixels], subX, subY);
-clear subX subY ind
+bleaching_correction_indices = [];
+% 
+% number_of_pixels = size(experiment.postbleach.image_data, 1);
+% [subX, subY] = ndgrid(1:number_of_pixels, 1:number_of_pixels);
+% ind = ones(number_of_pixels, number_of_pixels);
+% ind(2:end-1, 2:end-1) = 0;
+% subX = subX(ind(:) == 1);
+% subY = subY(ind(:) == 1);
+% bleaching_correction_indices = sub2ind([number_of_pixels number_of_pixels], subX, subY);
+% clear subX subY ind
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Background correction, either 'none', 'subtraction' of the average pre-
@@ -109,6 +109,12 @@ ub_D_SI = 2e-9;
 lb_D = lb_D_SI / pixel_size^2;
 ub_D = ub_D_SI / pixel_size^2;
 
+lb_k_on = 0;
+ub_k_on = 100;
+
+lb_k_off = 0;
+ub_k_off = 100;
+
 lb_mf = 0.6;
 ub_mf = 1.0;
 
@@ -118,13 +124,13 @@ ub_Ib = 1.0;
 lb_Iu = 0.0;
 ub_Iu = 1.2;
 
-lb = [lb_D, lb_mf, lb_Ib, lb_Iu];
-ub = [ub_D, ub_mf, ub_Ib, ub_Iu];
+lb = [lb_D, lb_k_on, lb_k_off, lb_mf, lb_Ib, lb_Iu]; 
+ub = [ub_D, ub_k_on, ub_k_off, ub_mf, ub_Ib, ub_Iu]; 
 
 param_guess = [];
 number_of_fits = 1;
 
-[param_hat, ss] = estimate_d( ...
+[param_hat, ss] = estimate_db( ...
     data_prebleach, ...
     data, ...
     param_bleach, ...
@@ -138,18 +144,21 @@ number_of_fits = 1;
     use_parallel);
 
 D = param_hat(1) * pixel_size^2
-mf = param_hat(2);
-Ib = param_hat(3);
-Iu = param_hat(4);
-
+k_on = param_hat(2);
+k_off = param_hat(3);
+mf = param_hat(4);
+Ib = param_hat(5);
+Iu = param_hat(6);
 
 %% Show results.
 
-model = signal_d( ...
+model = signal_db( ...
     param_hat(1), ...
     param_hat(2), ...
     param_hat(3), ...
     param_hat(4), ...
+    param_hat(5), ...
+    param_hat(6), ...
     param_bleach, ...
     delta_t, ...
     number_of_pixels, ...
