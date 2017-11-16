@@ -13,7 +13,7 @@ RandStream.setGlobalStream(random_stream);
 
 %% Load data.
 
-load("\\sp.se\FB\FBs\SM\samdata\Annika K\Lantmännen\FRAP 171109\FITC samt inm viscoferm 5 punkter\frap_001.mat");
+load('\\sp.se\FB\FBs\SM\samdata\Annika K\Lantmännen\FRAP 171109\FITC samt inm viscoferm 5 punkter\frap_001.mat');
 
 %% Settings.
 
@@ -54,7 +54,7 @@ bleaching_correction_indices = [];
 % background_correction = 'subtraction';
 background_correction = 'division';
 
-background_smoothing = 1;
+background_smoothing = 5;
 
 %% Preprocess data.
 
@@ -62,7 +62,9 @@ background_smoothing = 1;
 
 %% Perform background subtraction.
 
-[number_of_pixels, ~, number_of_images] = size(data);
+number_of_pixels = size(data, 1);
+number_of_images = size(data, 3);
+number_of_images_prebleach = size(data_prebleach, 3);
 
 x_bleach =  - experiment.bleach.bleach_position_x / experiment.postbleach.pixel_size_x + number_of_pixels / 2;
 y_bleach = experiment.bleach.bleach_position_y / experiment.postbleach.pixel_size_y + number_of_pixels / 2;
@@ -86,24 +88,11 @@ X = X - 0.5;
 Y = Y - 0.5;
 
 if isequal(experiment.bleach.bleach_type, 'circle')
-    ind = find( (X - x_bleach).^2 + (Y - y_bleach).^2 <= r_bleach^2 );
+    bleach_region = (X - x_bleach).^2 + (Y - y_bleach).^2 <= r_bleach^2;
 elseif isequal(experiment.bleach.bleach_type, 'rectangle')
-    ind = find( X >= x_bleach - 0.5 * lx_bleach & X <= x_bleach + 0.5 * lx_bleach & Y >= y_bleach - 0.5 * ly_bleach & Y <= y_bleach + 0.5 * ly_bleach );
+    bleach_region = X >= x_bleach - 0.5 * lx_bleach & X <= x_bleach + 0.5 * lx_bleach & Y >= y_bleach - 0.5 * ly_bleach & Y <= y_bleach + 0.5 * ly_bleach;
 end
-ind = ind(:);
-
-figure, imagesc(reshape(data, [number_of_pixels, number_of_pixels * number_of_images]))
-    
-rc_data = zeros(1, number_of_images);
-for current_image = 1:number_of_images
-    slice = data(:, :, current_image);
-    rc_data(current_image) = mean(slice(ind));
-end
-
-figure, hold on
-plot((1:number_of_images)*delta_t, rc_data, 'ro');
-
-return
+ind = find(bleach_region(:));
 
 %% Estimate parameters.
 number_of_pad_pixels = 128;
@@ -128,17 +117,37 @@ ub = [ub_D, ub_mf, ub_Ib, ub_Iu];
 param_guess = [];
 number_of_fits = 1;
 
-[param_hat, ss] = estimate_d_rc( ...
-    data, ...
-    param_bleach, ...
-    delta_t, ...
-    number_of_pixels, ...
-    number_of_images, ...
-    number_of_pad_pixels, ...
-    lb, ...
-    ub, ...
-    param_guess, ...
-    number_of_fits);
+if isequal(fitting_method, 'px')
+    [param_hat, ss] = estimate_d_px( ...
+        data, ...
+        param_bleach, ...
+        delta_t, ...
+        number_of_pixels, ...
+        number_of_images, ...
+        number_of_pad_pixels, ...
+        lb, ...
+        ub, ...
+        param_guess, ...
+        number_of_fits);
+elseif isequal(fitting_method, 'rc')
+    [param_hat, ss] = estimate_d_rc( ...
+        data, ...
+        param_bleach, ...
+        delta_t, ...
+        number_of_pixels, ...
+        number_of_images, ...
+        number_of_pad_pixels, ...
+        lb, ...
+        ub, ...
+        param_guess, ...
+        number_of_fits);
+end
+
+D = param_hat(1) * pixel_size^2
+mf = param_hat(2);
+Ib = param_hat(3);
+Iu = param_hat(4);
+
 
 %% Show results.
 
@@ -156,21 +165,28 @@ model = signal_d( ...
 figure, imagesc([reshape(data, [number_of_pixels, number_of_pixels * number_of_images]) ; reshape(model, [number_of_pixels, number_of_pixels * number_of_images])])
 figure, imagesc(reshape(data - model, [number_of_pixels, number_of_pixels * number_of_images]))
 
-rc_data = zeros(1, number_of_images);
-for current_image = 1:number_of_images
-    slice = data(:, :, current_image);
+rc_data = zeros(1, number_of_images_prebleach + number_of_images);
+for current_image = 1:number_of_images_prebleach
+    slice = data_prebleach(:, :, current_image);
     rc_data(current_image) = mean(slice(ind));
 end
+for current_image = 1:number_of_images
+    slice = data(:, :, current_image);
+    rc_data(number_of_images_prebleach + current_image) = mean(slice(ind));
+end
 
-rc_model = zeros(1, number_of_images);
+rc_model = zeros(1, number_of_images_prebleach + number_of_images);
+for current_image = 1:number_of_images_prebleach
+    rc_model(current_image) = Iu;
+end
 for current_image = 1:number_of_images
     slice = model(:, :, current_image);
-    rc_model(current_image) = mean(slice(ind));
+    rc_model(number_of_images_prebleach + current_image) = mean(slice(ind));
 end
 
 figure, hold on
-plot((1:number_of_images)*delta_t, rc_data, 'ro');
-plot((1:number_of_images)*delta_t, rc_model, 'k-');
+plot([(-number_of_images_prebleach:-1)*delta_t (1:number_of_images)*delta_t], rc_data, 'ro');
+plot([(-number_of_images_prebleach:-1)*delta_t (1:number_of_images)*delta_t], rc_model, 'k-');
 
-D = param_hat(1) * pixel_size^2
+
 
