@@ -49,7 +49,7 @@ if ~isequal(background_correction, 'none')
         end
 
         % Post-bleach data.
-        for current_image = 1:number_of_images_prebleach
+        for current_image = 1:number_of_images
             data(:, :, current_image) = data(:, :, current_image) - data_prebleach_avg + mean(data_prebleach_avg(:));
         end
     elseif isequal(background_correction, 'division')
@@ -59,11 +59,14 @@ if ~isequal(background_correction, 'none')
         end
 
         % Post-bleach data.
-        for current_image = 1:number_of_images_prebleach
+        for current_image = 1:number_of_images
             data(:, :, current_image) = data(:, :, current_image) ./ data_prebleach_avg;
         end
     end
 end
+
+figure, imagesc(data_prebleach_avg)
+figure, hist(data_prebleach_avg(:))
 
 end
 
