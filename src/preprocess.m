@@ -65,8 +65,5 @@ if ~isequal(background_correction, 'none')
     end
 end
 
-figure, imagesc(data_prebleach_avg)
-figure, hist(data_prebleach_avg(:))
-
 end
 

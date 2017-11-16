@@ -5,11 +5,20 @@ function F = residual_d( ...
     Iu, ...
     param_bleach, ...
     delta_t, ...
-    number_of_pixels, ...
-    number_of_images, ...
     number_of_pad_pixels, ...
+    data_prebleach, ...
     data, ...
     estimation_mode)
+
+number_of_pixels = size(data, 1);
+
+if ~isempty(data_prebleach)
+    number_of_images_prebleach = size(data_prebleach, 3);
+else
+    number_of_images_prebleach = 0;
+end
+
+number_of_images = size(data, 3);
 
 model = signal_d( ...
     D, ...
@@ -21,6 +30,12 @@ model = signal_d( ...
     number_of_pixels, ...
     number_of_images, ...
     number_of_pad_pixels);
+
+if ~isempty(data_prebleach)
+    model = cat(3, repmat(Iu, [number_of_pixels, number_of_pixels, number_of_images_prebleach]), model);
+    data = cat(3, data_prebleach, data);
+    number_of_images = number_of_images_prebleach + number_of_images;
+end
                 
 if isequal(estimation_mode, 'rc')
     [X, Y] = meshgrid(1:number_of_pixels, 1:number_of_pixels);
@@ -50,6 +65,17 @@ if isequal(estimation_mode, 'rc')
         slice = model(:, :, current_image);
         rc_model(current_image) = mean(slice(ind));
     end
+    
+%     if ~isempty(data_prebleach)
+%         rc_data_prebleach = zeros(1, number_of_images_prebleach);
+%         for current_image = 1:number_of_images_prebleach
+%             slice = data_prebleach(:, :, current_image);
+%             rc_data_prebleach(current_image) = mean(slice(ind));
+%         end
+%         rc_data = [rc_data_prebleach, rc_data];
+%         
+%         rc_model = [Iu * ones(1, number_of_images_prebleach), rc_data];
+%     end
 
     F = rc_model(:) - rc_data(:);
 elseif isequal(estimation_mode, 'px')
