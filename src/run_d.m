@@ -13,7 +13,11 @@ RandStream.setGlobalStream(random_stream);
 
 %% Load data.
 
-load('\\sp.se\FB\FBs\SM\samdata\Annika K\Lantmännen\FRAP 171109\FITC samt inm viscoferm 5 punkter\frap_001.mat');
+% file_path = '\\sp.se\FB\FBs\SM\samdata\Annika K\Lantmännen\FRAP 171109\FITC samt inm viscoferm 5 punkter\frap.mat';
+% file_path = '\\sp.se\FB\FBs\SM\samdata\Annika K\Lantmännen\FRAP 171109\FITC samt inm viscoferm 5 punkter\frap_001.mat';
+file_path = '\\sp.se\FB\FBs\SM\samdata\Annika K\Lantmännen\FRAP 171109\FITC samt inm viscoferm 5 punkter\frap_006.mat';
+
+load(file_path);
 
 %% Settings.
 
@@ -21,8 +25,8 @@ load('\\sp.se\FB\FBs\SM\samdata\Annika K\Lantmännen\FRAP 171109\FITC samt inm vi
 % Fit type, either pixel-based ('px') or recovery curve-based ('rc').
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-estimation_mode = 'px';
-% estimation_mode = 'rc';
+% estimation_mode = 'px';
+estimation_mode = 'rc';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Bleaching (and laser fluctuation) correction. Specified by a list of 
