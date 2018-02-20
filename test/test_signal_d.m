@@ -6,20 +6,20 @@ close all hidden
 addpath('../src/signal');
 
 %% Parameters.
-D_SI = 5e-10; % m^2/s
+D_SI = 5e-11; % m^2/s
 pixel_size = 7.5e-07; % m
 D = D_SI / pixel_size^2; % pixels^2 / s
 mf = 1.0; % dimensionless
 
 delta_t = 0.2; % s
 number_of_pixels = 256;
-number_of_images = 300;
+number_of_images = 100;
 number_of_pad_pixels = 128;
 Ib = 0.6; % a.u.
 Iu = 1.0;%0.9; % a.u.
 x_bleach = 128; % pixels
 y_bleach = 128; % pixels
-r_bleach = 20e-6 / pixel_size; % pixels corresponding to 15 µm radius (30 µm diameter)
+r_bleach = 20e-6 / pixel_size; % pixels corresponding to 15 ï¿½m radius (30 ï¿½m diameter)
 lx_bleach = r_bleach;
 ly_bleach = r_bleach;
 
