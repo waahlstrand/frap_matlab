@@ -110,7 +110,7 @@ ub_k_on = 100;
 lb_k_off = 0;
 ub_k_off = 100;
 
-lb_mf = 0.6;
+lb_mf = 0.0;
 ub_mf = 1.0;
 
 lb_Ib = 0.0;

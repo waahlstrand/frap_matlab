@@ -108,7 +108,7 @@ lb_D = lb_D_SI / pixel_size^2;
 ub_D = ub_D_SI / pixel_size^2;
 
 
-lb_mf = 0.6;
+lb_mf = 0.0;
 ub_mf = 1.0;
 
 lb_Ib = 0.0;
