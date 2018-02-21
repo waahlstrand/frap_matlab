@@ -66,17 +66,20 @@ disp(['Analyzing ' file_paths{idx_experiment} '...'])
 
 load(file_paths{idx_experiment});
 
-data = experiment.postbleach.image_data;
-
-number_of_images = size(data, 3);
-
-data = double(data);
-data = data / (2^experiment.postbleach.bit_depth - 1);
-
 data_prebleach = experiment.prebleach.image_data;
 data_prebleach = double(data_prebleach);
 data_prebleach = data_prebleach / (2^experiment.prebleach.bit_depth - 1);
+
+data = experiment.postbleach.image_data;
+data = double(data);
+data = data / (2^experiment.postbleach.bit_depth - 1);
+
+number_of_images_prebleach = size(data_prebleach, 3);
+number_of_images = size(data, 3);
+
 data_prebleach_avg = mean(data_prebleach, 3);
+
+data_prebleach = data_prebleach - repmat(data_prebleach_avg, [1, 1, number_of_images_prebleach]) + mean(data_prebleach_avg(:));
 data = data - repmat(data_prebleach_avg, [1, 1, number_of_images]) + mean(data_prebleach_avg(:));
 
 number_of_pixels = size(experiment.postbleach.image_data, 1);

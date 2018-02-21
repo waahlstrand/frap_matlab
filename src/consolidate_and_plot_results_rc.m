@@ -69,22 +69,26 @@ param_hat_db = cell(number_of_experiments, 1);
 ss_d = inf(number_of_experiments, 1);
 ss_db = inf(number_of_experiments, 1);
 
-for current_experiment = 1%:number_of_experiments
+for current_experiment = 1:number_of_experiments
     disp(['Reading data from ' file_paths{current_experiment} '...'])
 
     % Load and process data.
     load(file_paths{current_experiment});
 
+    data_prebleach = experiment.prebleach.image_data;
+    data_prebleach = double(data_prebleach);
+    data_prebleach = data_prebleach / (2^experiment.prebleach.bit_depth - 1);
+
     data = experiment.postbleach.image_data;
-    number_of_images = size(data, 3);
     data = double(data);
     data = data / (2^experiment.postbleach.bit_depth - 1);
 
-    data_prebleach = experiment.prebleach.image_data;
     number_of_images_prebleach = size(data_prebleach, 3);
-    data_prebleach = double(data_prebleach);
-    data_prebleach = data_prebleach / (2^experiment.prebleach.bit_depth - 1);
+    number_of_images = size(data, 3);
+
     data_prebleach_avg = mean(data_prebleach, 3);
+
+    data_prebleach = data_prebleach - repmat(data_prebleach_avg, [1, 1, number_of_images_prebleach]) + mean(data_prebleach_avg(:));
     data = data - repmat(data_prebleach_avg, [1, 1, number_of_images]) + mean(data_prebleach_avg(:));
 
     number_of_pixels = size(experiment.postbleach.image_data, 1);
@@ -164,14 +168,13 @@ for current_experiment = 1%:number_of_experiments
         slice = data_prebleach(:, :, current_image);
         rc_data_prebleach(current_image) = mean(slice(ind));
     end
-    plot((-number_of_images_prebleach:-1)*delta_t, rc_data_prebleach, 'ko');
     
     rc_data = zeros(1, number_of_images);
     for current_image = 1:number_of_images
         slice = data(:, :, current_image);
         rc_data(current_image) = mean(slice(ind));
     end
-    plot((1:number_of_images)*delta_t, rc_data, 'ko');
+    plot(([-number_of_images_prebleach:-1 1:number_of_images])*delta_t, [rc_data_prebleach rc_data], 'ko');
     
     if is_d_estimate
         model_d = signal_d( ...
@@ -264,9 +267,9 @@ for current_experiment = 1%:number_of_experiments
         save([folder '/' 'estimates_rc.mat'], 'D_db', 'k_on_db', 'k_off_db', 'mf_db', 'Ib_db', 'Iu_db', 'sum_of_squares_db');
     end
     
-    M = cat(1, M, {file_paths{current_experiment}, num2str(D_d)})
+    M = cat(1, M, {file_paths{current_experiment}, num2str(D_d), num2str(mf_d)})
  
 end
 
 MT = table(M);
-writetable(MT, [main_folder_lantmannen 'results_20180123.txt']);
+writetable(MT, [main_folder_lantmannen 'results.txt']);
