@@ -70,7 +70,7 @@ F_C_mobile = fft2(C_mobile);
 
 % Postbleach.
 C_postbleach_mobile = zeros(exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_postbleach_frames);
-F_C_postbleach_mobile = zeros(exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels);
+% F_C_postbleach_mobile = zeros(exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels);
 
 C_postbleach_immobile = repmat(C_immobile, [1, 1, exp_sim_param.number_of_postbleach_frames]);
 
