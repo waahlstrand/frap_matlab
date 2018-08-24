@@ -14,8 +14,8 @@ exp_sim_param.pixel_size = 7.5e-07; % m
 exp_sim_param.number_of_pixels = 256;
 
 exp_sim_param.number_of_prebleach_frames = 5;
-exp_sim_param.number_of_bleach_frames = 1;
-exp_sim_param.number_of_postbleach_frames = 1;
+exp_sim_param.number_of_bleach_frames = 2;
+exp_sim_param.number_of_postbleach_frames = 5;
 exp_sim_param.delta_t = 0.2; % s
 
 exp_sim_param.number_of_pad_pixels = 128;
@@ -109,10 +109,22 @@ end
 C_postbleach = C_postbleach_mobile(exp_sim_param.number_of_pad_pixels + 1:end - exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_pad_pixels + 1:end - exp_sim_param.number_of_pad_pixels, :) + ...
                 C_postbleach_immobile(exp_sim_param.number_of_pad_pixels + 1:end - exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_pad_pixels + 1:end - exp_sim_param.number_of_pad_pixels, :);
 
-            
-            
-figure, imagesc([C_postbleach, C_postbleach_sim, C_postbleach - C_postbleach_sim]), axis 'equal'
+ toc           
 
-figure, hold on, plot(C_postbleach(:, 128), 'k.-'), plot(C_postbleach_sim(:, 128), 'r.-')
+% for current_frame = 1:exp_sim_param.number_of_prebleach_frames
+%     figure, imagesc([C_prebleach(:, :, current_frame), C_prebleach_sim(:, :, current_frame), C_prebleach(:, :, current_frame) - C_prebleach_sim(:, :, current_frame)]), axis 'equal'
+% end
+% for current_frame = 1:exp_sim_param.number_of_postbleach_frames
+%     figure, imagesc([C_postbleach(:, :, current_frame), C_postbleach_sim(:, :, current_frame), C_postbleach(:, :, current_frame) - C_postbleach_sim(:, :, current_frame)]), axis 'equal'
+% end
+for current_frame = 1:exp_sim_param.number_of_prebleach_frames
+    figure, imagesc(C_prebleach(:, :, current_frame) - C_prebleach_sim(:, :, current_frame)), axis 'equal'
+end
+for current_frame = 1:exp_sim_param.number_of_postbleach_frames
+    figure, imagesc(C_postbleach(:, :, current_frame) - C_postbleach_sim(:, :, current_frame)), axis 'equal'
+end
+max(abs(C_prebleach(:)-C_prebleach_sim(:)))
+max(abs(C_postbleach(:)-C_postbleach_sim(:)))
+
+% figure, hold on, plot(C_postbleach(:, 128), 'k.-'), plot(C_postbleach_sim(:, 128), 'r.-')
 % figure, plot(C_postbleach(128, :) - C_postbleach_sim(128, :))
-toc

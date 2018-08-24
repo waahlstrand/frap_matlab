@@ -15,13 +15,13 @@ function run_simulate()
 	number_of_pixels::Int64 = 256 #  pixels
 
 	number_of_prebleach_frames::Int64 = 5
-	number_of_bleach_frames::Int64 = 1
-	number_of_postbleach_frames::Int64 = 1
+	number_of_bleach_frames::Int64 = 2
+	number_of_postbleach_frames::Int64 = 5
 	delta_t::Float64 = 0.2 # s
 
 	number_of_pad_pixels::Int64 = 128 # pixels
 	number_of_time_steps_fine_per_course::Int64 = 32
-	number_of_particles_per_worker::Int64 = 100000000
+	number_of_particles_per_worker::Int64 = 400000000
 	number_of_workers::Int64 = nworkers() # This is determined by the the '-p' input flag to Julia.
 
 	r_bleach::Float64 = 15e-6 / pixel_size

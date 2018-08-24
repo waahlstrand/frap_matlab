@@ -83,8 +83,9 @@ end
 C_postbleach = C_postbleach_mobile(exp_sim_param.number_of_pad_pixels + 1:end - exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_pad_pixels + 1:end - exp_sim_param.number_of_pad_pixels, :) + ...
                 C_postbleach_immobile(exp_sim_param.number_of_pad_pixels + 1:end - exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_pad_pixels + 1:end - exp_sim_param.number_of_pad_pixels, :);
 
+            toc
+            
 figure, imagesc([C_postbleach, C_postbleach_sim, C_postbleach - C_postbleach_sim]), axis 'equal'
 
 figure, hold on, plot(C_postbleach(:, 128), 'k.-'), plot(C_postbleach_sim(:, 128), 'r.-')
 % figure, plot(C_postbleach(128, :) - C_postbleach_sim(128, :))
-toc
