@@ -44,14 +44,16 @@ function simulate(	D::Float64,
 	ind_x::Int64 = 0
 	ind_y::Int64 = 0
 
+	println(mobile_fraction)
+
 	C_prebleach::Array{Int64, 3} = zeros(number_of_pixels, number_of_pixels, number_of_prebleach_frames)
 	C_postbleach::Array{Int64, 3} = zeros(number_of_pixels, number_of_pixels, number_of_postbleach_frames)
 
 	# Simulate.
 	for current_particle = 1:number_of_particles
-		#if mod(current_particle, 1000000) == 0
-	#		println(current_particle)
-	#	end
+		if mod(current_particle, 1_000_000) == 0
+			println(current_particle)
+		end
 
 		# Random initial position.
 		x = (number_of_pixels_float + 2.0 * number_of_pad_pixels_float) * rand()

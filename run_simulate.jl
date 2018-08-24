@@ -27,11 +27,11 @@ function run_simulate()
 	r_bleach::Float64 = 15e-6 / pixel_size
 
 	# System parameters.
-	D_SI::Float64 = 1e-11
+	D_SI::Float64 = 5e-11
 	D::Float64 = D_SI / pixel_size^2 # pixels^2 / s
 	k_on::Float64 = 0.0
 	k_off::Float64 = 1.0
-	mobile_fraction::Float64 = 1.0
+	mobile_fraction::Float64 = 0.5
 	alpha::Float64 = 0.6
 
 	# Simulate data.
