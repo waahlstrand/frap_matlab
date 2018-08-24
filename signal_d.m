@@ -87,7 +87,6 @@ for current_frame = 1:exp_sim_param.number_of_bleach_frames
     
     C_immobile = C_immobile .* bleach_mask .* imaging_bleach_mask;
 end
-F_C_mobile = fft2(C_mobile);
 
 % Postbleach.
 C_postbleach_mobile = zeros(exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_postbleach_frames);

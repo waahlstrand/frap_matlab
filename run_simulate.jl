@@ -14,14 +14,14 @@ function run_simulate()
 	pixel_size::Float64 = 7.5e-7 # m
 	number_of_pixels::Int64 = 256 #  pixels
 
-	number_of_prebleach_frames::Int64 = 5
+	number_of_prebleach_frames::Int64 = 1
 	number_of_bleach_frames::Int64 = 2
-	number_of_postbleach_frames::Int64 = 5
+	number_of_postbleach_frames::Int64 = 3
 	delta_t::Float64 = 0.2 # s
 
 	number_of_pad_pixels::Int64 = 128 # pixels
 	number_of_time_steps_fine_per_course::Int64 = 32
-	number_of_particles_per_worker::Int64 = 4000000
+	number_of_particles_per_worker::Int64 = 400000000
 	number_of_workers::Int64 = nworkers() # This is determined by the the '-p' input flag to Julia.
 
 	r_bleach::Float64 = 15e-6 / pixel_size
@@ -29,11 +29,11 @@ function run_simulate()
 	# System parameters.
 	D_SI::Float64 = 5e-11
 	D::Float64 = D_SI / pixel_size^2 # pixels^2 / s
-	k_on::Float64 = 0.0
+	k_on::Float64 = 1.0
 	k_off::Float64 = 1.0
 	mobile_fraction::Float64 = 0.5
 	alpha::Float64 = 0.6
-	beta::Float64 = 1.00
+	beta::Float64 = 1.0
 
 	# Simulate data.
 	data::Array{Int64, 3} = @distributed (+) for current_worker = 1:number_of_workers
