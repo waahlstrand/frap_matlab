@@ -3,6 +3,7 @@ function simulate(	D::Float64,
 					k_off::Float64,
 					mobile_fraction::Float64,
 					alpha::Float64,
+					beta::Float64,
 					r_bleach::Float64,
 					number_of_pixels::Int64,
 					number_of_pad_pixels::Int64,
@@ -44,8 +45,6 @@ function simulate(	D::Float64,
 	ind_x::Int64 = 0
 	ind_y::Int64 = 0
 
-	println(mobile_fraction)
-
 	C_prebleach::Array{Int64, 3} = zeros(number_of_pixels, number_of_pixels, number_of_prebleach_frames)
 	C_postbleach::Array{Int64, 3} = zeros(number_of_pixels, number_of_pixels, number_of_postbleach_frames)
 
@@ -58,6 +57,8 @@ function simulate(	D::Float64,
 		# Random initial position.
 		x = (number_of_pixels_float + 2.0 * number_of_pad_pixels_float) * rand()
 		y = (number_of_pixels_float + 2.0 * number_of_pad_pixels_float) * rand()
+
+		is_bleached = false
 
 		# Is mobile?
 		is_mobile = rand() <= mobile_fraction
@@ -94,18 +95,31 @@ function simulate(	D::Float64,
 				end
 			end
 
+			# Imaging bleach.
+			is_inside_bleach_region = false
+			if (number_of_pad_pixels_float <= x <= number_of_pad_pixels_float + number_of_pixels_float) & (number_of_pad_pixels_float <= y <= number_of_pad_pixels_float + number_of_pixels_float)
+				is_inside_bleach_region = true
+			end
+
+			if is_inside_bleach_region & (rand() <= (1.0 - beta))
+				is_bleached = true
+			end
+
+
 			# Form image.
-			ind_x = convert(Int64, ceil(mod(x, number_of_pixels_float + 2.0 * number_of_pad_pixels_float) - number_of_pad_pixels_float))
-			if ind_x >= 1 && ind_x <= number_of_pixels
-				ind_y = convert(Int64, ceil(mod(y, number_of_pixels_float + 2.0 * number_of_pad_pixels_float) - number_of_pad_pixels_float))
-				if ind_y >= 1 && ind_y <= number_of_pixels
-					C_prebleach[ind_x, ind_y, current_frame] += 1
+			if !is_bleached
+				ind_x = convert(Int64, ceil(mod(x, number_of_pixels_float + 2.0 * number_of_pad_pixels_float) - number_of_pad_pixels_float))
+				if ind_x >= 1 && ind_x <= number_of_pixels
+					ind_y = convert(Int64, ceil(mod(y, number_of_pixels_float + 2.0 * number_of_pad_pixels_float) - number_of_pad_pixels_float))
+					if ind_y >= 1 && ind_y <= number_of_pixels
+						C_prebleach[ind_x, ind_y, current_frame] += 1
+					end
 				end
 			end
 		end
 
 		# Bleach.
-		is_bleached = false
+
 		for current_frame = 1:number_of_bleach_frames
 			# Propagate.
 			for current_time_step_fine = 1:number_of_time_steps_fine_per_course
@@ -125,39 +139,59 @@ function simulate(	D::Float64,
 				end
 			end
 
-			# Bleach (with certain probability).
+			# Bleach.
 			is_inside_bleach_region = false
 			if ( x - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float) )^2 + ( y - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float) )^2 <= r_bleach^2
 				is_inside_bleach_region = true
 			end
 
-			if is_inside_bleach_region & !is_bleached
-				is_bleached = rand() <= (1.0 - alpha)
+			if is_inside_bleach_region & (rand() <= (1.0 - alpha))
+				is_bleached = true
+			end
+
+			# Imaging bleach.
+			is_inside_bleach_region = false
+			if (number_of_pad_pixels_float <= x <= number_of_pad_pixels_float + number_of_pixels_float) & (number_of_pad_pixels_float <= y <= number_of_pad_pixels_float + number_of_pixels_float)
+				is_inside_bleach_region = true
+			end
+
+			if is_inside_bleach_region & (rand() <= (1.0 - beta))
+				is_bleached = true
 			end
 		end
 
 		# Postbleach.
-		if !is_bleached
-			for current_frame = 1:number_of_postbleach_frames
-				# Propagate.
-				for current_time_step_fine = 1:number_of_time_steps_fine_per_course
-					if is_unbound
-						x = x + sigma_fine * randn()
-						y = y + sigma_fine * randn()
-					end
-
-					if is_unbound
-						if rand() <= p_ub
-							is_unbound = false
-						end
-					else
-						if rand() <= p_bu
-							is_unbound = true
-						end
-					end
+		for current_frame = 1:number_of_postbleach_frames
+			# Propagate.
+			for current_time_step_fine = 1:number_of_time_steps_fine_per_course
+				if is_unbound
+					x = x + sigma_fine * randn()
+					y = y + sigma_fine * randn()
 				end
 
-				# Form image.
+				if is_unbound
+					if rand() <= p_ub
+						is_unbound = false
+					end
+				else
+					if rand() <= p_bu
+						is_unbound = true
+					end
+				end
+			end
+
+			# Imaging bleach.
+			is_inside_bleach_region = false
+			if (number_of_pad_pixels_float <= x <= number_of_pad_pixels_float + number_of_pixels_float) & (number_of_pad_pixels_float <= y <= number_of_pad_pixels_float + number_of_pixels_float)
+				is_inside_bleach_region = true
+			end
+
+			if is_inside_bleach_region & (rand() <= (1.0 - beta))
+				is_bleached = true
+			end
+
+			# Form image.
+			if !is_bleached
 				ind_x = convert(Int64, ceil(mod(x, number_of_pixels_float + 2.0 * number_of_pad_pixels_float) - number_of_pad_pixels_float))
 				if ind_x >= 1 && ind_x <= number_of_pixels
 					ind_y = convert(Int64, ceil(mod(y, number_of_pixels_float + 2.0 * number_of_pad_pixels_float) - number_of_pad_pixels_float))

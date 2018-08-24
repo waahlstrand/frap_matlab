@@ -35,7 +35,7 @@ D = D_SI / exp_sim_param.pixel_size^2; % pixels^2 / s
 mobile_fraction = 0.5; % dimensionless
 C0 = 1.0; % a.u. original concentration
 alpha = 0.6; % a.u.  bleach factor
-beta = 0.99; % a.u. imaging bleach factor
+beta = 0.95; % a.u. imaging bleach factor
 
 sys_param = [D, mobile_fraction, C0, alpha, beta];
 

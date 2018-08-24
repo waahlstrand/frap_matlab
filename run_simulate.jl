@@ -14,7 +14,7 @@ function run_simulate()
 	pixel_size::Float64 = 7.5e-7 # m
 	number_of_pixels::Int64 = 256 #  pixels
 
-	number_of_prebleach_frames::Int64 = 0
+	number_of_prebleach_frames::Int64 = 5
 	number_of_bleach_frames::Int64 = 1
 	number_of_postbleach_frames::Int64 = 1
 	delta_t::Float64 = 0.2 # s
@@ -33,6 +33,7 @@ function run_simulate()
 	k_off::Float64 = 1.0
 	mobile_fraction::Float64 = 0.5
 	alpha::Float64 = 0.6
+	beta::Float64 = 0.95
 
 	# Simulate data.
 	data::Array{Int64, 3} = @distributed (+) for current_worker = 1:number_of_workers
@@ -41,6 +42,7 @@ function run_simulate()
 					k_off,
 					mobile_fraction,
 					alpha,
+					beta,
 					r_bleach,
 					number_of_pixels,
 					number_of_pad_pixels,
@@ -65,6 +67,7 @@ function run_simulate()
 	write(file_stream_output, k_off)
 	write(file_stream_output, mobile_fraction)
 	write(file_stream_output, alpha)
+	write(file_stream_output, beta)
 	write(file_stream_output, r_bleach)
 	write(file_stream_output, number_of_pixels)
 	write(file_stream_output, number_of_prebleach_frames)

@@ -11,6 +11,7 @@ k_on = fread(file_id, 1, 'float64');
 k_off = fread(file_id, 1, 'float64');
 mobile_fraction = fread(file_id, 1, 'float64');
 alpha = fread(file_id, 1, 'float64');
+beta = fread(file_id, 1, 'float64');
 r_bleach = fread(file_id, 1, 'float64');
 number_of_pixels = fread(file_id, 1, 'int64');
 number_of_prebleach_frames = fread(file_id, 1, 'int64');
