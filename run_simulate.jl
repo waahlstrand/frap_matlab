@@ -21,13 +21,13 @@ function run_simulate()
 
 	number_of_pad_pixels::Int64 = 128 # pixels
 	number_of_time_steps_fine_per_course::Int64 = 1#32
-	number_of_particles_per_worker::Int64 = 400000000
+	number_of_particles_per_worker::Int64 = 1600000000
 	number_of_workers::Int64 = nworkers() # This is determined by the the '-p' input flag to Julia.
 
 	r_bleach::Float64 = 15e-6 / pixel_size
 
 	# System parameters.
-	D_SI::Float64 = 0.0#1e-11
+	D_SI::Float64 = 5e-11
 	D::Float64 = D_SI / pixel_size^2 # pixels^2 / s
 	k_on::Float64 = 0.0
 	k_off::Float64 = 1.0

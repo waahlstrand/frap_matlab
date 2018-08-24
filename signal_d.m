@@ -4,7 +4,7 @@
 
 % clear
 clc
-% close all hidden
+close all hidden
 
 %% Experimental and simulation parameters.
 
@@ -30,7 +30,7 @@ exp_sim_param.bleach_region.upsampling_factor  = 3;
 
 %% System parameters.
 
-D_SI = 0%1e-11; % m^2/s
+D_SI = 5e-11; % m^2/s
 D = D_SI / exp_sim_param.pixel_size^2; % pixels^2 / s
 mobile_fraction = 1.0; % dimensionless
 C0 = 1.0; % a.u. original concentration
@@ -56,13 +56,13 @@ C_prebleach = C0 * ones(exp_sim_param.number_of_pixels + 2 * exp_sim_param.numbe
 C = C0 * ones(exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels);
 C_immobile = (1 - mobile_fraction) * C;
 for current_bleach_frame = 1:exp_sim_param.number_of_bleach_frames
-    C = C .* bleach_mask;
     F_C = fft2(C);
     F_C = exp( - D * XSISQ * exp_sim_param.delta_t ) .* F_C;
     C = abs(ifft2(F_C));
+    C = C .* bleach_mask;
 end
-warn('Wrong here the immobile does not get bleached.')
-C = mobile_fraction * C + C_immobile;
+warning('Wrong here the immobile does not get bleached. Well now it does.')
+C = mobile_fraction * C + C_immobile * bleach_mask.^exp_sim_param.number_of_bleach_frames;
 F_C = fft2(C);
 
 % Postbleach.
@@ -79,5 +79,7 @@ C_postbleach = mobile_fraction * C_postbleach(exp_sim_param.number_of_pad_pixels
 
 
 figure, imagesc([C_postbleach, C_postbleach_sim, C_postbleach - C_postbleach_sim]), axis 'equal'
+
+figure, hold on, plot(C_postbleach(:, 128), 'k.-'), plot(C_postbleach_sim(:, 128), 'r.-')
 % figure, plot(C_postbleach(128, :) - C_postbleach_sim(128, :))
 toc

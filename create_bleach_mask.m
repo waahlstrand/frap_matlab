@@ -19,6 +19,7 @@ else
     error('Unrecognized bleach region shape.');
 end
 bleach_mask(idx_bleach) = alpha;
-bleach_mask = imresize(bleach_mask, [exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels], 'method', 'bilinear');
+% bleach_mask = imresize(bleach_mask, [exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels], 'method', 'bilinear');
+bleach_mask = imresize(bleach_mask, [exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels], 'method', 'box');
 
 end
