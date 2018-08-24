@@ -26,7 +26,7 @@ exp_sim_param.bleach_region.y = 128; % pixels
 exp_sim_param.bleach_region.r = 15e-6 / exp_sim_param.pixel_size; % pixels
 exp_sim_param.bleach_region.lx = 32%20e-6 / exp_sim_param.pixel_size; % pixels
 exp_sim_param.bleach_region.ly = 32%20e-6 / exp_sim_param.pixel_size; % pixels
-exp_sim_param.bleach_region.upsampling_factor  = 3;
+exp_sim_param.bleach_region.upsampling_factor  = 30;
 
 %% System parameters.
 
