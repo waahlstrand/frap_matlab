@@ -50,7 +50,7 @@ function simulate(	D::Float64,
 
 	# Simulate.
 	for current_particle = 1:number_of_particles
-		if mod(current_particle, 1_000_000) == 0
+		if mod(current_particle, 100_000) == 0
 			println(current_particle)
 		end
 

@@ -1,10 +1,7 @@
-%% Initialization.
-clear
-clc
-close all hidden
+function [C_prebleach_sim, C_postbleach_sim, sys_param] = read_simulation_data(file_path)
 
 %% Read file.
-file_id = fopen('simulated_stochastic_data.bin');
+file_id = fopen(file_path);
 
 D = fread(file_id, 1, 'float64');
 k_on = fread(file_id, 1, 'float64');
@@ -32,8 +29,12 @@ fclose(file_id);
 clear file_id 
 
 %% Normalize count data.
-
 C0 = 1;
 norm_factor = number_of_particles / (number_of_pixels + 2 * number_of_pad_pixels)^2; % Average count in pixels.
 C_prebleach_sim = C_prebleach_sim / norm_factor;
 C_postbleach_sim = C_postbleach_sim / norm_factor;
+
+%% Store parameters.
+sys_param = [D, k_on, k_off, mobile_fraction, C0, alpha, beta];
+
+end
