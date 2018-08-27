@@ -13,7 +13,7 @@ mf = 1.0; % dimensionless
 
 delta_t = 0.2; % s
 number_of_pixels = 256;
-number_of_images = 100;
+number_of_images = 150;
 number_of_pad_pixels = 128;
 Ib = 0.6; % a.u.
 Iu = 1.0;%0.9; % a.u.
