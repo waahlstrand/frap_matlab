@@ -9,8 +9,9 @@ beta = sys_param(5);
 
 % Create a high-resolution bleach mask which is then downsampled to more
 % accurately represent edges of the bleach region.
+tic
 bleach_mask = create_bleach_mask(alpha, exp_sim_param);
-
+toc
 % Create imaging bleach mask.
 imaging_bleach_mask = create_imaging_bleach_mask(beta, exp_sim_param);
 

@@ -15,7 +15,7 @@ exp_sim_param.pixel_size = 7.5e-07; % m
 exp_sim_param.number_of_pixels = 256;
 
 exp_sim_param.number_of_prebleach_frames = 10;
-exp_sim_param.number_of_bleach_frames = 2;
+exp_sim_param.number_of_bleach_frames = 1;
 exp_sim_param.number_of_postbleach_frames = 50;
 exp_sim_param.delta_t = 0.2; % s
 
@@ -33,40 +33,40 @@ exp_sim_param.bleach_region.upsampling_factor  = 3;
 
 D_SI = 5e-10; % m^2/s
 D = D_SI / exp_sim_param.pixel_size^2; % pixels^2 / s
+k_on = 1;
+k_off = 1;
 mobile_fraction = 1.0; % dimensionless
 C0 = 1.0; % a.u. original concentration
 alpha = 0.6; % a.u.  bleach factor
-beta = 1.0; % a.u. imaging bleach factor
+beta = 0.999; % a.u. imaging bleach factor
 
-sys_param = [D, mobile_fraction, C0, alpha, beta];
+sys_param = [D, k_on, k_off, mobile_fraction, C0, alpha, beta];
 
 %% Generate data.
 
-[C_prebleach, C_postbleach] = signal_d(sys_param, exp_sim_param);
-sigma = 0.0;
+[C_prebleach, C_postbleach] = signal_db(sys_param, exp_sim_param);
+sigma = 0.1;
 C_prebleach = C_prebleach + sigma * randn(size(C_prebleach));
 C_postbleach = C_postbleach + sigma * randn(size(C_postbleach));
 
 %% Fit parameters.
-
-exp_sim_param.number_of_bleach_frames = 1;
 
 fit_param = struct();
 
 fit_param.mode = "recovery-curve"; % "pixel"
 fit_param.use_parallel = false;
 fit_param.number_of_fits = 1;
-fit_param.guess = [D, mobile_fraction, C0, alpha, beta];
-fit_param.lower_bound = [0.5 * D, 0, 0, 0, 0];
-fit_param.upper_bound = [2 * D, 1, 2 * C0, 1, 1];
+fit_param.guess = []%[D, k_on, k_off, mobile_fraction, C0, alpha, beta];
+fit_param.lower_bound = [D, 0, 0, 0, 0, 0, 0];
+fit_param.upper_bound = [D, 100, 100, 1, C0, 1, 1];
 
 %% Fit.
 
-[sys_param_hat, ss] = fit_d(C_prebleach, C_postbleach, exp_sim_param, fit_param);
+[sys_param_hat, ss] = fit_db(C_prebleach, C_postbleach, exp_sim_param, fit_param);
 
 %% Plot results.
 
-[C_prebleach_model, C_postbleach_model] = signal_d(sys_param_hat, exp_sim_param);
+[C_prebleach_model, C_postbleach_model] = signal_db(sys_param_hat, exp_sim_param);
 C_model = cat(3, C_prebleach_model, C_postbleach_model);
 C = cat(3, C_prebleach, C_postbleach);
 R = C_model(:) - C(:);
