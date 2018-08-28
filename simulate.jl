@@ -94,6 +94,8 @@ function simulate(	D::Float64,
 					end
 				end
 			end
+			x = mod(x, number_of_pixels_float + 2.0 * number_of_pad_pixels_float)
+			y = mod(y, number_of_pixels_float + 2.0 * number_of_pad_pixels_float)
 
 			# Imaging bleach.
 			is_inside_bleach_region = false
@@ -119,7 +121,6 @@ function simulate(	D::Float64,
 		end
 
 		# Bleach.
-
 		for current_frame = 1:number_of_bleach_frames
 			# Propagate.
 			for current_time_step_fine = 1:number_of_time_steps_fine_per_course
@@ -138,6 +139,8 @@ function simulate(	D::Float64,
 					end
 				end
 			end
+			x = mod(x, number_of_pixels_float + 2.0 * number_of_pad_pixels_float)
+			y = mod(y, number_of_pixels_float + 2.0 * number_of_pad_pixels_float)
 
 			# Bleach.
 			is_inside_bleach_region = false
@@ -179,6 +182,8 @@ function simulate(	D::Float64,
 					end
 				end
 			end
+			x = mod(x, number_of_pixels_float + 2.0 * number_of_pad_pixels_float)
+			y = mod(y, number_of_pixels_float + 2.0 * number_of_pad_pixels_float)
 
 			# Imaging bleach.
 			is_inside_bleach_region = false

@@ -27,7 +27,7 @@ function run_simulate(	D::Float64,
 
 	number_of_pad_pixels::Int64 = 128 # pixels
 	number_of_time_steps_fine_per_course::Int64 = 32
-	number_of_particles_per_worker::Int64 = 2000000
+	number_of_particles_per_worker::Int64 = 1000000
 	number_of_workers::Int64 = nworkers() # This is determined by the the '-p' input flag to Julia.
 
 	r_bleach::Float64 = 15e-6 / pixel_size
@@ -82,18 +82,23 @@ function run_simulate(	D::Float64,
 	nothing
 end
 
-# System parameters.
+#alpha = 0.6
+#for D in (10.0, 100.0, 1000.0)
+#	for k_on in (0.0, 1.0, 10.0)
+#		for k_off in (1.0, 10.0)
+#			for mobile_fraction in (0.5, 1.0)
+#				for beta in (1.0, 0.999, 0.99)
+#					println((D, k_on, k_off, mobile_fraction, alpha, beta))
+#					run_simulate(D, k_on, k_off, mobile_fraction, alpha, beta)
+#				end
+#			end
+#		end
+#	end
+#end
+D = 1000.0
+k_on = 1.0
+k_off = 10.0
+mobile_fraction = 1.0
 alpha = 0.6
-
-for D in (10.0, 100.0, 1000.0)
-	for k_on in (0.0, 1.0, 10.0)
-		for k_off in (1.0, 10.0)
-			for mobile_fraction in (0.5, 1.0)
-				for beta in (1.0, 0.999, 0.99)
-					println((D, k_on, k_off, mobile_fraction, alpha, beta))
-					run_simulate(D, k_on, k_off, mobile_fraction, alpha, beta)
-				end
-			end
-		end
-	end
-end
+beta = 0.99
+run_simulate(D, k_on, k_off, mobile_fraction, alpha, beta)
