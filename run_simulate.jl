@@ -2,12 +2,13 @@ using Random
 
 @everywhere include("simulate.jl")
 
-function run_simulate(	D::Float64,
+function run_simulate(	D_SI::Float64,
 						k_on::Float64,
 						k_off::Float64,
 						mobile_fraction::Float64,
 						alpha::Float64,
-						beta::Float64)
+						beta::Float64,
+						number_of_bleach_frames::Int64)
 
 	# Inititalization of random number generation device.
 	random_seed::Int64 = convert(Int64, time_ns())
@@ -21,19 +22,20 @@ function run_simulate(	D::Float64,
 	number_of_pixels::Int64 = 256 #  pixels
 
 	number_of_prebleach_frames::Int64 = 10
-	number_of_bleach_frames::Int64 = 2
 	number_of_postbleach_frames::Int64 = 50
 	delta_t::Float64 = 0.2 # s
 
 	number_of_pad_pixels::Int64 = 128 # pixels
 	number_of_time_steps_fine_per_course::Int64 = 32
-	number_of_particles_per_worker::Int64 = 1000000
+	number_of_particles_per_worker::Int64 = 10000000
 	number_of_workers::Int64 = nworkers() # This is determined by the the '-p' input flag to Julia.
 
-	bleach_region_shape::Float64 = 1.0
+	bleach_region_shape::Float64 = 0.0
 	r_bleach::Float64 = 15e-6 / pixel_size
 	lx_bleach::Float64 = 20e-6 / pixel_size
 	ly_bleach::Float64 = 20e-6 / pixel_size
+
+	D::Float64 = D_SI / pixel_size^2
 
 	# Simulate data.
 	data::Array{Int64, 3} = @distributed (+) for current_worker = 1:number_of_workers
@@ -60,17 +62,17 @@ function run_simulate(	D::Float64,
 	# Measure and print execution time.
 	t_exec::Int64 = convert(Int64, time_ns()) - t_start
 	t_exec_s::Float64 = convert(Float64, t_exec) / 1e9
-	println(join(("Execution time: ", t_exec_s, " seconds.")))
+	#println(join(("Execution time: ", t_exec_s, " seconds.")))
 
 	# Save output.
 	file_name_output::String = ""
 	if bleach_region_shape == 0.0
-		file_name_output = join(("simulated_stochastic_data_circle_", string(D), "_", string(k_on), "_", string(k_off), "_", string(mobile_fraction), "_", string(alpha), "_", string(beta), ".bin"))
+		file_name_output = join(("simulated_stochastic_data_circle_", string(D_SI), "_", string(k_on), "_", string(k_off), "_", string(mobile_fraction), "_", string(alpha), "_", string(beta), "_", string(number_of_bleach_frames), ".bin"))
 	else
-		file_name_output = join(("simulated_stochastic_data_rectangle_", string(D), "_", string(k_on), "_", string(k_off), "_", string(mobile_fraction), "_", string(alpha), "_", string(beta), ".bin"))
+		file_name_output = join(("simulated_stochastic_data_rectangle_", string(D_SI), "_", string(k_on), "_", string(k_off), "_", string(mobile_fraction), "_", string(alpha), "_", string(beta), "_", string(number_of_bleach_frames), ".bin"))
 	end
 	file_stream_output::IOStream = open(file_name_output, "w")
-	write(file_stream_output, D)
+	write(file_stream_output, D_SI)
 	write(file_stream_output, k_on)
 	write(file_stream_output, k_off)
 	write(file_stream_output, mobile_fraction)
@@ -93,23 +95,32 @@ function run_simulate(	D::Float64,
 	nothing
 end
 
-#alpha = 0.6
-#for D in (10.0, 100.0, 1000.0)
-#	for k_on in (0.0, 1.0, 10.0)
-#		for k_off in (1.0, 10.0)
-#			for mobile_fraction in (0.5, 1.0)
-#				for beta in (1.0, 0.999, 0.99)
-#					println((D, k_on, k_off, mobile_fraction, alpha, beta))
-#					run_simulate(D, k_on, k_off, mobile_fraction, alpha, beta)
-#				end
-#			end
-#		end
-#	end
-#end
-D = 0.0#1000.0
-k_on = 0.0
-k_off = 1.0
-mobile_fraction = 1.0
 alpha = 0.6
-beta = 1.0
-run_simulate(D, k_on, k_off, mobile_fraction, alpha, beta)
+
+t_start = convert(Int64, time_ns())
+for D_SI in (5e-12, 5e-11, 5e-10)
+	for k_on in (0.0, 1.0, 10.0)
+		for k_off in (1.0, 10.0)
+			for mobile_fraction in (0.8, 1.0)
+				for beta in (1.0, 0.999, 0.995)
+					for number_of_bleach_frames in (1, 4)
+						println((D_SI, k_on, k_off, mobile_fraction, alpha, beta, number_of_bleach_frames))
+						run_simulate(D_SI, k_on, k_off, mobile_fraction, alpha, beta, number_of_bleach_frames)
+					end
+				end
+			end
+		end
+	end
+end
+t_exec = convert(Int64, time_ns()) - t_start
+t_exec_s = convert(Float64, t_exec) / 1e9
+println(join(("Execution time: ", t_exec_s, " seconds.")))
+
+
+#D = 0.0#1000.0
+#k_on = 0.0
+#k_off = 1.0
+#mobile_fraction = 1.0
+#alpha = 0.6
+#beta = 1.0
+#run_simulate(D, k_on, k_off, mobile_fraction, alpha, beta)
