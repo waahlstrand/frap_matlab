@@ -12,14 +12,14 @@ exp_sim_param = struct();
 exp_sim_param.pixel_size = 7.5e-07; % m
 exp_sim_param.number_of_pixels = 256;
 
-exp_sim_param.number_of_prebleach_frames = 10;
-exp_sim_param.number_of_bleach_frames = 2;
-exp_sim_param.number_of_postbleach_frames = 150;
+exp_sim_param.number_of_prebleach_frames = 0;
+exp_sim_param.number_of_bleach_frames = 1;
+exp_sim_param.number_of_postbleach_frames = 100;
 exp_sim_param.delta_t = 0.2; % s
 
 exp_sim_param.number_of_pad_pixels = 128;
 
-exp_sim_param.bleach_region.shape = "circular";
+exp_sim_param.bleach_region.shape = "circle";
 exp_sim_param.bleach_region.x = 128; % pixels
 exp_sim_param.bleach_region.y = 128; % pixels 
 exp_sim_param.bleach_region.r = 15e-6 / exp_sim_param.pixel_size; % pixels

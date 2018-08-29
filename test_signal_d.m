@@ -12,8 +12,8 @@ exp_sim_param.pixel_size = 7.5e-07; % m
 exp_sim_param.number_of_pixels = 256;
 
 exp_sim_param.number_of_prebleach_frames = 0;
-exp_sim_param.number_of_bleach_frames = 2;
-exp_sim_param.number_of_postbleach_frames = 1;
+exp_sim_param.number_of_bleach_frames = 1;
+exp_sim_param.number_of_postbleach_frames = 100;
 exp_sim_param.delta_t = 0.2; % s
 
 exp_sim_param.number_of_pad_pixels = 128;
@@ -28,7 +28,7 @@ exp_sim_param.bleach_region.upsampling_factor = 16;
 
 %% System parameters.
 
-D_SI = 0%5e-11; % m^2/s
+D_SI = 5e-11; % m^2/s
 D = D_SI / exp_sim_param.pixel_size^2; % pixels^2 / s
 mobile_fraction = 1.0; % dimensionless
 C0 = 1.0; % a.u. original concentration

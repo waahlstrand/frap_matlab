@@ -4,9 +4,9 @@ function [sys_param_hat, ss] = fit_db(C_prebleach, C_postbleach, exp_sim_param, 
 options = optimoptions(@lsqnonlin);
 options.Algorithm = 'trust-region-reflective';
 options.Display = 'iter';
-options.FunctionTolerance = 1e-7;
-options.OptimalityTolerance = 1e-7;
-options.StepTolerance = 1e-7;
+options.FunctionTolerance = 1e-6;
+options.OptimalityTolerance = 1e-6;
+options.StepTolerance = 1e-6;
 options.UseParallel = fit_param.use_parallel;
 
 % Residual function handle.

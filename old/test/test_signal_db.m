@@ -15,7 +15,7 @@ mf = 1.0; % dimensionless
 
 delta_t = 0.2; % s
 number_of_pixels = 256;
-number_of_images = 50;
+number_of_images = 100;
 number_of_pad_pixels = 128;
 Ib = 0.6; % a.u.
 Iu = 1.0;%0.9; % a.u.
@@ -29,7 +29,7 @@ param_bleach = [x_bleach, y_bleach, r_bleach]; % Circular.
 %param_bleach = [x_bleach, y_bleach, lx_bleach, ly_bleach]; % Rectangular.
 
 %% Simulate.
-% tic
+tic
 data = signal_db( ...
     D, ...
     k_on, ...
@@ -42,7 +42,7 @@ data = signal_db( ...
     number_of_pixels, ...
     number_of_images, ...
     number_of_pad_pixels);
-% toc
+toc
 
 sigma_noise = 0.0;
 data = data + sigma_noise * randn(size(data));
