@@ -21,7 +21,7 @@ exp_sim_param.delta_t = 0.2; % s
 
 exp_sim_param.number_of_pad_pixels = 128;
 
-exp_sim_param.bleach_region.shape = "circular";
+exp_sim_param.bleach_region.shape = "circle";
 exp_sim_param.bleach_region.x = 128; % pixels
 exp_sim_param.bleach_region.y = 128; % pixels 
 exp_sim_param.bleach_region.r = 15e-6 / exp_sim_param.pixel_size; % pixels
@@ -43,17 +43,17 @@ sys_param = [D, mobile_fraction, C0, alpha, beta];
 %% Generate data.
 
 [C_prebleach, C_postbleach] = signal_d(sys_param, exp_sim_param);
-sigma = 0.0;
+sigma = 0.1;
 C_prebleach = C_prebleach + sigma * randn(size(C_prebleach));
 C_postbleach = C_postbleach + sigma * randn(size(C_postbleach));
 
 %% Fit parameters.
 
-exp_sim_param.number_of_bleach_frames = 1;
+exp_sim_param.number_of_bleach_frames = 2;
 
 fit_param = struct();
 
-fit_param.mode = "recovery-curve"; % "pixel"
+fit_param.mode = "pixel";%"recovery-curve"; % "pixel"
 fit_param.use_parallel = false;
 fit_param.number_of_fits = 1;
 fit_param.guess = [D, mobile_fraction, C0, alpha, beta];

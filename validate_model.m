@@ -14,15 +14,15 @@ exp_sim_param.delta_t = 0.2; % s
 
 exp_sim_param.number_of_pad_pixels = 128;
 
-exp_sim_param.bleach_region.shape = "circular";
+exp_sim_param.bleach_region.shape = "rectangle";%"circular";
 exp_sim_param.bleach_region.x = 128; % pixels
 exp_sim_param.bleach_region.y = 128; % pixels 
 exp_sim_param.bleach_region.r = 15e-6 / exp_sim_param.pixel_size; % pixels
-exp_sim_param.bleach_region.lx = 32%20e-6 / exp_sm_param.pixel_size; % pixels
-exp_sim_param.bleach_region.ly = 32%20e-6 / exp_sim_param.pixel_size; % pixels
-exp_sim_param.bleach_region.upsampling_factor  = 3;
+exp_sim_param.bleach_region.lx = 20e-6 / exp_sim_param.pixel_size; % pixels
+exp_sim_param.bleach_region.ly = 20e-6 / exp_sim_param.pixel_size; % pixels
+exp_sim_param.bleach_region.upsampling_factor  = 16;
 
-files = dir('*.bin');
+files = dir('*rectangle*.bin');
 number_of_files = numel(files);
 
 for current_file = 1%73:108%1:number_of_files

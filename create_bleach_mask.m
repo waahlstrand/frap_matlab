@@ -22,9 +22,9 @@ function bleach_mask = create_bleach_mask(alpha, exp_sim_param)
 % % bleach_mask = imresize(bleach_mask, [exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels], 'method', 'bilinear');
 % bleach_mask = imresize(bleach_mask, [exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_pixels + 2 * exp_sim_param.number_of_pad_pixels], 'method', 'box');
 
-if exp_sim_param.bleach_region.shape == "circular"
+if exp_sim_param.bleach_region.shape == "circle"
     L = 2 * (ceil(exp_sim_param.bleach_region.r) + 1);
-elseif exp_sim_param.bleach_region.shape == "rectangular"
+elseif exp_sim_param.bleach_region.shape == "rectangle"
     L = 2 * (ceil(max(exp_sim_param.bleach_region.lx/2, exp_sim_param.bleach_region.ly/2)) + 1);
 else
     error('Unrecognized bleach region shape.');
@@ -38,11 +38,11 @@ X = X + exp_sim_param.bleach_region.upsampling_factor * exp_sim_param.bleach_reg
 Y = Y + exp_sim_param.bleach_region.upsampling_factor * exp_sim_param.bleach_region.y;
 
 bleach_mask_small = ones(size(X));
-if exp_sim_param.bleach_region.shape == "circular"
+if exp_sim_param.bleach_region.shape == "circle"
     idx_bleach =    ( X - exp_sim_param.bleach_region.upsampling_factor * (exp_sim_param.bleach_region.x) ).^2 + ...
                     ( Y - exp_sim_param.bleach_region.upsampling_factor * (exp_sim_param.bleach_region.y) ).^2 <= ...
                     ( exp_sim_param.bleach_region.upsampling_factor * exp_sim_param.bleach_region.r )^2;
-elseif exp_sim_param.bleach_region.shape == "rectangular"
+elseif exp_sim_param.bleach_region.shape == "rectangle"
     idx_bleach =    X >= exp_sim_param.bleach_region.upsampling_factor * (exp_sim_param.bleach_region.x - 0.5 * exp_sim_param.bleach_region.lx) & ...
                     X <= exp_sim_param.bleach_region.upsampling_factor * (exp_sim_param.bleach_region.x + 0.5 * exp_sim_param.bleach_region.lx) & ...
                     Y >= exp_sim_param.bleach_region.upsampling_factor * (exp_sim_param.bleach_region.y - 0.5 * exp_sim_param.bleach_region.ly) & ...

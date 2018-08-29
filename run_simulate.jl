@@ -20,17 +20,20 @@ function run_simulate(	D::Float64,
 	pixel_size::Float64 = 7.5e-7 # m
 	number_of_pixels::Int64 = 256 #  pixels
 
-	number_of_prebleach_frames::Int64 = 0#10
-	number_of_bleach_frames::Int64 = 1
-	number_of_postbleach_frames::Int64 = 1#50
+	number_of_prebleach_frames::Int64 = 10
+	number_of_bleach_frames::Int64 = 2
+	number_of_postbleach_frames::Int64 = 50
 	delta_t::Float64 = 0.2 # s
 
 	number_of_pad_pixels::Int64 = 128 # pixels
 	number_of_time_steps_fine_per_course::Int64 = 32
-	number_of_particles_per_worker::Int64 = 1000000000
+	number_of_particles_per_worker::Int64 = 1000000
 	number_of_workers::Int64 = nworkers() # This is determined by the the '-p' input flag to Julia.
 
+	bleach_region_shape::Float64 = 1.0
 	r_bleach::Float64 = 15e-6 / pixel_size
+	lx_bleach::Float64 = 20e-6 / pixel_size
+	ly_bleach::Float64 = 20e-6 / pixel_size
 
 	# Simulate data.
 	data::Array{Int64, 3} = @distributed (+) for current_worker = 1:number_of_workers
@@ -40,7 +43,10 @@ function run_simulate(	D::Float64,
 					mobile_fraction,
 					alpha,
 					beta,
+					bleach_region_shape,
 					r_bleach,
+					lx_bleach,
+					ly_bleach,
 					number_of_pixels,
 					number_of_pad_pixels,
 					number_of_prebleach_frames,
@@ -57,7 +63,12 @@ function run_simulate(	D::Float64,
 	println(join(("Execution time: ", t_exec_s, " seconds.")))
 
 	# Save output.
-	file_name_output::String = join(("simulated_stochastic_data_", string(D), "_", string(k_on), "_", string(k_off), "_", string(mobile_fraction), "_", string(alpha), "_", string(beta), ".bin"))
+	file_name_output::String = ""
+	if bleach_region_shape == 0.0
+		file_name_output = join(("simulated_stochastic_data_circle_", string(D), "_", string(k_on), "_", string(k_off), "_", string(mobile_fraction), "_", string(alpha), "_", string(beta), ".bin"))
+	else
+		file_name_output = join(("simulated_stochastic_data_rectangle_", string(D), "_", string(k_on), "_", string(k_off), "_", string(mobile_fraction), "_", string(alpha), "_", string(beta), ".bin"))
+	end
 	file_stream_output::IOStream = open(file_name_output, "w")
 	write(file_stream_output, D)
 	write(file_stream_output, k_on)

@@ -4,7 +4,10 @@ function simulate(	D::Float64,
 					mobile_fraction::Float64,
 					alpha::Float64,
 					beta::Float64,
+					bleach_region_shape::Float64,
 					r_bleach::Float64,
+					lx_bleach::Float64,
+					ly_bleach::Float64,
 					number_of_pixels::Int64,
 					number_of_pad_pixels::Int64,
 					number_of_prebleach_frames::Int64,
@@ -110,9 +113,9 @@ function simulate(	D::Float64,
 
 			# Form image.
 			if !is_bleached
-				ind_x = convert(Int64, ceil(mod(x, number_of_pixels_float + 2.0 * number_of_pad_pixels_float) - number_of_pad_pixels_float))
+				ind_x = convert(Int64, ceil(x - number_of_pad_pixels_float))
 				if ind_x >= 1 && ind_x <= number_of_pixels
-					ind_y = convert(Int64, ceil(mod(y, number_of_pixels_float + 2.0 * number_of_pad_pixels_float) - number_of_pad_pixels_float))
+					ind_y = convert(Int64, ceil(y - number_of_pad_pixels_float))
 					if ind_y >= 1 && ind_y <= number_of_pixels
 						C_prebleach[ind_x, ind_y, current_frame] += 1
 					end
@@ -144,8 +147,15 @@ function simulate(	D::Float64,
 
 			# Bleach.
 			is_inside_bleach_region = false
-			if ( x - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float) )^2 + ( y - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float) )^2 <= r_bleach^2
-				is_inside_bleach_region = true
+			if bleach_region_shape == 0.0 # Circle
+				if ( x - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float) )^2 + ( y - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float) )^2 <= r_bleach^2
+					is_inside_bleach_region = true
+				end
+			else # Rectangle
+				if (number_of_pad_pixels_float + 0.5 * number_of_pixels_float - 0.5 * lx_bleach <= x <= number_of_pad_pixels_float + 0.5 * number_of_pixels_float + 0.5 * lx_bleach) &
+				   (number_of_pad_pixels_float + 0.5 * number_of_pixels_float - 0.5 * ly_bleach <= y <= number_of_pad_pixels_float + 0.5 * number_of_pixels_float + 0.5 * ly_bleach)
+					is_inside_bleach_region = true
+				end
 			end
 
 			if is_inside_bleach_region & (rand() <= (1.0 - alpha))
@@ -197,9 +207,9 @@ function simulate(	D::Float64,
 
 			# Form image.
 			if !is_bleached
-				ind_x = convert(Int64, ceil(mod(x, number_of_pixels_float + 2.0 * number_of_pad_pixels_float) - number_of_pad_pixels_float))
+				ind_x = convert(Int64, ceil(x - number_of_pad_pixels_float))
 				if ind_x >= 1 && ind_x <= number_of_pixels
-					ind_y = convert(Int64, ceil(mod(y, number_of_pixels_float + 2.0 * number_of_pad_pixels_float) - number_of_pad_pixels_float))
+					ind_y = convert(Int64, ceil(y - number_of_pad_pixels_float))
 					if ind_y >= 1 && ind_y <= number_of_pixels
 						C_postbleach[ind_x, ind_y, current_frame] += 1
 					end
