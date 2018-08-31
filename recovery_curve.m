@@ -1,7 +1,7 @@
 function [rc_prebleach, rc_postbleach] = recovery_curve(C_prebleach, C_postbleach, exp_sim_param)
 
 % Create bleach region indicator.
-bleach_region_indicator = 1 - create_bleach_mask(0, exp_sim_param);
+bleach_region_indicator = 1 - create_bleach_mask(0, 0, exp_sim_param);
 bleach_region_indicator = bleach_region_indicator(exp_sim_param.number_of_pad_pixels+1:end-exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_pad_pixels+1:end-exp_sim_param.number_of_pad_pixels); 
 bleach_region_indicator = bleach_region_indicator / mean(bleach_region_indicator(:));
 

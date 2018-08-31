@@ -37,8 +37,9 @@ mobile_fraction = 1.0; % dimensionless
 C0 = 1.0; % a.u. original concentration
 alpha = 0.6; % a.u.  bleach factor
 beta = 0.999; % a.u. imaging bleach factor
+gamma = 0; % bleach profile spread.
 
-sys_param = [D, k_on, k_off, mobile_fraction, C0, alpha, beta];
+sys_param = [D, k_on, k_off, mobile_fraction, C0, alpha, beta, gamma];
 
 %% Simulate.
 

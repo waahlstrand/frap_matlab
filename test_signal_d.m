@@ -13,7 +13,7 @@ exp_sim_param.number_of_pixels = 256;
 
 exp_sim_param.number_of_prebleach_frames = 0;
 exp_sim_param.number_of_bleach_frames = 1;
-exp_sim_param.number_of_postbleach_frames = 100;
+exp_sim_param.number_of_postbleach_frames = 1;
 exp_sim_param.delta_t = 0.2; % s
 
 exp_sim_param.number_of_pad_pixels = 128;
@@ -28,24 +28,30 @@ exp_sim_param.bleach_region.upsampling_factor = 16;
 
 %% System parameters.
 
-D_SI = 5e-11; % m^2/s
+D_SI = 0%5e-11; % m^2/s
 D = D_SI / exp_sim_param.pixel_size^2; % pixels^2 / s
 mobile_fraction = 1.0; % dimensionless
 C0 = 1.0; % a.u. original concentration
 alpha = 0.6; % a.u.  bleach factor
 beta = 1.0; % a.u. imaging bleach factor
+gamma = 2; % bleach profile spread.
 
-sys_param = [D, mobile_fraction, C0, alpha, beta];
+sys_param = [D, mobile_fraction, C0, alpha, beta, gamma];
 
 %% Simulate.
 
 tic
 [C_prebleach, C_postbleach] = signal_d(sys_param, exp_sim_param);
+sigma = 0.0;
+C_prebleach = C_prebleach + sigma * randn(size(C_prebleach));
+C_postbleach = C_postbleach + sigma * randn(size(C_postbleach));
 toc
 
 [rc_prebleach, rc_postbleach] = recovery_curve(C_prebleach, C_postbleach, exp_sim_param);
 
-plot([rc_prebleach ; rc_postbleach])
+% plot([rc_prebleach ; rc_postbleach])
+
+figure, imagesc(C_postbleach(:, :, 1))
 
 
 %% Plot concentration.

@@ -10,6 +10,7 @@ mobile_fraction = fread(file_id, 1, 'float64');
 alpha = fread(file_id, 1, 'float64');
 beta = fread(file_id, 1, 'float64');
 r_bleach = fread(file_id, 1, 'float64');
+sigma_bleach = fread(file_id, 1, 'float64');
 number_of_pixels = fread(file_id, 1, 'int64');
 number_of_prebleach_frames = fread(file_id, 1, 'int64');
 number_of_bleach_frames = fread(file_id, 1, 'int64');
@@ -37,7 +38,7 @@ C_prebleach_sim = C_prebleach_sim / norm_factor;
 C_postbleach_sim = C_postbleach_sim / norm_factor;
 
 %% Store parameters.
-sys_param = [D, k_on, k_off, mobile_fraction, C0, alpha, beta];
+sys_param = [D, k_on, k_off, mobile_fraction, C0, alpha, beta, sigma_bleach];
 
 exp_sim_param = struct();
 

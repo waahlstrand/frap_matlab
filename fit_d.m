@@ -19,7 +19,7 @@ if ~isempty(fit_param.guess)
 else
     sys_param_hat = zeros(size(fit_param.lower_bound));
     ss = inf;
-    for current_fit = 1:number_of_fits
+    for current_fit = 1:fit_param.number_of_fits
         sys_param_guess = fit_param.lower_bound + (fit_param.upper_bound - fit_param.lower_bound) .* rand(size(fit_param.lower_bound));
         [sys_param_hat_, ss_] = lsqnonlin(fun, sys_param_guess, fit_param.lower_bound, fit_param.upper_bound, options);
         if ss_ < ss

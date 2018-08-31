@@ -28,7 +28,6 @@ exp_sim_param.bleach_region.y = 128; % pixels
 exp_sim_param.bleach_region.r = 15e-6 / exp_sim_param.pixel_size; % pixels
 % exp_sim_param.bleach_region.lx = 20e-6 / exp_sim_param.pixel_size; % pixels
 % exp_sim_param.bleach_region.ly = 20e-6 / exp_sim_param.pixel_size; % pixels
-exp_sim_param.bleach_region.upsampling_factor = 16;
 
 %% System parameters.
 
@@ -40,8 +39,9 @@ mobile_fraction = 1.0; % dimensionless
 C0 = 1.0; % a.u. original concentration
 alpha = 0.6; % a.u.  bleach factor
 beta = 1; % a.u. imaging bleach factor
+gamma = 0.0; % bleach profile spread.
 
-sys_param = [D, k_on, k_off, mobile_fraction, C0, alpha, beta];
+sys_param = [D, k_on, k_off, mobile_fraction, C0, alpha, beta, gamma];
 
 %% Generate data.
 
@@ -57,9 +57,9 @@ fit_param = struct();
 fit_param.mode = "pixel"%"recovery-curve"; % "pixel"
 fit_param.use_parallel = false;
 fit_param.number_of_fits = 1;
-fit_param.guess = [D, k_on, k_off, mobile_fraction, C0, alpha, beta];
-fit_param.lower_bound = [0.5 * D, 0, 0, 1, 0, 0, 1];
-fit_param.upper_bound = [2 * D, 100, 100, 1, 2 * C0, 1, 1];
+fit_param.guess = [D, k_on, k_off, mobile_fraction, C0, alpha, beta, gamma];
+fit_param.lower_bound = [0.5 * D, 0, 0, 1, 0, 0, 1, 0];
+fit_param.upper_bound = [2 * D, 100, 100, 1, 2 * C0, 1, 1, 0];
 
 %% Fit.
 

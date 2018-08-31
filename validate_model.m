@@ -26,6 +26,7 @@ for current_file = 1:number_of_files
     end
     disp([mean((C_prebleach(:) - C_prebleach_sim(:)).^2), mean((C_postbleach(:) - C_postbleach_sim(:)).^2)])
     
+    figure, imagesc(C_postbleach(:, :, 1) - C_postbleach_sim(:, :, 1))
 %     sys_param(1)
 %     for current_frame = 1:exp_sim_param.number_of_prebleach_frames
 %         figure, imagesc([C_prebleach(:, :, current_frame), C_prebleach_sim(:, :, current_frame), C_prebleach(:, :, current_frame) - C_prebleach_sim(:, :, current_frame)]), axis 'equal'
