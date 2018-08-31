@@ -36,29 +36,27 @@ mobile_fraction = 1.0; % dimensionless
 C0 = 1.0; % a.u. original concentration
 alpha = 0.6; % a.u.  bleach factor
 beta = 1.0; % a.u. imaging bleach factor
-gamma = 0.0; % bleach profile spread.
+gamma = 3.0; % bleach profile spread.
 
 sys_param = [D, mobile_fraction, C0, alpha, beta, gamma];
 
 %% Generate data.
 
 [C_prebleach, C_postbleach] = signal_d(sys_param, exp_sim_param);
-sigma = 0.1;
+sigma = 0.0;
 C_prebleach = C_prebleach + sigma * randn(size(C_prebleach));
 C_postbleach = C_postbleach + sigma * randn(size(C_postbleach));
 
 %% Fit parameters.
 
-exp_sim_param.number_of_bleach_frames = 2;
-
 fit_param = struct();
 
 fit_param.mode = "pixel";%"recovery-curve"; % "pixel"
 fit_param.use_parallel = false;
-fit_param.number_of_fits = 1;
-fit_param.guess = [D, mobile_fraction, C0, alpha, beta, gamma];
+fit_param.number_of_fits = 3;
+fit_param.guess = []%[D, mobile_fraction, C0, alpha, beta, gamma];
 fit_param.lower_bound = [0.5 * D, 0, 0, 0, 0, 0];
-fit_param.upper_bound = [2 * D, 1, 2 * C0, 1, 1, 0];
+fit_param.upper_bound = [2 * D, 1, 2 * C0, 1, 1, 5];
 
 %% Fit.
 
@@ -85,55 +83,3 @@ plot(rc_model, 'r')
 figure, imagesc([reshape(C, [exp_sim_param.number_of_pixels, exp_sim_param.number_of_pixels * (exp_sim_param.number_of_prebleach_frames + exp_sim_param.number_of_postbleach_frames)]) ; ...
                  reshape(C_model, [exp_sim_param.number_of_pixels, exp_sim_param.number_of_pixels * (exp_sim_param.number_of_prebleach_frames + exp_sim_param.number_of_postbleach_frames)])]);
 figure, imagesc(reshape(C_model - C, [exp_sim_param.number_of_pixels, exp_sim_param.number_of_pixels * (exp_sim_param.number_of_prebleach_frames + exp_sim_param.number_of_postbleach_frames)]));
-
-
-
-
-
-% D = param_hat(1) * pixel_size^2
-% mf = param_hat(2);
-% Ib = param_hat(3);
-% Iu = param_hat(4);
-% 
-% 
-% %% Show results.
-% 
-% model = signal_d( ...
-%     param_hat(1), ...
-%     param_hat(2), ...
-%     param_hat(3), ...
-%     param_hat(4), ...
-%     param_bleach, ...
-%     delta_t, ...
-%     number_of_pixels, ...
-%     number_of_images, ...
-%     number_of_pad_pixels);
-%                 
-% figure, imagesc([reshape(data, [number_of_pixels, number_of_pixels * number_of_images]) ; reshape(model, [number_of_pixels, number_of_pixels * number_of_images])])
-% figure, imagesc(reshape(data - model, [number_of_pixels, number_of_pixels * number_of_images]))
-% 
-% rc_data = zeros(1, number_of_images_prebleach + number_of_images);
-% for current_image = 1:number_of_images_prebleach
-%     slice = data_prebleach(:, :, current_image);
-%     rc_data(current_image) = mean(slice(ind));
-% end
-% for current_image = 1:number_of_images
-%     slice = data(:, :, current_image);
-%     rc_data(number_of_images_prebleach + current_image) = mean(slice(ind));
-% end
-% 
-% rc_model = zeros(1, number_of_images_prebleach + number_of_images);
-% for current_image = 1:number_of_images_prebleach
-%     rc_model(current_image) = Iu;
-% end
-% for current_image = 1:number_of_images
-%     slice = model(:, :, current_image);
-%     rc_model(number_of_images_prebleach + current_image) = mean(slice(ind));
-% end
-% 
-% figure, hold on
-% plot([(-number_of_images_prebleach:-1)*delta_t (1:number_of_images)*delta_t], rc_data, 'ro');
-% plot([(-number_of_images_prebleach:-1)*delta_t (1:number_of_images)*delta_t], rc_model, 'k-');
-% 
-% 
-% 
