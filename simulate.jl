@@ -6,11 +6,11 @@ function simulate(	D::Float64,
 					mobile_fraction::Float64,
 					alpha::Float64,
 					beta::Float64,
-					bleach_region_shape::Float64,
+					gamma::Float64,
+					bleach_region_shape::Int64,
 					r_bleach::Float64,
 					lx_bleach::Float64,
 					ly_bleach::Float64,
-					sigma_bleach::Float64,
 					number_of_pixels::Int64,
 					number_of_pad_pixels::Int64,
 					number_of_prebleach_frames::Int64,
@@ -56,7 +56,7 @@ function simulate(	D::Float64,
 
 	# Simulate.
 	for current_particle = 1:number_of_particles
-		if mod(current_particle, 100_000) == 0
+		if mod(current_particle, 1_000_000) == 0
 			println(current_particle)
 		end
 
@@ -150,7 +150,7 @@ function simulate(	D::Float64,
 
 			# Bleach.
 			is_inside_bleach_region = false
-			if bleach_region_shape == 0.0 # Circle
+			if bleach_region_shape == 0 # Circle
 				if ( x - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float) )^2 + ( y - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float) )^2 <= r_bleach^2
 					is_inside_bleach_region = true
 				end
@@ -160,7 +160,7 @@ function simulate(	D::Float64,
 				end
 
 			else # Rectangle
-				if sigma_bleach == 0.0
+				if gamma == 0.0
 					if (number_of_pad_pixels_float + 0.5 * number_of_pixels_float - 0.5 * lx_bleach <= x <= number_of_pad_pixels_float + 0.5 * number_of_pixels_float + 0.5 * lx_bleach) &
 					   (number_of_pad_pixels_float + 0.5 * number_of_pixels_float - 0.5 * ly_bleach <= y <= number_of_pad_pixels_float + 0.5 * number_of_pixels_float + 0.5 * ly_bleach)
 						is_inside_bleach_region = true
@@ -170,8 +170,8 @@ function simulate(	D::Float64,
 						is_bleached = true
 					end
 				else # Spreading in bleach, performed by convolution with Gaussian.
-					p_bleach = 0.25 * (1.0 - alpha) * 	(erf( sqrt(2.0) / sigma_bleach * (lx_bleach * 0.5 + x - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float)) * 0.5) + erf( sqrt(2.0) / sigma_bleach * (lx_bleach * 0.5 - x + (number_of_pad_pixels_float + 0.5 * number_of_pixels_float)) * 0.5)) *
-														(erf( sqrt(2.0) / sigma_bleach * (ly_bleach * 0.5 + y - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float)) * 0.5) + erf( sqrt(2.0) / sigma_bleach * (ly_bleach * 0.5 - y + (number_of_pad_pixels_float + 0.5 * number_of_pixels_float)) * 0.5))
+					p_bleach = 0.25 * (1.0 - alpha) * 	(erf( sqrt(2.0) / gamma * (lx_bleach * 0.5 + x - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float)) * 0.5) + erf( sqrt(2.0) / gamma * (lx_bleach * 0.5 - x + (number_of_pad_pixels_float + 0.5 * number_of_pixels_float)) * 0.5)) *
+														(erf( sqrt(2.0) / gamma * (ly_bleach * 0.5 + y - (number_of_pad_pixels_float + 0.5 * number_of_pixels_float)) * 0.5) + erf( sqrt(2.0) / gamma * (ly_bleach * 0.5 - y + (number_of_pad_pixels_float + 0.5 * number_of_pixels_float)) * 0.5))
 					if rand() <= p_bleach
 						is_bleached = true
 					end

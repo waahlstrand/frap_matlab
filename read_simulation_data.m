@@ -1,4 +1,4 @@
-function [C_prebleach_sim, C_postbleach_sim, sys_param, exp_sim_param] = read_simulation_data(file_path)
+function [C_prebleach_sim, C_postbleach_sim, sys_param, exp_sim_param, t_exec] = read_simulation_data(file_path)
 
 %% Read file.
 file_id = fopen(file_path);
@@ -9,8 +9,11 @@ k_off = fread(file_id, 1, 'float64');
 mobile_fraction = fread(file_id, 1, 'float64');
 alpha = fread(file_id, 1, 'float64');
 beta = fread(file_id, 1, 'float64');
+gamma = fread(file_id, 1, 'float64');
+bleach_region_shape = fread(file_id, 1, 'int64');
 r_bleach = fread(file_id, 1, 'float64');
-sigma_bleach = fread(file_id, 1, 'float64');
+lx_bleach = fread(file_id, 1, 'float64');
+ly_bleach = fread(file_id, 1, 'float64');
 number_of_pixels = fread(file_id, 1, 'int64');
 number_of_prebleach_frames = fread(file_id, 1, 'int64');
 number_of_bleach_frames = fread(file_id, 1, 'int64');
@@ -38,7 +41,9 @@ C_prebleach_sim = C_prebleach_sim / norm_factor;
 C_postbleach_sim = C_postbleach_sim / norm_factor;
 
 %% Store parameters.
-sys_param = [D, k_on, k_off, mobile_fraction, C0, alpha, beta, sigma_bleach];
+a = 0;
+b = 0;
+sys_param = [D, k_on, k_off, mobile_fraction, C0, alpha, beta, gamma, a, b];
 
 exp_sim_param = struct();
 
@@ -52,12 +57,15 @@ exp_sim_param.delta_t = delta_t; % s
 
 exp_sim_param.number_of_pad_pixels = number_of_pad_pixels;
 
-exp_sim_param.bleach_region.shape = "circle";
-exp_sim_param.bleach_region.x = 128; % pixels
-exp_sim_param.bleach_region.y = 128; % pixels 
+if bleach_region_shape == 0
+    exp_sim_param.bleach_region.shape = "circle";
+else 
+    exp_sim_param.bleach_region.shape = "rectangle";
+end
+exp_sim_param.bleach_region.x = number_of_pixels / 2; % pixels
+exp_sim_param.bleach_region.y = number_of_pixels / 2; % pixels 
 exp_sim_param.bleach_region.r = r_bleach; % pixels
-exp_sim_param.bleach_region.lx = 0; % pixels
-exp_sim_param.bleach_region.ly = 0; % pixels
-exp_sim_param.bleach_region.upsampling_factor = 16;
+exp_sim_param.bleach_region.lx = lx_bleach; % pixels
+exp_sim_param.bleach_region.ly = ly_bleach; % pixels
 
 end

@@ -8,7 +8,7 @@ function run_simulate(	D_SI::Float64,
 						mobile_fraction::Float64,
 						alpha::Float64,
 						beta::Float64,
-						sigma_bleach::Float64,
+						gamma::Float64,
 						number_of_bleach_frames::Int64)
 
 	# Inititalization of random number generation device.
@@ -20,21 +20,25 @@ function run_simulate(	D_SI::Float64,
 
 	# Experimental and simulation parameters.
 	pixel_size::Float64 = 7.5e-7 # m
-	number_of_pixels::Int64 = 256 #  pixels
+	number_of_pixels::Int64 = 64#256 #  pixels
 
 	number_of_prebleach_frames::Int64 = 1
 	number_of_postbleach_frames::Int64 = 1
 	delta_t::Float64 = 0.2 # s
 
-	number_of_pad_pixels::Int64 = 128 # pixels
+	number_of_pad_pixels::Int64 = 2#128 # pixels
 	number_of_time_steps_fine_per_course::Int64 = 32
-	number_of_particles_per_worker::Int64 = 50000000000 # This weird number gives 1e8 in total
-	number_of_workers::Int64 = nworkers() # This is determined by the the '-p' input flag to Julia.
+	number_of_particles::Int64 = 20_000_000_000#40_000_000_000
 
-	bleach_region_shape::Float64 = 1.0
-	r_bleach::Float64 = 15e-6 / pixel_size
-	lx_bleach::Float64 = 20e-6 / pixel_size
-	ly_bleach::Float64 = 20e-6 / pixel_size
+	number_of_workers::Int64 = nworkers() # This is determined by the the '-p' input flag to Julia.
+	number_of_particles_per_worker::Array{Int64, 1} = convert(Array{Int64, 1}, floor(number_of_particles / number_of_workers) * ones(number_of_workers))
+	number_of_particles_remaining::Int64 = number_of_particles - sum(number_of_particles_per_worker)
+	number_of_particles_per_worker[1:number_of_particles_remaining] .+= 1
+
+	bleach_region_shape::Int64 = 0
+	r_bleach::Float64 = 20.5#15e-6 / pixel_size
+	lx_bleach::Float64 = 20.5#30e-6 / pixel_size
+	ly_bleach::Float64 = 20.5#30e-6 / pixel_size
 
 	D::Float64 = D_SI / pixel_size^2
 
@@ -46,11 +50,11 @@ function run_simulate(	D_SI::Float64,
 					mobile_fraction,
 					alpha,
 					beta,
+					gamma,
 					bleach_region_shape,
 					r_bleach,
 					lx_bleach,
 					ly_bleach,
-					sigma_bleach,
 					number_of_pixels,
 					number_of_pad_pixels,
 					number_of_prebleach_frames,
@@ -58,7 +62,7 @@ function run_simulate(	D_SI::Float64,
 					number_of_postbleach_frames,
 					delta_t,
 					number_of_time_steps_fine_per_course,
-					number_of_particles_per_worker)
+					number_of_particles_per_worker[current_worker])
 	end
 
 	# Measure and print execution time.
@@ -80,8 +84,11 @@ function run_simulate(	D_SI::Float64,
 	write(file_stream_output, mobile_fraction)
 	write(file_stream_output, alpha)
 	write(file_stream_output, beta)
+	write(file_stream_output, gamma)
+	write(file_stream_output, bleach_region_shape)
 	write(file_stream_output, r_bleach)
-	write(file_stream_output, sigma_bleach)
+	write(file_stream_output, lx_bleach)
+	write(file_stream_output, ly_bleach)
 	write(file_stream_output, number_of_pixels)
 	write(file_stream_output, number_of_prebleach_frames)
 	write(file_stream_output, number_of_bleach_frames)
@@ -89,7 +96,7 @@ function run_simulate(	D_SI::Float64,
 	write(file_stream_output, number_of_pad_pixels)
 	write(file_stream_output, delta_t)
 	write(file_stream_output, pixel_size)
-	write(file_stream_output, number_of_particles_per_worker * number_of_workers)
+	write(file_stream_output, number_of_particles)
 	write(file_stream_output, t_exec_s)
 	write(file_stream_output, data)
 
@@ -101,12 +108,12 @@ end
 D_SI = 0.0#5e-11
 k_on = 0.0
 k_off = 1.0
-mobile_fraction = 1.0
-alpha = 0.6
-beta = 1.0
-sigma_bleach = 2.0
+mobile_fraction = 1.0#0.5#1.0
+alpha = 0.7
+beta = 1.0#0.99#1.0
+gamma = 0.0#2.0
 number_of_bleach_frames = 1
-run_simulate(D_SI, k_on, k_off, mobile_fraction, alpha, beta, sigma_bleach, number_of_bleach_frames)
+run_simulate(D_SI, k_on, k_off, mobile_fraction, alpha, beta, gamma, number_of_bleach_frames)
 
 
 #alpha = 0.6

@@ -1,5 +1,5 @@
 clear
-clc
+% clc
 close all hidden
 
 files = dir('*.bin');
@@ -8,7 +8,7 @@ number_of_files = numel(files);
 for current_file = 1:number_of_files
 %     disp(current_file)
     file_path = files(current_file).name;
-    [C_prebleach_sim, C_postbleach_sim, sys_param, exp_sim_param] = read_simulation_data(file_path);
+    [C_prebleach_sim, C_postbleach_sim, sys_param, exp_sim_param, t_exec] = read_simulation_data(file_path);
     
     D = sys_param(1);
     k_on = sys_param(2);
@@ -17,6 +17,7 @@ for current_file = 1:number_of_files
     C0 = sys_param(5);
     alpha = sys_param(6);
     beta = sys_param(7);
+    gamma = sys_param(8);
     
     if k_on == 0 % D
         sys_param = sys_param([1 4:end]);
@@ -26,6 +27,8 @@ for current_file = 1:number_of_files
     end
     disp([mean((C_prebleach(:) - C_prebleach_sim(:)).^2), mean((C_postbleach(:) - C_postbleach_sim(:)).^2)])
     
+    figure, imagesc(C_postbleach_sim(:, :, 1))
+    figure, imagesc(C_postbleach(:, :, 1))
     figure, imagesc(C_postbleach(:, :, 1) - C_postbleach_sim(:, :, 1))
 %     sys_param(1)
 %     for current_frame = 1:exp_sim_param.number_of_prebleach_frames
