@@ -3,7 +3,7 @@ clear
 clc
 close all hidden
 
-random_seed = 2.130345491000000e+09%round(sum(1e6 * clock()));
+random_seed = round(sum(1e6 * clock()));
 random_stream = RandStream('mt19937ar', 'Seed', random_seed);
 RandStream.setGlobalStream(random_stream);
 
@@ -37,8 +37,8 @@ C0 = 1.0; % a.u. original concentration
 alpha = 0.7; % a.u.  bleach factor
 beta = 1.0; % a.u. imaging bleach factor
 gamma = 0.0; % bleach profile spread.
-a = 0.0;
-b = 0.2;
+a = 0.02;
+b = 0.02;
 
 sys_param = [D, mobile_fraction, C0, alpha, beta, gamma, a, b];
 
@@ -52,8 +52,7 @@ sys_param = [D, mobile_fraction, C0, alpha, beta, gamma, a, b];
 % C_postbleach = C_postbleach + sigma * randn(size(C_postbleach));
 
 % More complicated noise.
-a = 0.0;
-b = 0.02;
+
 SIGMA2 = a + b * C_prebleach;
 C_prebleach = C_prebleach + sqrt(SIGMA2) .* randn(size(C_prebleach));
 SIGMA2 = a + b * C_postbleach;
@@ -63,7 +62,7 @@ C_postbleach = C_postbleach + sqrt(SIGMA2) .* randn(size(C_postbleach));
 
 fit_param = struct();
 
-fit_param.mode = "recovery-curve"; % "pixel"
+fit_param.mode = "pixel"%recovery-curve"; % "pixel"
 fit_param.use_parallel = true;
 fit_param.number_of_fits = 1;
 fit_param.guess = []%[D, mobile_fraction, C0, alpha, beta, gamma, a, b];

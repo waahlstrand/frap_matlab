@@ -36,11 +36,14 @@ if fit_param.upper_bound(end) == 0 % b = 0 => Ordinary least squares
         end
     end
     
-    w = 1 - create_bleach_mask(0, 0, exp_sim_param);
-    w = w(exp_sim_param.number_of_pad_pixels+1:end-exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_pad_pixels+1:end-exp_sim_param.number_of_pad_pixels); 
-    w = w / sum(w(:));
-    a_hat = mean( fun(sys_param_hat).^2 ) / sum( w(:).^2 ); % a_hat is estimated variance of individual pixels not the recovery curve data points.
-    
+    if fit_param.mode == "recovery-curve"
+        w = 1 - create_bleach_mask(0, 0, exp_sim_param);
+        w = w(exp_sim_param.number_of_pad_pixels+1:end-exp_sim_param.number_of_pad_pixels, exp_sim_param.number_of_pad_pixels+1:end-exp_sim_param.number_of_pad_pixels); 
+        w = w / sum(w(:));
+        a_hat = mean( fun(sys_param_hat).^2 ) / sum( w(:).^2 ); % a_hat is estimated variance of individual pixels not the recovery curve data points.
+    else
+        a_hat = mean( fun(sys_param_hat).^2 );
+    end
     sys_param_hat = [sys_param_hat, a_hat, 0];
 else % b >= 0 => Maximum likelihood
     % Optimization options.

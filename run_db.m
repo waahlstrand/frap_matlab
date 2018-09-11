@@ -40,26 +40,30 @@ C0 = 1.0; % a.u. original concentration
 alpha = 0.6; % a.u.  bleach factor
 beta = 1; % a.u. imaging bleach factor
 gamma = 0.0; % bleach profile spread.
+a = 0.00;
+b = 0.02;
 
-sys_param = [D, k_on, k_off, mobile_fraction, C0, alpha, beta, gamma];
+sys_param = [D, k_on, k_off, mobile_fraction, C0, alpha, beta, gamma, a, b];
 
 %% Generate data.
 
 [C_prebleach, C_postbleach] = signal_db(sys_param, exp_sim_param);
-sigma = 0.1;
-C_prebleach = C_prebleach + sigma * randn(size(C_prebleach));
-C_postbleach = C_postbleach + sigma * randn(size(C_postbleach));
+
+SIGMA2 = a + b * C_prebleach;
+C_prebleach = C_prebleach + sqrt(SIGMA2) .* randn(size(C_prebleach));
+SIGMA2 = a + b * C_postbleach;
+C_postbleach = C_postbleach + sqrt(SIGMA2) .* randn(size(C_postbleach));
 
 %% Fit parameters.
 
 fit_param = struct();
 
-fit_param.mode = "pixel"%"recovery-curve"; % "pixel"
+fit_param.mode = "recovery-curve"; % "pixel"
 fit_param.use_parallel = false;
 fit_param.number_of_fits = 1;
-fit_param.guess = [D, k_on, k_off, mobile_fraction, C0, alpha, beta, gamma];
-fit_param.lower_bound = [0.5 * D, 0, 0, 1, 0, 0, 1, 0];
-fit_param.upper_bound = [2 * D, 100, 100, 1, 2 * C0, 1, 1, 0];
+fit_param.guess =       [D,         k_on,   k_off,  mobile_fraction,    C0,     alpha,  beta,   gamma,  a,      b];
+fit_param.lower_bound = [0.5 * D,   0.01,   0.01,   1,                  0.5,    0,      1,      0,      0.00,   0.00];
+fit_param.upper_bound = [2 * D,     100,    100,    1,                  2 ,     1,      1,      0,      0.00,   0.03];
 
 %% Fit.
 
