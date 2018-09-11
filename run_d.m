@@ -3,7 +3,7 @@ clear
 clc
 close all hidden
 
-random_seed = round(sum(1e6 * clock()));
+random_seed = 2.130345491000000e+09%round(sum(1e6 * clock()));
 random_stream = RandStream('mt19937ar', 'Seed', random_seed);
 RandStream.setGlobalStream(random_stream);
 
@@ -34,29 +34,41 @@ D_SI = 5e-10; % m^2/s
 D = D_SI / exp_sim_param.pixel_size^2; % pixels^2 / s
 mobile_fraction = 1.0; % dimensionless
 C0 = 1.0; % a.u. original concentration
-alpha = 0.6; % a.u.  bleach factor
+alpha = 0.7; % a.u.  bleach factor
 beta = 1.0; % a.u. imaging bleach factor
-gamma = 3.0; % bleach profile spread.
+gamma = 0.0; % bleach profile spread.
+a = 0.0;
+b = 0.2;
 
-sys_param = [D, mobile_fraction, C0, alpha, beta, gamma];
+sys_param = [D, mobile_fraction, C0, alpha, beta, gamma, a, b];
 
 %% Generate data.
 
 [C_prebleach, C_postbleach] = signal_d(sys_param, exp_sim_param);
-sigma = 0.0;
-C_prebleach = C_prebleach + sigma * randn(size(C_prebleach));
-C_postbleach = C_postbleach + sigma * randn(size(C_postbleach));
+
+% Constant variance noise.
+% sigma = 0.0;
+% C_prebleach = C_prebleach + sigma * randn(size(C_prebleach));
+% C_postbleach = C_postbleach + sigma * randn(size(C_postbleach));
+
+% More complicated noise.
+a = 0.0;
+b = 0.02;
+SIGMA2 = a + b * C_prebleach;
+C_prebleach = C_prebleach + sqrt(SIGMA2) .* randn(size(C_prebleach));
+SIGMA2 = a + b * C_postbleach;
+C_postbleach = C_postbleach + sqrt(SIGMA2) .* randn(size(C_postbleach));
 
 %% Fit parameters.
 
 fit_param = struct();
 
-fit_param.mode = "pixel";%"recovery-curve"; % "pixel"
-fit_param.use_parallel = false;
-fit_param.number_of_fits = 3;
-fit_param.guess = []%[D, mobile_fraction, C0, alpha, beta, gamma];
-fit_param.lower_bound = [0.5 * D, 0, 0, 0, 0, 0];
-fit_param.upper_bound = [2 * D, 1, 2 * C0, 1, 1, 5];
+fit_param.mode = "recovery-curve"; % "pixel"
+fit_param.use_parallel = true;
+fit_param.number_of_fits = 1;
+fit_param.guess = []%[D, mobile_fraction, C0, alpha, beta, gamma, a, b];
+fit_param.lower_bound = [0.5 * D,   0.8, 0.5,       0, 0, 0, 0.01, 0.01];
+fit_param.upper_bound = [2 * D,     1, 2.0,  1, 1, 0, 0.09, 0.09];
 
 %% Fit.
 
