@@ -1,6 +1,6 @@
 function bleach_mask = create_bleach_mask(alpha, gamma, exp_sim_param)
 
-upsampling_factor = 15;%15; % Needs to be a multiple of 3 due the 'box' method in imresize.
+upsampling_factor = 15; % Needs to be a multiple of 3 due the 'box' method in imresize.
 
 if exp_sim_param.bleach_region.shape == "circle"
     lb_x = floor(0.5 + exp_sim_param.bleach_region.x - exp_sim_param.bleach_region.r - 8 * gamma);
