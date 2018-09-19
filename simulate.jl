@@ -56,9 +56,9 @@ function simulate(	D::Float64,
 
 	# Simulate.
 	for current_particle = 1:number_of_particles
-		if mod(current_particle, 1_000_000) == 0
-			println(current_particle)
-		end
+		#if mod(current_particle, 1_000_000) == 0
+		#	println(current_particle)
+		#end
 
 		# Random initial position.
 		x = (number_of_pixels_float + 2.0 * number_of_pad_pixels_float) * rand()

@@ -8,9 +8,14 @@ alpha = sys_param(4);
 beta = sys_param(5);
 gamma = sys_param(6);
 
-% Create a high-resolution bleach mask which is then downsampled to more
-% accurately represent edges of the bleach region.
-bleach_mask = create_bleach_mask(alpha, gamma, exp_sim_param);
+if exp_sim_param.bleach_region.shape ~= "arbitrary"
+    % Create a high-resolution bleach mask which is then downsampled to more
+    % accurately represent edges of the bleach region.
+    bleach_mask = create_bleach_mask(alpha, gamma, exp_sim_param);
+else
+    bleach_mask = exp_sim_param.bleach_region.indicator_matrix;
+    bleach_mask = 1 - (1 - alpha) * bleach_mask;
+end
 
 % Create imaging bleach mask.
 imaging_bleach_mask = create_imaging_bleach_mask(beta, exp_sim_param);
