@@ -12,11 +12,11 @@ if fit_param.mode == "recovery-curve"
     
     sigma2_prebleach = zeros(exp_sim_param.number_of_prebleach_frames, 1);
     for current_frame = 1:exp_sim_param.number_of_prebleach_frames
-        sigma2_prebleach(current_frame) = sum(sum( w.^2 .* (a + b * C_prebleach(:, :, current_frame)) ));
+        sigma2_prebleach(current_frame) = sum(sum( w.^2 .* (a + b * C_prebleach_model(:, :, current_frame)) ));
     end
     sigma2_postbleach = zeros(exp_sim_param.number_of_postbleach_frames, 1);
     for current_frame = 1:exp_sim_param.number_of_postbleach_frames
-        sigma2_postbleach(current_frame) = sum(sum( w.^2 .* (a + b * C_postbleach(:, :, current_frame)) ));
+        sigma2_postbleach(current_frame) = sum(sum( w.^2 .* (a + b * C_postbleach_model(:, :, current_frame)) ));
     end
     sigma2 = [sigma2_prebleach ; sigma2_postbleach];    
 
