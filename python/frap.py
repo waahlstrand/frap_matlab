@@ -10,17 +10,18 @@ class FRAP:
         super(FRAP, self).__init__()
 
         # System parameters
-        self.D                  = params["system"]["D"]
-        self.c0                 = params["system"]["c0"]
-        self.alpha              = params["system"]["alpha"]
-        self.beta               = params["system"]["beta"]
-        self.gamma              = params["system"]["gamma"]
-        self.mobile_fraction    = params["system"]["mobile_fraction"]
-        self.immobile_fraction  = 1-self.mobile_fraction
-        self.a                  = params["system"]["a"]
-        self.b                  = params["system"]["b"]
+        #self.D                  = params["system"]["D"]
+        #self.c0                 = params["system"]["c0"]
+        #self.alpha              = params["system"]["alpha"]
+        #self.beta               = params["system"]["beta"]
+        #self.gamma              = params["system"]["gamma"]
+        #self.mobile_fraction    = params["system"]["mobile_fraction"]
+        #self.immobile_fraction  = 1-self.mobile_fraction
+
 
         # Experiment parameters
+        self.a                      = params["experiment"]["a"]
+        self.b                      = params["experiment"]["b"]
         self.dt                     = params["experiment"]["timestep"]
         self.n_pixels               = params["experiment"]["number_of_pixels"]
         self.n_pad_pixels           = params["experiment"]["number_of_pad_pixels"]
@@ -29,9 +30,13 @@ class FRAP:
         self.n_postbleach_frames    = params["experiment"]["number_of_postbleach_frames"]
 
         self.bleach_mask        = self._create_bleach_mask(**params["experiment"])
-
+        self.X                  = fourier_grid(self.n_pixels, self.n_pad_pixels)
     
     def _create_bleach_mask(self):
+
+        return None
+
+    def _create_imaging_mask(self):
 
         return None
 
@@ -40,24 +45,25 @@ class FRAP:
         return apply_noise(c, self.a, self.b)
 
 
-    def _signal(self):
+    def _signal(self, **params):
 
-        # Create Fourier grid
-        X = fourier_grid(self.n_pixels, self.n_pad_pixels)
+        # Create masks
+        imaging_mask = self._create_imaging_mask(params["alpha"])
+        bleach_mask  = self._create_bleach_mask(params["beta"])
 
         # Initialize concentrations
-        C_mobile_init    = self.mobile_fraction * self.c0 * torch.ones(self.n_pixels + 2 * self.n_pad_pixels, 
+        C_mobile_init    = params["mobile_fraction"] * params["c0"] * torch.ones(self.n_pixels + 2 * self.n_pad_pixels, 
                                                                        self.n_pixels + 2 * self.n_pad_pixels)
 
-        C_immobile_init  = self.mobile_fraction * self.c0 * torch.ones(self.n_pixels + 2 * self.n_pad_pixels, 
+        C_immobile_init  = (params["mobile_fraction"]-1) * params["c0"] * torch.ones(self.n_pixels + 2 * self.n_pad_pixels, 
                                                                        self.n_pixels + 2 * self.n_pad_pixels)
 
         ######### Prebleach ###########
         C_mobile, C_immobile = bleach(C_immobile_init, C_immobile_init, 
-                                      X, 
-                                      self.D, 
+                                      self.X, 
+                                      params["D"], 
                                       self.dt, 
-                                      [self.imaging_mask], 
+                                      [imaging_mask], 
                                       self.n_prebleach_frames)
         
         # (n_pixels, n_pixels, n_prebleach_frames)
@@ -66,10 +72,10 @@ class FRAP:
 
         ########## Bleach #############
         C_mobile, C_immobile = bleach(C_mobile[:, :, -1], C_immobile[:, :, -1],
-                                      X,
-                                      self.D,
+                                      self.X,
+                                      params["D"], 
                                       self.dt,
-                                      [self.bleach_mask, self.imaging_mask],
+                                      [bleach_mask, imaging_mask],
                                       self.n_bleach_frames)
 
         # (n_pixels, n_pixels, n_bleach_frames)
@@ -78,10 +84,10 @@ class FRAP:
 
         ########## Postbleach #############
         C_mobile, C_immobile = bleach(C_mobile[:, :, -1], C_immobile[:, :, -1],
-                                      X,
-                                      self.D,
+                                      self.X,
+                                      params["D"], 
                                       self.dt,
-                                      [self.imaging_mask],
+                                      [imaging_mask],
                                       self.n_postbleach_frames)
 
         # (n_pixels, n_pixels, n_bleach_frames)
@@ -104,6 +110,6 @@ class FRAP:
 
         elif mode == "rc":
             return self.recovery_curve(C_prebleach, C_postbleach)
-            
+
         elif mode == "both":
             return C_prebleach, C_postbleach, self.recovery_curve(C_prebleach, C_postbleach)

@@ -7,3 +7,6 @@ deps/deps.jl
 *.dat
 *.bin
 *~
+*.ipynb
+*.pyc
+settings.json
