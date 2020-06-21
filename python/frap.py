@@ -44,6 +44,10 @@ class FRAP:
 
         return apply_noise(c, self.a, self.b)
 
+    def _bleach(self, C_mobile, C_immobile, D, masks, n_frames):
+
+        return bleach(C_mobile, C_immobile, self.X, D, self.dt, masks, n_frames)
+
 
     def _signal(self, **params):
 
@@ -59,10 +63,8 @@ class FRAP:
                                                                        self.n_pixels + 2 * self.n_pad_pixels)
 
         ######### Prebleach ###########
-        C_mobile, C_immobile = bleach(C_immobile_init, C_immobile_init, 
-                                      self.X, 
+        C_mobile, C_immobile = self._bleach(C_immobile_init, C_immobile_init, 
                                       params["D"], 
-                                      self.dt, 
                                       [imaging_mask], 
                                       self.n_prebleach_frames)
         
@@ -71,10 +73,8 @@ class FRAP:
                       C_immobile[self.n_pad_pixels:-self.n_pad_pixels, self.n_pad_pixels:-self.n_pad_pixels, :]
 
         ########## Bleach #############
-        C_mobile, C_immobile = bleach(C_mobile[:, :, -1], C_immobile[:, :, -1],
-                                      self.X,
+        C_mobile, C_immobile = self._bleach(C_mobile[:, :, -1], C_immobile[:, :, -1],
                                       params["D"], 
-                                      self.dt,
                                       [bleach_mask, imaging_mask],
                                       self.n_bleach_frames)
 
@@ -83,10 +83,8 @@ class FRAP:
         #           C_immobile[self.n_pad_pixels:-self.n_pad_pixels, self.n_pad_pixels:-self.n_pad_pixels, :]
 
         ########## Postbleach #############
-        C_mobile, C_immobile = bleach(C_mobile[:, :, -1], C_immobile[:, :, -1],
-                                      self.X,
+        C_mobile, C_immobile = self._bleach(C_mobile[:, :, -1], C_immobile[:, :, -1],
                                       params["D"], 
-                                      self.dt,
                                       [imaging_mask],
                                       self.n_postbleach_frames)
 
@@ -100,9 +98,9 @@ class FRAP:
 
         return None
 
-    def generate(self, mode="pixel"):
+    def generate(self, mode="pixel", **params):
 
-        C_prebleach, C_postbleach = self._signal()
+        C_prebleach, C_postbleach = self._signal(**params)
         C_prebleach, C_postbleach = self._apply_noise(C_prebleach), self._apply_noise(C_postbleach)
 
         if mode == "pixel":
