@@ -2,7 +2,7 @@ import os
 
 import torch
 
-from .bleaching import bleach, apply_noise, fourier_grid
+from .bleaching import bleach, apply_noise, fourier_grid, create_imaging_bleach_mask
 
 class FRAP:
 
@@ -35,8 +35,12 @@ class FRAP:
     def _create_bleach_mask(self):
 
         return None
+ 
+    def _create_imaging_bleach_mask(self, beta):
 
-    def _create_imaging_mask(self):
+        return create_imaging_bleach_mask(beta, self.n_pixels, self.n_pad_pixels)
+
+    def _create_bleach_region_indicator(self):
 
         return None
 
@@ -52,7 +56,7 @@ class FRAP:
     def _signal(self, **params):
 
         # Create masks
-        imaging_mask = self._create_imaging_mask(params["alpha"])
+        imaging_mask = self._create_imaging_bleach__mask(params["alpha"])
         bleach_mask  = self._create_bleach_mask(params["beta"])
 
         # Initialize concentrations
