@@ -152,3 +152,7 @@ class FRAP:
 
         elif mode == "both":
             return C_prebleach, C_postbleach, self.recovery_curve(C_prebleach, C_postbleach)
+
+    def as_generator(self, **params):
+        while(True):
+            yield self._signal(**params)
