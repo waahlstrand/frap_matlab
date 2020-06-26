@@ -1,0 +1,34 @@
+{
+    "experiment" : {
+
+        "timestep": 0.2,
+        "number_of_prebleach_frames": 10,
+        "number_of_bleach_frames": 1,
+        "number_of_postbleach_frames": 100,
+
+        "number_of_pixels": 256,
+        "number_of_pad_pixels": 128,
+        "pixel_size": 7.5e-7,
+
+        "bleach_region": {
+            "shape": "circle",
+            "x": 128,
+            "y": 128,
+            "lx": 20e-6,
+            "ly": 20e-6,
+            "r": 15e-6
+        }
+    },
+
+    "system" : {
+        "a": 0.1,
+        "b": 0.1,
+        "mobile_fraction": 1.0,
+        "D": 5e-11,
+        "c0": 1.0,
+        "alpha": 0.8,
+        "beta": 1.0,
+        "gamma": 0
+
+    }
+}
