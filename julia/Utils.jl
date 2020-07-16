@@ -44,4 +44,34 @@ module Utils
 
     end
 
+    function Base.lastindex(C::Concentration, d::Int64)
+        
+        return lastindex(C.mobile, d)
+
+    end
+
+    function Base.firstindex(C::Concentration, d::Int64)
+        
+        return firstindex(C.mobile, d)
+
+    end
+
+    function Base.similar(C::Concentration)
+
+        mobile      = similar(C.mobile)
+        immobile    = similar(C.immobile) 
+
+        return Concentration(mobile, immobile)
+
+    end
+
+    function Base.similar(C::Concentration, dims::Tuple{Int, Vararg{Int}})
+
+        mobile      = similar(C.mobile, dims)
+        immobile    = similar(C.immobile, dims) 
+
+        return Concentration(mobile, immobile)
+
+    end
+
 end

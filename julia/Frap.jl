@@ -5,7 +5,7 @@ include("./Bleach.jl")
 
 # Packages
 using .Utils: Concentration
-using .Bleach: evolve
+using .Bleach: evolve!, create_fourier_grid, create_imaging_bleach_mask
 
 function main()
 
@@ -17,6 +17,9 @@ function main()
     δt::Float32 = 0.1
     masks = nothing
 
+    α = 0.1
+    β = 1.0
+    γ = 0.0
 
     const n_pixels     = 256
     const n_pad_pixels = 128
@@ -27,24 +30,24 @@ function main()
 
     dims         = (n_pixels + 2 * n_pad_pixels, n_pixels + 2 * n_pad_pixels, n_frames)
 
-    init        = [:, :, 1]
-    prebleach   = [:, :, 1:n_prebleach_frames]
-    bleach      = [:, :, n_prebleach_frames:n_prebleach_frames+n_bleach_frames]
-    postbleach  = [:, :, n_prebleach_frames+n_bleach_frames:end]
+    prebleach   = 1:n_prebleach_frames
+    bleach      = n_prebleach_frames:n_prebleach_frames+n_bleach_frames
+    postbleach  = n_prebleach_frames+n_bleach_frames:n_frames
 
     C = Concentration(c₀, ϕₘ, dims)
+    
+    imaging_mask = create_imaging_bleach_mask(β, n_pixels, n_pad_pixels)
 
-    # C  = Concentration(Cₜ.mobile[:, :, 1], 
-    #                    Cₜ.immobile[:, :, 1])
+    stages = (prebleach, bleach, postbleach)
+    
 
+    for stage in [prebleach, bleach, postbleach]
 
+        C = evolve!(C, ξ, D, masks, stage)
 
-    # C = Concentration(Cₜ.mobile[:, :, n_prebleach_frames], 
-    #                   Cₜ.immobile[:, :, n_prebleach_frames])
+    end
 
-    C[prebleach...]    = evolve(C[init...],       ξ, D, masks, n_prebleach_frames)
-    C[bleach...]       = evolve(C[prebleach...],  ξ, D, masks, n_bleach_frames)
-    C[postbleach...]   = evolve(C[bleach...],     ξ, D, masks, n_bleach_frames)
+    #C = C |> evolve!(ξ, D, masks, prebleach) |> evolve!(ξ, D, masks, bleach) |> evolve!(ξ, D, masks, postbleach)
 
 end
 
