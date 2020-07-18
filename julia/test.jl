@@ -1,7 +1,9 @@
 include("./julia/Utils.jl")
+include("./julia/Bleach.jl")
 
 using Base
 using .Utils: Concentration
+using .Bleach: create_fourier_grid
 
 n_pixels     = 256
 n_pad_pixels = 128
@@ -21,3 +23,5 @@ masks = nothing
 
 C2 = Concentration(c₀, ϕₘ, dims)
 C1 = Concentration(2*c₀, ϕₘ, dims)
+
+X = create_fourier_grid(20)

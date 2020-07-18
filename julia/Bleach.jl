@@ -3,6 +3,9 @@ module Bleach
     include("Utils.jl")
 
     using FFTW: fft, ifft, ifftshift
+    using ImageFiltering: imfilter!, Kernel, centered
+    using ImageTransformations: imresize!, interpolate, BSpline, Linear
+    using Interpolations: interpolate
     using .Utils: Concentration
 
     export evolve, evolve!, create_fourier_grid, create_imaging_bleach_mask
@@ -75,22 +78,22 @@ module Bleach
 
     function create_fourier_grid(n_pixels::Int64)
         # TODO: Check dimensions of grid
+        # It isn't centralized, but perhaps that is not a problem?
 
         # Julia has no ndgrid or meshgrid function, out of principle
         # it would seem. Not "Julian" enough.
-        x = range(-n_pixels ÷ 2, length=n_pixels+1)
-        y = range(-n_pixels ÷ 2, length=n_pixels+1)
+        x = range(-n_pixels ÷ 2, length=n_pixels)
+        y = range(-n_pixels ÷ 2, length=n_pixels)
 
         # List comprehensions are very quick
-        X = [i for i in x, j in y]
-        Y = [j for i in x, j in y]
+        X = [j for i in x, j in y]
+        Y = [i for i in x, j in y]
 
-        # "Fourier transform"
-        ξ = 2π ./ X
-        η = 2π ./ Y
+        X *= (2π / n_pixels) 
+        Y *= (2π / n_pixels) 
         
         # Centre the transform
-        ξ² = ifftshift(ξ.^2 + η.^2)
+        ξ² = ifftshift(X.^2 + Y.^2)
 
         return ξ²
     end
@@ -98,11 +101,48 @@ module Bleach
     function create_imaging_bleach_mask(β::Float64, n_pixels::Int64, n_pad_pixels::Int64)
 
         mask    = ones((n_pixels + 2*n_pad_pixels, n_pixels + 2*n_pad_pixels))
-        centre  = [n_pad_pixels+1:end-n_pad_pixels, n_pad_pixels+1:end-n_pad_pixels]
-
-        mask[centre...] = β
+        mask[n_pad_pixels+1:end-n_pad_pixels, n_pad_pixels+1:end-n_pad_pixels] .= β
 
         return mask
 
+    end
+
+    function create_bleach_mask(α::Float64, γ::Float64, n_pixels::Int64, n_pad_pixels::Int64)
+
+        upsampling_factor = 1.0
+        lb_x = 0
+        lb_y = 0
+        ub_x = 0
+        ub_y = 0
+
+        x = range(-n_pixels ÷ 2, length=n_pixels)
+        y = range(-n_pixels ÷ 2, length=n_pixels)
+
+        # List comprehensions are very quick
+        X = [j for i in x, j in y]
+        Y = [i for i in x, j in y]
+
+        small_mask = ones(size(X))
+
+        if γ > 0.0
+            σ = upsampling_factor * γ
+            ℓ = 4 * ceil(2 * upsampling_factor * γ) + 1
+
+
+            kernel = centered(Kernel.gaussian(σ, ℓ))
+
+
+            small_mask = imfilter!(small_mask, kernel, [border="replicate"])
+        end
+
+        # Use multi-bilinear interpolation
+        interpolation = interpolate(small_mask, BSpline(Linear()))
+
+        # Pre-allocate the new resized mask (necessary due to non-mature package if we want to
+        # specify the interpolation ourselves). Currently identical to
+        # imresize(small_mask, (ub_x - lb_x + 1, ub_y - lb_y +1))
+        resized_mask = similar(small_mask, (ub_x - lb_x + 1, ub_y - lb_y +1))
+        resized_mask = imresize!(resized_mask, interpolate(small_mask, BSpline(Linear())))
+        
     end
 end
