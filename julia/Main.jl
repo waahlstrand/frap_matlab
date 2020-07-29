@@ -17,16 +17,16 @@ function main()
     δt::Float32 = 0.1
     masks = nothing
 
-    α = 0.1
+    α = 0.6
     β = 1.0
-    γ = 0.0
+    γ = 2.0
 
     const n_pixels     = 256
     const n_pad_pixels = 128
     const n_prebleach_frames    = 10
     const n_bleach_frames       = 1
     const n_postbleach_frames   = 100
-    const n_frames              = n_prebleach_frames + n_postbleach_frames 
+    const n_frames              = n_prebleach_frames + n_postbleach_frames
 
     dims         = (n_pixels + 2 * n_pad_pixels, n_pixels + 2 * n_pad_pixels, n_frames)
 
@@ -35,11 +35,11 @@ function main()
     postbleach  = n_prebleach_frames+n_bleach_frames:n_frames
 
     C = Concentration(c₀, ϕₘ, dims)
-    
+
     imaging_mask = create_imaging_bleach_mask(β, n_pixels, n_pad_pixels)
 
     stages = (prebleach, bleach, postbleach)
-    
+
 
     for stage in [prebleach, bleach, postbleach]
 
