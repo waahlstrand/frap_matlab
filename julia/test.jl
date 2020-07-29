@@ -5,9 +5,9 @@
 #     println("Local directory added to path.")
 # end
 
-include("FRAP.jl\\src\\bleaching.jl")
-include("FRAP.jl\\src\\concentration.jl")
-include("FRAP.jl\\src\\main.jl")
+include("FRAP.jl/src/mask.jl")
+include("FRAP.jl/src/concentration.jl")
+include("FRAP.jl/src/main.jl")
 
 n_pixels     = 256
 n_pad_pixels = 128

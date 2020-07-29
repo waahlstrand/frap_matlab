@@ -1,7 +1,8 @@
 using ImageFiltering: imfilter!, imfilter, Kernel, centered
-using ImageTransformations: imresize!, interpolate, BSpline, Linear, Constant
-using Interpolations: interpolate
+#using ImageTransformations: imresize!, interpolate, BSpline, Linear, Constant
+#using Interpolations: interpolate
 using Flux: SamePad, MeanPool
+
 struct ROI
     shape::String
     x::Int64
@@ -54,32 +55,23 @@ function create_bleach_mask(α::Float64,
 
     upsampling_factor = 15; # Needs to be a multiple of 3 due the 'box' method in imresize.
 
-    lb_x, lb_y, ub_x, ub_y = get_bounds(bleach_region, γ)
+    # Create an upsampled bleach region to later downsample
+    bounds              = get_bounds(bleach_region, γ)
+    bleach_region_mask  = get_bleach_region_mask(bounds, bleach_region, α, upsampling_factor)
 
-    x = range(lb_x-1, stop=ub_x, length=upsampling_factor*(ub_x-lb_x+1))
-    y = range(lb_y-1, stop=ub_y, length=upsampling_factor*(ub_y-lb_y+1))
-
-    X, Y = meshgrid(x, y)
-
-    small_mask = ones(size(X))
-    inds = get_bleach_region_index(bleach_region, X, Y)
-
-    small_mask[inds] .= α
+    # Smooth mask
     if γ > 0.0
-        σ = upsampling_factor * γ
-        ℓ = convert(Int64, 4 * ceil(2 * upsampling_factor * γ) + 1 )
-
-
-        #kernel = centered(Kernel.gaussian((σ,), (ℓ,)))
-
-        #small_mask = imfilter(small_mask, kernel, "replicate")
+        bleach_region_mask = filter_mask!(bleach_region_mask, γ, upsampling_factor)
     end
 
-    pool = MeanPool((upsampling_factor, upsampling_factor); pad=0, stride=(upsampling_factor, upsampling_factor))
-    resized_mask = pool(reshape(small_mask, (size(small_mask)..., 1, 1)))
+    # Downsample mask by the upsampling factor
+    bleach_region_mask = downsample_mask!(bleach_region_mask, upsampling_factor)
 
-    dims = (max(size(resized_mask)...),max(size(resized_mask)...))
-    resized_mask = reshape(resized_mask, dims)
+    #pool = MeanPool((upsampling_factor, upsampling_factor); pad=0, stride=(upsampling_factor, upsampling_factor))
+    #resized_mask = pool(reshape(small_mask, (size(small_mask)..., 1, 1)))
+
+    #dims = (max(size(resized_mask)...),max(size(resized_mask)...))
+    #resized_mask = reshape(resized_mask, dims)
     # Use multi-bilinear interpolation
     #small_mask_size = *(size(small_mask)...)
     #interpolation = interpolate(small_mask, BSpline(Linear()))
@@ -91,7 +83,56 @@ function create_bleach_mask(α::Float64,
     #resized_mask = imresize!(resized_mask, interpolation)
 
     mask    = ones((n_pixels + 2*n_pad_pixels, n_pixels + 2*n_pad_pixels))
-    mask[n_pad_pixels+lb_x:n_pad_pixels+ub_x, n_pad_pixels+lb_y:n_pad_pixels+ub_y] .= resized_mask
+    mask[n_pad_pixels+bounds.lb_x:n_pad_pixels+bounds.ub_x, n_pad_pixels+bounds.lb_y:n_pad_pixels+bounds.ub_y] .= bleach_region_mask
+
+    return mask
+
+end
+
+function filter_mask!(x::Array{Float64, 2}, γ::Float64, upsampling_factor::Int64)
+
+    # Define a covariance kernel
+    σ = upsampling_factor * γ
+    ℓ = convert(Int64, 4 * ceil(2 * upsampling_factor * γ) + 1 )
+
+    #kernel = centered(Kernel.gaussian((σ,), (ℓ,)))
+
+    #small_mask = imfilter(small_mask, kernel, "replicate")
+end
+
+function downsample_mask!(x::Array{Float64,2}, k::Int64)
+
+    dims = size(x)
+    target_dims = size(x) .÷ k
+
+    # Initialize a convolution with an averaging kernel
+    # Downside: Precompilation of flux is incredibly slow. Consider finding alternatives.
+    pool = MeanPool((k, k); pad=0, stride=(k, k))
+
+    # Expand size of image to 4D
+    x = reshape(x, (dims..., 1, 1))
+
+    # Downsample
+    x = pool(x)
+
+    # Squeeze dimensions
+    x = reshape(x, target_dims)
+
+    return x
+    
+end
+
+function get_bleach_region_mask(bounds::Tuple{Int64,4}, bleach_region::ROI, α::Float64, upsampling_factor::Int64)
+
+    x = range(bounds.lb_x-1, stop=bounds.ub_x, length=upsampling_factor*(bounds.ub_x-bounds.lb_x+1))
+    y = range(bounds.lb_y-1, stop=bounds.ub_y, length=upsampling_factor*(bounds.ub_y-bounds.lb_y+1))
+
+    X, Y = meshgrid(x, y)
+
+    inds = get_bleach_region_index(bleach_region, X, Y)
+
+    mask = ones(size(X))
+    mask[inds] .= α
 
     return mask
 
@@ -125,7 +166,7 @@ function get_bounds(bleach_region::ROI, γ::Float64)
     ub_x += 1
     ub_y += 1
 
-    return lb_x, lb_y, ub_x, ub_y
+    return (lb_x=lb_x, lb_y=lb_y, ub_x=ub_x, ub_y=ub_y)
 end
 
 function get_bleach_region_index(bleach_region::ROI,
